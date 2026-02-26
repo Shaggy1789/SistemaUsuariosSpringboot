@@ -195,11 +195,11 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/}">
-                        <i class="fas fa-home"></i> Inicio
+                        <i class="fas fa-home"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/holamundo}">
+                    <a class="nav-link" th:href="@{/holamundo}">
                         <i class="fas fa-globe"></i> Hola Mundo
                     </a>
                 </li>
@@ -208,25 +208,34 @@
                         <i class="fa-solid fa-circle-user"></i>Usuarios
                     </a>
                 </li>
-            </ul>
-
-            <ul class="navbar-nav">
-                <li class="nav-item" th:if="${session.usuario != null}">
-                    <div class="user-info">
-                        <i class="fas fa-user-circle"></i>
-                        <span th:text="${session.usuario.nombreusuario}">Usuario</span>
-                    </div>
-                </li>
                 <li class="nav-item">
                         <a class="nav-link active" th:href="@{/galeria}">
                             <i class="fas fa-images"></i> Galería
                         </a>
                     </li>
+            </ul>
+
+            <ul class="navbar-nav">
+                <!-- SI EL USUARIO HA INICIADO SESIÓN -->
+                <li class="nav-item" th:if="${session.usuario != null}">
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${session.usuario.nombreusuario}">Usuario</span>
+                        <span class="badge bg-light text-dark" th:text="${session.usuario.role.nombre}">Rol</span>
+                    </div>
+                </li>
+                <li class="nav-item" th:if="${session.usuario != null}">
+                    <a class="btn-login-nav" th:href="@{/}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
                 <li class="nav-item" th:if="${session.usuario != null}">
                     <a class="btn-login-nav" th:href="@{/logout}">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </a>
                 </li>
+
+                <!-- SI NO HA INICIADO SESIÓN -->
                 <li class="nav-item" th:unless="${session.usuario != null}">
                     <a class="btn-login-nav" th:href="@{/login}">
                         <i class="fas fa-sign-in-alt"></i> Iniciar Sesión

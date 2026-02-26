@@ -1,40 +1,41 @@
-# Build stage with cache optimization
-FROM eclipse-temurin:17-jdk AS builder
+# Build stage
+FROM eclipse-temurin:17-jdk-alpine AS builder
 WORKDIR /app
 
-# Copy build files FIRST for better caching
+# Copiar archivos de Gradle
 COPY gradlew .
-COPY gradle/wrapper gradle/wrapper
+COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
 
-#Damos permisos
+# Dar permisos y descargar dependencias
 RUN chmod +x gradlew
-
-# Download dependencies (cached layer)
 RUN ./gradlew dependencies --no-daemon
 
-# Copy source code AFTER
+# Copiar código fuente
 COPY src src
 
-# Build application (uses cached dependencies)
-RUN ./gradlew clean build -x test
+# Construir la aplicación - USAR bootJar explícitamente
+RUN ./gradlew clean bootJar -x test
+
+# Verificar que el JAR se creó (útil para debug)
+RUN ls -la /app/build/libs/
 
 # Runtime stage
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Copy JAR
-COPY --from=builder /app/build/libs/*.jar app.jar
+# Copiar el JAR (con nombre específico)
+COPY --from=builder /app/build/libs/app.jar app.jar
 
-COPY --from=builder /app/src/main/resources/templates /app/templates
-RUN if [ -d "/app/src/main/resources/static" ]; then \
-        cp -r /app/src/main/resources/static /app/static; \
-    else \
-        mkdir -p /app/static; \
-    fi
-# Expose port
+# Verificar que el JAR se copió (útil para debug)
+RUN ls -la /app/
+
+# Crear directorios necesarios (opcional)
+RUN mkdir -p /app/templates /app/static
+
+# Exponer puerto
 EXPOSE 8080
 
-# Run application
+# Ejecutar (usando variable de entorno PORT)
 ENTRYPOINT ["java", "-jar", "app.jar"]

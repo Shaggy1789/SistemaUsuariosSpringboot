@@ -331,30 +331,76 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-lock"></i>
-                <span>Mi Aplicación</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">
-                            <i class="fas fa-home"></i> Inicio
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-lock"></i>
+            <span>Mi Aplicación</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/holamundo}">
+                        <i class="fas fa-globe"></i> Hola Mundo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/usuarios}">
+                        <i class="fa-solid fa-circle-user"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/galeria}">
+                            <i class="fas fa-images"></i> Galería
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin/usuarios">
-                            <i class="fas fa-users"></i> Usuarios
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            </ul>
+
+            <ul class="navbar-nav">
+                <!-- SI EL USUARIO HA INICIADO SESIÓN -->
+                <li class="nav-item" th:if="${session.usuario != null}">
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${session.usuario.nombreusuario}">Usuario</span>
+                        <span class="badge bg-light text-dark" th:text="${session.usuario.role.nombre}">Rol</span>
+                    </div>
+                </li>
+                <li class="nav-item" th:if="${session.usuario != null}">
+                    <a class="btn-login-nav" th:href="@{/}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${session.usuario != null}">
+                    <a class="btn-login-nav" th:href="@{/logout}">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a>
+                </li>
+
+                <!-- SI NO HA INICIADO SESIÓN -->
+                <li class="nav-item" th:unless="${session.usuario != null}">
+                    <a class="btn-login-nav" th:href="@{/login}">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </a>
+                </li>
+                <li class="nav-item" th:unless="${session.usuario != null}">
+                    <a class="btn-register-nav" th:href="@{/registro}">
+                        <i class="fas fa-user-plus"></i> Registrarse
+                    </a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
+
     
     <div class="admin-container">
         <div class="admin-card">
