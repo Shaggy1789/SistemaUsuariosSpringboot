@@ -56,6 +56,19 @@ bootJar{
 		attributes 'Main-Class': 'org.springframework.boot.loader.launch.JarLauncher'
 	}
 }
+
+tasks.withType(Copy) {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processResources {
+	from('src/main/resources') {
+		include 'templates/**'
+		include 'static/**'
+		include 'application.properties'
+	}
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
