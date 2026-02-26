@@ -52,6 +52,12 @@ public class HomeController {
             System.out.println("=== FIN mostrarLogin ===");
         }
     }
+
+    @GetMapping("/login1")
+    public String mostrarLogin1(Model model){
+        model.addAttribute("titulo","iniciando login");
+        return "login1";
+    }
     //Index
     @GetMapping("/")
     public String mostrarDashboard(Model model) {
