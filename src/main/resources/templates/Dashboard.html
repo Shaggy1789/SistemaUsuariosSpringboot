@@ -294,6 +294,7 @@
 </head>
 <body>
 <!-- Navbar con lógica de sesión -->
+<!-- Navbar con lógica de sesión -->
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container-fluid">
         <a class="navbar-brand" th:href="@{/}">
@@ -330,8 +331,9 @@
                 </li>
             </ul>
 
-            <ul class="navbar-nav">
-                <!-- SI EL USUARIO HA INICIADO SESIÓN -->
+            <!-- Contenedor para botones de usuario - SIEMPRE a la derecha -->
+            <ul class="navbar-nav ms-auto">
+                <!-- SI HAY SESIÓN: mostrar info de usuario y logout -->
                 <li class="nav-item" th:if="${session.usuario != null}">
                     <div class="user-info">
                         <i class="fas fa-user-circle"></i>
@@ -345,7 +347,7 @@
                     </a>
                 </li>
 
-                <!-- SI NO HA INICIADO SESIÓN -->
+                <!-- SI NO HAY SESIÓN: mostrar login y registro -->
                 <li class="nav-item" th:unless="${session.usuario != null}">
                     <a class="btn-login-nav" th:href="@{/login}">
                         <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
