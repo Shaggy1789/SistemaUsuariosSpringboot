@@ -16,7 +16,7 @@ RUN ./gradlew dependencies --no-daemon
 COPY src src
 
 # Construir la aplicación - USAR bootJar explícitamente
-RUN ./gradlew clean bootJar -x test
+RUN ./gradlew clean bootJar
 
 # Verificar que el JAR se creó (útil para debug)
 RUN ls -la /app/build/libs/
