@@ -14,20 +14,43 @@ public class HomeController {
     public String mostrarLogin(Model model,
                                @RequestParam(required = false) String error,
                                @RequestParam(required = false) String registro,
-                               @RequestParam(required = false) String usuario) {
-        model.addAttribute("titulo", "Inicio de Sesión");
+                               @RequestParam(required = false) String usuario,
+                               HttpServletRequest request) {
 
-        if (error != null) {
-            model.addAttribute("error", "Error en el inicio de sesión");
-        }
-        if (registro != null && registro.equals("exitoso")) {
-            model.addAttribute("mensajeExito", "¡Registro exitoso! Ahora puedes iniciar sesión.");
-        }
-        if (usuario != null) {
-            model.addAttribute("usuarioRegistrado", usuario);
-        }
+        System.out.println("=== INICIO mostrarLogin ===");
+        System.out.println("Request URI: " + request.getRequestURI());
+        System.out.println("Method: " + request.getMethod());
+        System.out.println("Parameters - error: " + error);
+        System.out.println("Parameters - registro: " + registro);
+        System.out.println("Parameters - usuario: " + usuario);
 
-        return "login"; // Renderiza login.html
+        try {
+            model.addAttribute("titulo", "Inicio de Sesión");
+            System.out.println("Título agregado al modelo");
+
+            if (error != null) {
+                model.addAttribute("error", "Error en el inicio de sesión");
+                System.out.println("Error agregado al modelo");
+            }
+            if (registro != null && registro.equals("exitoso")) {
+                model.addAttribute("mensajeExito", "¡Registro exitoso! Ahora puedes iniciar sesión.");
+                System.out.println("Mensaje de éxito agregado al modelo");
+            }
+            if (usuario != null) {
+                model.addAttribute("usuarioRegistrado", usuario);
+                System.out.println("Usuario registrado agregado al modelo");
+            }
+
+            System.out.println("Intentando retornar vista: login");
+            return "login";
+
+        } catch (Exception e) {
+            System.err.println("!!! EXCEPCIÓN EN mostrarLogin !!!");
+            e.printStackTrace();
+            return "error";
+        } finally {
+            System.out.println("=== FIN mostrarLogin ===");
+        }
     }
     //Index
     @GetMapping("/")
