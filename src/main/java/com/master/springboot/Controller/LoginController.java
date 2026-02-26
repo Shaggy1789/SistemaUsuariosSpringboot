@@ -156,8 +156,8 @@ public class LoginController {
                 serviceUsuarios.save(nuevoUsuario);
 
                 response.put("success", true);
-                response.put("message", "¡Registro exitoso! Ahora puedes iniciar sesión.");
-                response.put("redirect", "/login");
+                response.put("message", "¡Registro exitoso!");
+                response.put("redirect", "/");
                 response.put("registro", "exitoso");
                 response.put("usuario", nombre);
                 return ResponseEntity.status(HttpStatus.CREATED).body(response);
