@@ -20,7 +20,7 @@ public class HomeController {
     @GetMapping("/")
     public String mostrarDashboard(Model model) {
         model.addAttribute("titulo", "Dashboard");
-        return "Dashboard"; // Renderiza dashboard.html
+        return "dashboard"; // Renderiza dashboard.html
     }
 
     @GetMapping("/usuarios")
