@@ -23,8 +23,6 @@ public class UsuariosController {
     @Autowired
     ServiceRoles serviceRoles;
 
-    // ========== MÉTODOS GET ==========
-
     @GetMapping("api/usuarios")
     public List<Usuarios> MostrarUsuarios(){
         return serviceUsuarios.findAll();
@@ -68,8 +66,6 @@ public class UsuariosController {
         }
     }
 
-    // ========== MÉTODO POST (CREAR) ==========
-
     @PostMapping("/api/usuarios")
     public ResponseEntity<?> crearUsuario(@RequestBody Usuarios usuario) {
         Map<String, Object> response = new HashMap<>();
@@ -77,7 +73,12 @@ public class UsuariosController {
         try {
             System.out.println("=== CREAR USUARIO ===");
 
-            // Verificar si el usuario ya existe
+            usuario.setIdusuario(null);
+
+            if (usuario.getTelefono() == null) {
+                usuario.setTelefono(0L);
+            }
+
             List<Usuarios> usuariosExistentes = serviceUsuarios.findAll();
             for (Usuarios u : usuariosExistentes) {
                 if (u.getNombreusuario().equals(usuario.getNombreusuario())) {
@@ -87,7 +88,6 @@ public class UsuariosController {
                 }
             }
 
-            // Verificar email duplicado
             for (Usuarios u : usuariosExistentes) {
                 if (u.getEmail().equals(usuario.getEmail())) {
                     response.put("success", false);
@@ -96,7 +96,6 @@ public class UsuariosController {
                 }
             }
 
-            // Buscar el rol por ID
             if (usuario.getRole() != null && usuario.getRole().getId() > 0) {
                 Roles rol = serviceRoles.findAll().stream()
                         .filter(r -> r.getId() == usuario.getRole().getId())
@@ -110,12 +109,10 @@ public class UsuariosController {
                 usuario.setRole(rol);
             }
 
-            // Encriptar contraseña
             if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
                 usuario.setPassword(md5(usuario.getPassword()));
             }
 
-            // Guardar el usuario
             Usuarios nuevoUsuario = serviceUsuarios.save(usuario);
 
             response.put("success", true);
@@ -131,8 +128,6 @@ public class UsuariosController {
         }
     }
 
-    // ========== MÉTODO PUT (ACTUALIZAR) ==========
-
     @PutMapping("/api/usuarios/{id}")
     public ResponseEntity<?> actualizarUsuario(@PathVariable int id, @RequestBody Usuarios usuarioActualizado) {
         Map<String, Object> response = new HashMap<>();
@@ -140,40 +135,30 @@ public class UsuariosController {
         try {
             System.out.println("=== ACTUALIZAR USUARIO ID: " + id + " ===");
 
-            // 1. Buscar el usuario existente en la BD por el ID
             Usuarios usuarioExistente = serviceUsuarios.findById(id);
 
-            // 2. Verificar si existe
             if (usuarioExistente == null) {
                 response.put("success", false);
                 response.put("message", "Usuario no encontrado");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            // 3. Actualizar SOLO los campos que vienen del frontend (usuarioActualizado)
-            // El usuarioActualizado es el JSON que envía el frontend con los nuevos datos
-
-            // Campos obligatorios
             usuarioExistente.setNombreusuario(usuarioActualizado.getNombreusuario());
             usuarioExistente.setApellidopaterno(usuarioActualizado.getApellidopaterno());
             usuarioExistente.setApellidomaterno(usuarioActualizado.getApellidomaterno());
             usuarioExistente.setEmail(usuarioActualizado.getEmail());
             usuarioExistente.setTelefono(usuarioActualizado.getTelefono());
 
-            // Actualizar rol (viene del frontend como { id: 1 })
             if (usuarioActualizado.getRole() != null) {
                 usuarioExistente.setRole(usuarioActualizado.getRole());
             }
 
-            // Actualizar contraseña SOLO si viene en la petición
             if (usuarioActualizado.getPassword() != null && !usuarioActualizado.getPassword().isEmpty()) {
                 usuarioExistente.setPassword(md5(usuarioActualizado.getPassword()));
             }
 
-            // 4. Guardar los cambios (UPDATE)
             Usuarios usuarioGuardado = serviceUsuarios.save(usuarioExistente);
 
-            // 5. Preparar respuesta exitosa
             response.put("success", true);
             response.put("message", "Usuario actualizado correctamente");
             response.put("usuario", usuarioGuardado);
@@ -187,8 +172,6 @@ public class UsuariosController {
         }
     }
 
-    // ========== MÉTODO DELETE (ELIMINAR) ==========
-
     @DeleteMapping("/api/usuarios/{id}")
     public ResponseEntity<?> eliminarUsuario(@PathVariable int id) {
         Map<String, Object> response = new HashMap<>();
@@ -196,7 +179,6 @@ public class UsuariosController {
         try {
             System.out.println("=== ELIMINAR USUARIO ID: " + id + " ===");
 
-            // Verificar si existe
             Usuarios usuario = serviceUsuarios.findById(id);
             if (usuario == null) {
                 response.put("success", false);
@@ -204,7 +186,6 @@ public class UsuariosController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            // Eliminar
             serviceUsuarios.delete(id);
 
             response.put("success", true);
@@ -218,8 +199,6 @@ public class UsuariosController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    // ========== MÉTODO AUXILIAR ==========
 
     private String md5(String input) {
         try {

@@ -28,8 +28,11 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 COPY --from=builder /app/src/main/resources/templates /app/templates
-COPY --from=builder /app/src/main/resources/static /app/static
-
+RUN if [ -d "/app/src/main/resources/static" ]; then \
+        cp -r /app/src/main/resources/static /app/static; \
+    else \
+        mkdir -p /app/static; \
+    fi
 # Expose port
 EXPOSE 8080
 

@@ -1,29 +1,29 @@
 package com.master.springboot.Models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "usuarios")
 public class Usuarios {
     @Id
-    private int idusuario;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer idusuario;
+
     private String nombreusuario;
     private String apellidopaterno;
     private String apellidomaterno;
     private String email;
     private String password;
-    private long telefono;
+    private Long telefono;
 
     @ManyToOne
     @JoinColumn(name = "roles")
-    @JsonIgnoreProperties("usuarios")
     private Roles role;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -914,7 +914,7 @@
                 });
             }
         
-        function guardarUsuario() {
+   function guardarUsuario() {
     const id = document.getElementById('usuarioId').value;
     const esNuevo = !id;
     
@@ -949,22 +949,23 @@
         return;
     }
     
-    // Construir el objeto usuario
     const usuarioData = {
         nombreusuario: document.getElementById('nombreusuario').value,
         apellidopaterno: document.getElementById('apellidopaterno').value,
         apellidomaterno: document.getElementById('apellidomaterno').value,
         email: document.getElementById('email').value,
-        telefono: parseInt(document.getElementById('telefono').value),
-        role: { id: parseInt(rolSelect.value) }
+        telefono: document.getElementById('telefono').value ? parseInt(document.getElementById('telefono').value) : 0,
+        role: rolSelect.value ? { id: parseInt(rolSelect.value) } : null
     };
     
-    // Agregar password solo si es nuevo
+    if (!esNuevo && id) {
+        usuarioData.idusuario = parseInt(id);
+    }
+    
     if (esNuevo) {
         usuarioData.password = document.getElementById('password').value;
     }
     
-    // Determinar método y URL
     const url = esNuevo ? '/api/usuarios' : `/api/usuarios/${id}`;
     const method = esNuevo ? 'POST' : 'PUT';
     
