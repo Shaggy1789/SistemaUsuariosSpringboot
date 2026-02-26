@@ -79,7 +79,7 @@ public class HomeController {
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
         session.invalidate();
         redirectAttributes.addFlashAttribute("mensajeLogout", "Adiooos :D");
-        return "redirect:/login";
+        return "redirect:/login1";
     }
 
     @GetMapping("/galeria")
