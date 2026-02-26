@@ -177,7 +177,7 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Adiooos :D");
-        response.put("redirect", "/login");
+        response.put("redirect", "/login1");
         return ResponseEntity.ok(response);
     }
 
