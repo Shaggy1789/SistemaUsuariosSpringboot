@@ -16,14 +16,10 @@
             margin: 0;
             padding: 0;
         }
-
-        /* Navbar con gradiente */
         .navbar-custom {
             background: linear-gradient(90deg, #4f46e5, #7c3aed);
             padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-
         .navbar-custom .navbar-brand {
             color: white;
             font-weight: 700;
@@ -31,31 +27,24 @@
             display: flex;
             align-items: center;
         }
-
         .navbar-custom .navbar-brand i {
             margin-right: 10px;
             font-size: 1.8rem;
         }
-
         .navbar-custom .nav-link {
             color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             padding: 0.5rem 1rem;
-            margin: 0 0.2rem;
             border-radius: 10px;
             transition: all 0.3s;
         }
-
         .navbar-custom .nav-link:hover {
             background: rgba(255, 255, 255, 0.2);
             color: white;
-            transform: translateY(-2px);
         }
-
         .navbar-custom .nav-link i {
             margin-right: 8px;
         }
-
         .navbar-custom .btn-login-nav {
             background: rgba(255, 255, 255, 0.2);
             color: white;
@@ -68,13 +57,11 @@
             text-decoration: none;
             display: inline-block;
         }
-
         .navbar-custom .btn-login-nav:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
             color: white;
         }
-
         .navbar-custom .btn-register-nav {
             background: white;
             color: #4f46e5;
@@ -87,14 +74,12 @@
             text-decoration: none;
             display: inline-block;
         }
-
         .navbar-custom .btn-register-nav:hover {
             background: #f8fafc;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
             color: #4f46e5;
         }
-
         .navbar-custom .user-info {
             display: flex;
             align-items: center;
@@ -104,148 +89,25 @@
             border-radius: 30px;
             margin-left: 10px;
         }
-
         .navbar-custom .user-info i {
             font-size: 1.3rem;
             margin-right: 8px;
         }
-
         .navbar-custom .user-info span {
             font-weight: 600;
             margin-right: 10px;
         }
-
-        /* Contenedor principal */
         .dashboard-container {
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
         }
-
-        /* Tarjetas con el mismo estilo del login */
-        .dashboard-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .card-header-custom {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            color: white;
-            padding: 1.5rem;
-            margin: -2rem -2rem 1.5rem -2rem;
-            border-radius: 0 0 20px 20px;
-        }
-
-        .card-header-custom i {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .card-header-custom h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .card-header-custom p {
-            opacity: 0.9;
-            margin: 0.5rem 0 0 0;
-            font-size: 1rem;
-        }
-
-        /* Tarjetas de estadísticas */
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 1.5rem;
-            color: white;
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
-            transition: all 0.3s;
-            height: 100%;
-        }
-
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.3);
-        }
-
-        .stats-card i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .stats-card h3 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .stats-card p {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin: 0;
-        }
-
-        /* Botón personalizado */
-        .btn-custom {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            border: none;
-            padding: 12px 25px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
-            color: white;
-        }
-
-        .btn-custom i {
-            font-size: 1.1rem;
-        }
-
-        /* Tabla personalizada */
-        .table-custom {
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 0;
-        }
-
-        .table-custom thead {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            color: white;
-        }
-
-        .table-custom thead th {
-            border: none;
-            padding: 1rem;
-            font-weight: 600;
-        }
-
-        .table-custom tbody tr:hover {
-            background-color: rgba(79, 70, 229, 0.05);
-        }
-
-        /* Bienvenida */
         .welcome-section {
             display: flex;
             align-items: center;
             gap: 20px;
             margin-bottom: 2rem;
         }
-
         .welcome-avatar {
             background: linear-gradient(90deg, #4f46e5, #7c3aed);
             width: 60px;
@@ -257,7 +119,6 @@
             color: white;
             font-size: 2rem;
         }
-
         .welcome-text h1 {
             font-size: 2rem;
             font-weight: 700;
@@ -265,36 +126,42 @@
             margin-bottom: 0.5rem;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-
         .welcome-text p {
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.9);
             margin: 0;
         }
-
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 1rem;
-            }
-
-            .welcome-section {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .navbar-custom {
-                padding: 1rem;
-            }
-
-            .navbar-custom .navbar-brand span {
-                display: none;
-            }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.3);
+        }
+        .stats-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .stats-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .stats-card p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
         }
     </style>
 </head>
 <body>
-<!-- Navbar con lógica de sesión -->
-<!-- Navbar con lógica de sesión -->
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container-fluid">
         <a class="navbar-brand" th:href="@{/}">
@@ -307,38 +174,36 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Menú principal - SOLO visible cuando hay sesión iniciada -->
+            <!-- Menú principal - SOLO visible con sesión -->
             <ul class="navbar-nav me-auto" th:if="${session.usuario != null}">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}" th:classappend="${#request.requestURI == '/'} ? 'active' : ''">
+                    <a class="nav-link" th:href="@{/}">
                         <i class="fas fa-home"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/holamundo}" th:classappend="${#request.requestURI == '/holamundo'} ? 'active' : ''">
+                    <a class="nav-link" th:href="@{/holamundo}">
                         <i class="fas fa-globe"></i> Hola Mundo
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/usuarios}" th:classappend="${#request.requestURI == '/usuarios'} ? 'active' : ''">
+                    <a class="nav-link" th:href="@{/usuarios}">
                         <i class="fa-solid fa-circle-user"></i> Usuarios
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/galeria}" th:classappend="${#request.requestURI == '/galeria'} ? 'active' : ''">
+                    <a class="nav-link" th:href="@{/galeria}">
                         <i class="fas fa-images"></i> Galería
                     </a>
                 </li>
             </ul>
 
-            <!-- Contenedor para botones de usuario - SIEMPRE a la derecha -->
+            <!-- Botones de usuario -->
             <ul class="navbar-nav ms-auto">
-                <!-- SI HAY SESIÓN: mostrar info de usuario y logout -->
                 <li class="nav-item" th:if="${session.usuario != null}">
                     <div class="user-info">
                         <i class="fas fa-user-circle"></i>
                         <span th:text="${session.usuario.nombreusuario}">Usuario</span>
-                        <span class="badge bg-light text-dark" th:text="${session.usuario.role.nombre}">Rol</span>
                     </div>
                 </li>
                 <li class="nav-item" th:if="${session.usuario != null}">
@@ -346,10 +211,8 @@
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </a>
                 </li>
-
-                <!-- SI NO HAY SESIÓN: mostrar login y registro -->
                 <li class="nav-item" th:unless="${session.usuario != null}">
-                    <a class="btn-login-nav" th:href="@{/login1}">
+                    <a class="btn-login-nav" th:href="@{/login}">
                         <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                     </a>
                 </li>
@@ -363,9 +226,8 @@
     </div>
 </nav>
 
-<!-- Contenido principal del dashboard -->
+<!-- Contenido principal -->
 <div class="dashboard-container">
-    <!-- Sección de bienvenida con nombre de usuario -->
     <div class="welcome-section">
         <div class="welcome-avatar">
             <i class="fas fa-user"></i>
@@ -374,42 +236,42 @@
             <h1>
                 ¡Bienvenido, <span th:text="${session.usuario != null ? session.usuario.nombreusuario : 'Usuario'}">Usuario</span>!
             </h1>
-            <p>Has iniciado sesión correctamente en tu dashboard</p>
+            <p th:text="${session.usuario != null ? 'Has iniciado sesión correctamente' : 'Por favor inicia sesión'}"></p>
         </div>
     </div>
 
-    <!-- Tarjetas de estadísticas -->
-    <div class="row mb-4">
+    <div class="row">
         <div class="col-md-3 col-sm-6 mb-4">
             <div class="stats-card">
                 <i class="fas fa-users"></i>
                 <h3>156</h3>
-                <p>Usuarios Activos</p>
+                <p>Usuarios</p>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-4">
             <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <i class="fas fa-chart-line"></i>
-                <h3>89%</h3>
-                <p>Retención</p>
+                <i class="fas fa-camera"></i>
+                <h3>43</h3>
+                <p>Fotos</p>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-4">
             <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <i class="fas fa-calendar"></i>
-                <h3>1,234</h3>
-                <p>Sesiones/Hoy</p>
+                <i class="fas fa-image"></i>
+                <h3>12</h3>
+                <p>Álbumes</p>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-4">
             <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                 <i class="fas fa-clock"></i>
-                <h3>15min</h3>
-                <p>Tiempo Promedio</p>
+                <h3>15</h3>
+                <p>Minutos</p>
             </div>
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
