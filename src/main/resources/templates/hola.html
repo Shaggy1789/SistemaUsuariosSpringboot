@@ -217,6 +217,11 @@
                         <span th:text="${session.usuario.nombreusuario}">Usuario</span>
                     </div>
                 </li>
+                <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/galeria}">
+                            <i class="fas fa-images"></i> Galería
+                        </a>
+                    </li>
                 <li class="nav-item" th:if="${session.usuario != null}">
                     <a class="btn-login-nav" th:href="@{/logout}">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión

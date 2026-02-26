@@ -33,7 +33,7 @@ public class HomeController {
     @GetMapping("/")
     public String mostrarDashboard(Model model) {
         model.addAttribute("titulo", "Dashboard");
-        return "dashboard"; // Renderiza dashboard.html
+        return "Dashboard"; // Renderiza dashboard.html
     }
 
     @GetMapping("/usuarios")
@@ -93,5 +93,10 @@ public class HomeController {
         session.invalidate();
         redirectAttributes.addFlashAttribute("mensajeLogout", "Adiooos :D");
         return "redirect:/login";
+    }
+
+    @GetMapping("/galeria")
+    public String galeria() {
+        return "galeria";
     }
 }

@@ -27,6 +27,9 @@ WORKDIR /app
 # Copy JAR
 COPY --from=builder /app/build/libs/*.jar app.jar
 
+COPY --from=builder /app/src/main/resources/templates /app/templates
+COPY --from=builder /app/src/main/resources/static /app/static
+
 # Expose port
 EXPOSE 8080
 

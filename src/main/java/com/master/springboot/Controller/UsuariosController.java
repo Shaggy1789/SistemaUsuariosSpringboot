@@ -68,22 +68,6 @@ public class UsuariosController {
         }
     }
 
-    @GetMapping("/api/rol")
-    public ResponseEntity<?> obtenerRoles() {
-        try {
-            List<Roles> roles = serviceRoles.findAll();
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("data", roles);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error al cargar roles: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
     // ========== MÉTODO POST (CREAR) ==========
 
     @PostMapping("/api/usuarios")

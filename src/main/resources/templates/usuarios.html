@@ -403,7 +403,6 @@
                 <table class="table table-custom">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Usuario</th>
                             <th>Apellidos</th>
                             <th>Email</th>
@@ -723,26 +722,62 @@
         }
         
         function cargarRoles() {
-            fetch('/api/roles')
-                .then(response => response.json())
-                .then(data => {
-                    const rolSelect = document.getElementById('rolSelect');
-                    const rolModalSelect = document.getElementById('rol');
-                    
-                    rolSelect.innerHTML = '<option value="">Todos los roles</option>';
-                    rolModalSelect.innerHTML = '<option value="">Seleccionar rol</option>';
-                    
-                    if (data.data) {
-                        data.data.forEach(rol => {
-                            rolSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
-                            rolModalSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al cargar roles:', error);
+    fetch('/api/roles')
+        .then(response => {
+           if(!response.ok){
+           throw new Error(response.statusText);throw new Error('Error al cargar los roles');
+           }
+           return response.json();
+        })
+        .then(data => {
+            console.log('Roles recibidos:', data);
+            
+            const rolSelect = document.getElementById('rolSelect');
+            const rolModalSelect = document.getElementById('rol');
+            
+            rolSelect.innerHTML = '<option value="">Todos los roles</option>';
+            rolModalSelect.innerHTML = '<option value="">Seleccionar rol</option>';
+            
+            if (Array.isArray(data)) {
+                data.forEach(rol => {
+                    rolSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
+                    rolModalSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
                 });
-        }
+            }
+            else if (data.data && Array.isArray(data.data)) {
+                data.data.forEach(rol => {
+                    rolSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
+                    rolModalSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
+                });
+            }
+            else {
+                console.error('Estructura de roles no reconocida:', data);
+                rolSelect.innerHTML = `
+                    <option value="">Todos los roles</option>
+                    <option value="1">Administrador</option>
+                    <option value="2">Usuario</option>
+                `;
+                rolModalSelect.innerHTML = `
+                    <option value="">Seleccionar rol</option>
+                    <option value="1">Administrador</option>
+                    <option value="2">Usuario</option>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar roles:', error);
+            document.getElementById('rolSelect').innerHTML = `
+                <option value="">Todos los roles</option>
+                <option value="1">Administrador</option>
+                <option value="2">Usuario</option>
+            `;
+            document.getElementById('rol').innerHTML = `
+                <option value="">Seleccionar rol</option>
+                <option value="1">Administrador</option>
+                <option value="2">Usuario</option>
+            `;
+        });
+}
         
         function cargarUsuarios() {
             const buscar = document.getElementById('buscarInput').value;
@@ -753,7 +788,14 @@
             if (rol) url += 'rolId=' + rol + '&';
             
             fetch(url)
-                .then(response => response.json())
+                .then(response => {
+                if(!response.ok){
+                return response.text().then(text => {
+                throw new Error(`Status: ${response.status}, Respuesta: ${text.substring(0,200)}`);
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data && data.data) {
                         mostrarUsuarios(data.data);
@@ -764,11 +806,26 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('tablaUsuarios').innerHTML = 
-                        '<tr><td colspan="7" class="text-center text-danger">Error al cargar usuarios</td></tr>';
+                    // Fallback: intentar cargar desde /api/usuarios
+                    fetch('/api/usuarios')
+                        .then(response => response.json())
+                        .then(usuarios => {
+                            mostrarUsuarios(usuarios);
+                            document.getElementById('totalCount').textContent = usuarios.length;
+                        })
+                        .catch(err => {
+                            document.getElementById('tablaUsuarios').innerHTML = `
+                                <tr>
+                                    <td colspan="7" class="text-center text-danger py-4">
+                                        <i class="fas fa-exclamation-circle fa-3x mb-3"></i>
+                                        <h5>Error al cargar usuarios</h5>
+                                        <p class="text-muted">${error.message}</p>
+                                    </td>
+                                </tr>
+                            `;
+                        });
                 });
-        }
-        
+        } 
         function mostrarUsuarios(usuarios) {
             const tbody = document.getElementById('tablaUsuarios');
             
@@ -791,7 +848,6 @@
                 
                 html += `
                     <tr>
-                        <td class="fw-bold">${u.idusuario}</td>
                         <td><i class="fas fa-user-circle me-2" style="color: #4f46e5;"></i>${u.nombreusuario || ''}</td>
                         <td>${u.apellidopaterno || ''} ${u.apellidomaterno || ''}</td>
                         <td>${u.email || ''}</td>
@@ -856,79 +912,84 @@
                     console.error('Error:', error);
                     alert('Error al cargar el usuario');
                 });
-        }
+            }
         
         function guardarUsuario() {
-            const id = document.getElementById('usuarioId').value;
-            const esNuevo = !id;
-            
-            document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            
-            const nombreValido = validarTexto(document.getElementById('nombreusuario'), 'usuario');
-            const apellidoPaternoValido = validarTexto(document.getElementById('apellidopaterno'), 'apellido paterno');
-            const apellidoMaternoValido = validarTexto(document.getElementById('apellidomaterno'), 'apellido materno');
-            const emailValido = validarEmail(document.getElementById('email'));
-            const telefonoValido = validarTelefono(document.getElementById('telefono'));
-            
-            const rolSelect = document.getElementById('rol');
-            const rolError = document.getElementById('rolError');
-            if (!rolSelect.value) {
-                rolError.textContent = 'Selecciona un rol';
-                rolSelect.classList.add('is-invalid');
-                return;
-            } else {
-                rolError.textContent = '';
-                rolSelect.classList.remove('is-invalid');
-                rolSelect.classList.add('is-valid');
-            }
-            
-            let passwordValido = true;
-            if (esNuevo) {
-                passwordValido = validarPassword('password', 'confirmPassword');
-            }
-            
-            if (!nombreValido || !apellidoPaternoValido || !apellidoMaternoValido || 
-                !emailValido || !telefonoValido || !passwordValido) {
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('nombre', document.getElementById('nombreusuario').value);
-            formData.append('apellidopaterno', document.getElementById('apellidopaterno').value);
-            formData.append('apellidomaterno', document.getElementById('apellidomaterno').value);
-            formData.append('email', document.getElementById('email').value);
-            formData.append('telefono', document.getElementById('telefono').value);
-            
-            if (!esNuevo) {
-                formData.append('idusuario', id);
-            }
-            
-            if (esNuevo) {
-                formData.append('password', document.getElementById('password').value);
-            }
-            
-            formData.append('g-recaptcha-response', 'no-captcha');
-            
-            fetch('/api/registro', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    modalInstance.hide();
-                    cargarUsuarios();
-                    alert(esNuevo ? 'Usuario creado correctamente' : 'Usuario actualizado correctamente');
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al guardar el usuario');
-            });
+    const id = document.getElementById('usuarioId').value;
+    const esNuevo = !id;
+    
+    document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    
+    const nombreValido = validarTexto(document.getElementById('nombreusuario'), 'usuario');
+    const apellidoPaternoValido = validarTexto(document.getElementById('apellidopaterno'), 'apellido paterno');
+    const apellidoMaternoValido = validarTexto(document.getElementById('apellidomaterno'), 'apellido materno');
+    const emailValido = validarEmail(document.getElementById('email'));
+    const telefonoValido = validarTelefono(document.getElementById('telefono'));
+    
+    const rolSelect = document.getElementById('rol');
+    const rolError = document.getElementById('rolError');
+    if (!rolSelect.value) {
+        rolError.textContent = 'Selecciona un rol';
+        rolSelect.classList.add('is-invalid');
+        return;
+    } else {
+        rolError.textContent = '';
+        rolSelect.classList.remove('is-invalid');
+        rolSelect.classList.add('is-valid');
+    }
+    
+    let passwordValido = true;
+    if (esNuevo) {
+        passwordValido = validarPassword('password', 'confirmPassword');
+    }
+    
+    if (!nombreValido || !apellidoPaternoValido || !apellidoMaternoValido || 
+        !emailValido || !telefonoValido || !passwordValido) {
+        return;
+    }
+    
+    // Construir el objeto usuario
+    const usuarioData = {
+        nombreusuario: document.getElementById('nombreusuario').value,
+        apellidopaterno: document.getElementById('apellidopaterno').value,
+        apellidomaterno: document.getElementById('apellidomaterno').value,
+        email: document.getElementById('email').value,
+        telefono: parseInt(document.getElementById('telefono').value),
+        role: { id: parseInt(rolSelect.value) }
+    };
+    
+    // Agregar password solo si es nuevo
+    if (esNuevo) {
+        usuarioData.password = document.getElementById('password').value;
+    }
+    
+    // Determinar método y URL
+    const url = esNuevo ? '/api/usuarios' : `/api/usuarios/${id}`;
+    const method = esNuevo ? 'POST' : 'PUT';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(usuarioData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            modalInstance.hide();
+            cargarUsuarios();
+            alert(esNuevo ? 'Usuario creado correctamente' : 'Usuario actualizado correctamente');
+        } else {
+            alert('Error: ' + data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar el usuario');
+    });
+}
         
         function abrirModalEliminar(id, nombre) {
             usuarioIdEliminar = id;

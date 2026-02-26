@@ -1,10 +1,11 @@
 package com.master.springboot.Models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -22,7 +23,12 @@ public class Usuarios {
 
     @ManyToOne
     @JoinColumn(name = "roles")
+    @JsonIgnoreProperties("usuarios")
     private Roles role;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Foto> fotos;
 
     public Roles getRole() {
         return role;
