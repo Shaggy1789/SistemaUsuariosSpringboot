@@ -306,27 +306,28 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
+            <!-- Menú principal - SOLO visible cuando hay sesión iniciada -->
+            <ul class="navbar-nav me-auto" th:if="${session.usuario != null}">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">
+                    <a class="nav-link" th:href="@{/}" th:classappend="${#request.requestURI == '/'} ? 'active' : ''">
                         <i class="fas fa-home"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/holamundo}">
+                    <a class="nav-link" th:href="@{/holamundo}" th:classappend="${#request.requestURI == '/holamundo'} ? 'active' : ''">
                         <i class="fas fa-globe"></i> Hola Mundo
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/usuarios}">
-                        <i class="fa-solid fa-circle-user"></i>Usuarios
+                    <a class="nav-link" th:href="@{/usuarios}" th:classappend="${#request.requestURI == '/usuarios'} ? 'active' : ''">
+                        <i class="fa-solid fa-circle-user"></i> Usuarios
                     </a>
                 </li>
                 <li class="nav-item">
-                        <a class="nav-link active" th:href="@{/galeria}">
-                            <i class="fas fa-images"></i> Galería
-                        </a>
-                    </li>
+                    <a class="nav-link" th:href="@{/galeria}" th:classappend="${#request.requestURI == '/galeria'} ? 'active' : ''">
+                        <i class="fas fa-images"></i> Galería
+                    </a>
+                </li>
             </ul>
 
             <ul class="navbar-nav">
@@ -337,11 +338,6 @@
                         <span th:text="${session.usuario.nombreusuario}">Usuario</span>
                         <span class="badge bg-light text-dark" th:text="${session.usuario.role.nombre}">Rol</span>
                     </div>
-                </li>
-                <li class="nav-item" th:if="${session.usuario != null}">
-                    <a class="btn-login-nav" th:href="@{/}">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
                 </li>
                 <li class="nav-item" th:if="${session.usuario != null}">
                     <a class="btn-login-nav" th:href="@{/logout}">
