@@ -13,8 +13,8 @@ public class HomeController {
 
     @GetMapping("/login1")
     public String mostrarLogin(Model model){
-        model.addAttribute("titulo","iniciando login");
-        return "login";
+        model.addAttribute("titulo","login");
+        return "login1";
     }
     //Index
     @GetMapping("/")
