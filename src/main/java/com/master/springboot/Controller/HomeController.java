@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class HomeController {
 
-    @GetMapping("/login")
+    @GetMapping("/login1")
     public String mostrarLogin(Model model){
         model.addAttribute("titulo","iniciando login");
         return "login";
