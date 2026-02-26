@@ -46,8 +46,15 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+springBoot {
+	mainClass = 'com.master.springboot.SpringbootApplication'
+}
+
 bootJar{
 	archiveFileName = 'app.jar'
+	manifest{
+		attributes 'Main-Class': 'org.springframework.boot.loader.launch.JarLauncher'
+	}
 }
 tasks.named('test') {
 	useJUnitPlatform()
