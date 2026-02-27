@@ -4,6 +4,7 @@ import com.master.springboot.Models.Roles;
 import com.master.springboot.Models.Usuarios;
 import com.master.springboot.service.AuthCaptchaService;
 import com.master.springboot.service.ServiceUsuarios;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -86,17 +87,18 @@ public class LoginController {
             @RequestParam String email,
             @RequestParam(required = false) String password,
             @RequestParam long telefono,
-            @RequestParam(value = "g-recaptcha-response", required = false) String recaptchaResponse) {
+            @RequestParam(value = "g-recaptcha-response", required = false) String recaptchaResponse,
+            HttpServletResponse response) {  // ← Cambiar nombre a 'response'
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> jsonResponse = new HashMap<>();  // ← Cambiar nombre para evitar conflicto
 
         if (idusuario != null && idusuario > 0) {
             try {
                 Usuarios usuarioExistente = serviceUsuarios.findById(idusuario);
                 if (usuarioExistente == null) {
-                    response.put("success", false);
-                    response.put("message", "Usuario no encontrado");
-                    return ResponseEntity.badRequest().body(response);
+                    jsonResponse.put("success", false);
+                    jsonResponse.put("message", "Usuario no encontrado");
+                    return ResponseEntity.badRequest().body(jsonResponse);
                 }
 
                 usuarioExistente.setNombreusuario(nombre);
@@ -111,31 +113,31 @@ public class LoginController {
 
                 serviceUsuarios.save(usuarioExistente);
 
-                response.put("success", true);
-                response.put("message", "Usuario actualizado correctamente");
-                return ResponseEntity.ok(response);
+                jsonResponse.put("success", true);
+                jsonResponse.put("message", "Usuario actualizado correctamente");
+                return ResponseEntity.ok(jsonResponse);
 
             } catch (Exception e) {
                 e.printStackTrace();
-                response.put("success", false);
-                response.put("message", "Error al actualizar: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+                jsonResponse.put("success", false);
+                jsonResponse.put("message", "Error al actualizar: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonResponse);
             }
         } else {
             if (!authCaptchaService.verifyRecaptcha(recaptchaResponse)) {
-                response.put("success", false);
-                response.put("message", "CAPTCHA inválido, por favor trata de nuevo");
-                response.put("error", "captcha");
-                return ResponseEntity.badRequest().body(response);
+                jsonResponse.put("success", false);
+                jsonResponse.put("message", "CAPTCHA inválido, por favor trata de nuevo");
+                jsonResponse.put("error", "captcha");
+                return ResponseEntity.badRequest().body(jsonResponse);
             }
 
             List<Usuarios> usuarios = serviceUsuarios.findAll();
             for (Usuarios usuario : usuarios) {
                 if (usuario.getNombreusuario().equals(nombre)) {
-                    response.put("success", false);
-                    response.put("message", "El usuario ya existe");
-                    response.put("error", "usuario_existente");
-                    return ResponseEntity.badRequest().body(response);
+                    jsonResponse.put("success", false);
+                    jsonResponse.put("message", "El usuario ya existe");
+                    jsonResponse.put("error", "usuario_existente");
+                    return ResponseEntity.badRequest().body(jsonResponse);
                 }
             }
 
@@ -155,18 +157,17 @@ public class LoginController {
 
                 serviceUsuarios.save(nuevoUsuario);
 
-                response.put("success", true);
-                response.put("message", "¡Registro exitoso!");
-                response.put("redirect", "/");
-                response.put("registro", "exitoso");
-                response.put("usuario", nombre);
-                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+                // ← SOLUCIÓN: Devolver JSON con redirect (el frontend lo manejará)
+                jsonResponse.put("success", true);
+                jsonResponse.put("message", "¡Registro exitoso!");
+                jsonResponse.put("redirect", "/");
+                return ResponseEntity.ok(jsonResponse);
 
             } catch (Exception e) {
                 e.printStackTrace();
-                response.put("success", false);
-                response.put("message", "Error al registrar: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+                jsonResponse.put("success", false);
+                jsonResponse.put("message", "Error al registrar: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonResponse);
             }
         }
     }

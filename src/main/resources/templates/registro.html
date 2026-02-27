@@ -311,22 +311,22 @@
     document.getElementById('registroForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Validaciones
+        // Validaciones (sin cambios)
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const telefono = document.getElementById('telefono').value;
-        
+
         if (password !== confirmPassword) {
             alert('Las contraseñas no coinciden');
             return;
         }
-        
+
         if (telefono.length !== 10) {
             alert('El teléfono debe tener 10 dígitos');
             return;
         }
 
-        // Verificar que grecaptcha está disponible
+        // Verificar que grecaptcha está disponible (sin cambios)
         if (typeof grecaptcha === 'undefined') {
             alert('Error: reCAPTCHA no está listo. Recarga la página.');
             return;
@@ -337,7 +337,25 @@
             grecaptcha.execute('6LdJmHAsAAAAAIxiOLPzSMjlUdd_S_PLSDqg1hbq', {action: 'registro'})
             .then(function(token) {
                 document.getElementById('recaptchaToken').value = token;
-                document.getElementById('registroForm').submit();
+
+                // [MODIFICADO] Enviar con fetch para capturar la respuesta
+                fetch('/api/registro', {
+                    method: 'POST',
+                    body: new FormData(document.getElementById('registroForm'))
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // ¡REDIRIGIR AL DASHBOARD!
+                        window.location.href = data.redirect || '/';
+                    } else {
+                        alert('Error: ' + (data.message || 'Error en el registro'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al procesar el registro');
+                });
             })
             .catch(function(error) {
                 alert('Error con reCAPTCHA: ' + error);
