@@ -88,9 +88,9 @@ public class LoginController {
             @RequestParam(required = false) String password,
             @RequestParam long telefono,
             @RequestParam(value = "g-recaptcha-response", required = false) String recaptchaResponse,
-            HttpServletResponse response) {  // ← Cambiar nombre a 'response'
+            HttpSession session) {  // ← CAMBIADO: HttpServletResponse por HttpSession
 
-        Map<String, Object> jsonResponse = new HashMap<>();  // ← Cambiar nombre para evitar conflicto
+        Map<String, Object> jsonResponse = new HashMap<>();
 
         if (idusuario != null && idusuario > 0) {
             try {
@@ -155,9 +155,11 @@ public class LoginController {
                 role.setNombre("Usuario");
                 nuevoUsuario.setRole(role);
 
-                serviceUsuarios.save(nuevoUsuario);
+                Usuarios usuarioGuardado = serviceUsuarios.save(nuevoUsuario);
 
-                // ← SOLUCIÓN: Devolver JSON con redirect (el frontend lo manejará)
+                // ← AGREGADO: Iniciar sesión automáticamente
+                session.setAttribute("usuario", usuarioGuardado);
+
                 jsonResponse.put("success", true);
                 jsonResponse.put("message", "¡Registro exitoso!");
                 jsonResponse.put("redirect", "/");
@@ -171,7 +173,6 @@ public class LoginController {
             }
         }
     }
-
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
