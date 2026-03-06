@@ -185,7 +185,7 @@
         
         <div class="mt-4">
             <!-- Botón dinámico que redirige a la página de origen -->
-            <a th:href="@{${origen == 'login' ? '/login' : origen == 'registro' ? '/registro' : origen == 'dashboard' ? '/dashboard' : '/login'}}" 
+            <a th:href="@{${origen == 'login' ? '/login1' : origen == 'registro' ? '/registro' : origen == 'dashboard' ? '/dashboard' : '/login1'}}" 
                class="reload-btn" id="actionBtn">
                 <i class="fas fa-redo"></i>
                 <span th:text="${origen == 'login' ? 'Volver al Login' : origen == 'registro' ? 'Volver al Registro' : origen == 'dashboard' ? 'Volver al Dashboard' : 'Ir al Login'}">
