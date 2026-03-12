@@ -279,7 +279,6 @@
                     <small class="password-note">Ingresa 10 dígitos</small>
                 </div>
 
-                <!-- Campo oculto para el token de reCAPTCHA -->
                 <input type="hidden" name="g-recaptcha-response" id="recaptchaToken">
 
                 <button type="submit" class="btn-register mb-3" id="submitBtn">
@@ -311,7 +310,7 @@
     document.getElementById('registroForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Validaciones (sin cambios)
+        // Validaciones
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const telefono = document.getElementById('telefono').value;
@@ -338,7 +337,7 @@
             .then(function(token) {
                 document.getElementById('recaptchaToken').value = token;
 
-                // [MODIFICADO] Enviar con fetch para capturar la respuesta
+
                 fetch('/api/registro', {
                     method: 'POST',
                     body: new FormData(document.getElementById('registroForm'))
