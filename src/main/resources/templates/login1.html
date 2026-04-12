@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${titulo}">Inicio de Sesión</title>
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- reCAPTCHA v3 - MISMA SITE KEY DEL REGISTRO -->
     <script src="https://www.google.com/recaptcha/api.js?render=6LdJmHAsAAAAAIxiOLPzSMjlUdd_S_PLSDqg1hbq"></script>
     <style>
-        /* Tus estilos existentes - IGUALES */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -65,12 +61,20 @@
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
             outline: none;
         }
+        /* Estado de error en inputs */
+        .form-control.is-invalid-custom {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+        }
         .input-group-text {
             background-color: #f8fafc;
             border: 2px solid #e2e8f0;
             border-right: none;
             border-radius: 12px 0 0 12px;
             padding: 0 15px;
+        }
+        .input-group-text.is-invalid-custom {
+            border-color: #dc2626 !important;
         }
         .form-label {
             font-weight: 600;
@@ -94,20 +98,19 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
         }
+        .btn-login:disabled {
+            opacity: 0.7;
+            transform: none;
+            cursor: not-allowed;
+        }
         .alert {
             border-radius: 12px;
             border: none;
             padding: 1rem;
             margin-bottom: 1.5rem;
         }
-        .alert-danger {
-            background-color: #fee2e2;
-            color: #dc2626;
-        }
-        .alert-success {
-            background-color: #d1fae5;
-            color: #059669;
-        }
+        .alert-danger { background-color: #fee2e2; color: #dc2626; }
+        .alert-success { background-color: #d1fae5; color: #059669; }
         .register-link {
             text-align: center;
             margin-top: 1.5rem;
@@ -119,30 +122,161 @@
             font-weight: 600;
             transition: color 0.3s;
         }
-        .register-link a:hover {
-            color: #7c3aed;
-            text-decoration: underline;
+        .register-link a:hover { color: #7c3aed; text-decoration: underline; }
+        .input-group { margin-bottom: 1.5rem; }
+        .form-content { padding: 2.5rem; }
+
+        /* ======= MODAL ESTILOS ======= */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInOverlay 0.2s ease;
         }
-        .input-group {
-            margin-bottom: 1.5rem;
+        .modal-overlay.show {
+            display: flex;
         }
-        .form-content {
-            padding: 2.5rem;
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        .modal-header-custom {
+            padding: 1.5rem 1.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .modal-icon.error   { background: #fee2e2; color: #dc2626; }
+        .modal-icon.success { background: #d1fae5; color: #059669; }
+        .modal-icon.warning { background: #fef3c7; color: #d97706; }
+        .modal-title-custom {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+        .modal-subtitle {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 2px 0 0;
+        }
+        .modal-body-custom {
+            padding: 0 1.5rem 1rem;
+        }
+        /* Lista de errores de validación */
+        .validation-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .validation-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #fff5f5;
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .validation-list li:last-child { margin-bottom: 0; }
+        .validation-list li i { margin-top: 2px; flex-shrink: 0; }
+        /* Mensaje simple (error de servidor / éxito) */
+        .modal-message {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+        .modal-footer-custom {
+            padding: 1rem 1.5rem 1.5rem;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .btn-modal-close {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-modal-close.error {
+            background: #dc2626;
+            color: #fff;
+        }
+        .btn-modal-close.error:hover  { background: #b91c1c; }
+        .btn-modal-close.success {
+            background: #059669;
+            color: #fff;
+        }
+        .btn-modal-close.success:hover { background: #047857; }
+        .btn-modal-close.warning {
+            background: #d97706;
+            color: #fff;
+        }
+        .btn-modal-close.warning:hover { background: #b45309; }
+        /* Spinner en el botón */
+        .spinner-border-sm { width: 1rem; height: 1rem; border-width: 2px; }
+
         @media (max-width: 576px) {
-            .form-content {
-                padding: 2rem 1.5rem;
-            }
-            .login-header {
-                padding: 2rem 1.5rem;
-            }
-            body {
-                padding: 15px;
-            }
+            .form-content  { padding: 2rem 1.5rem; }
+            .login-header  { padding: 2rem 1.5rem; }
+            body           { padding: 15px; }
         }
     </style>
 </head>
 <body>
+
+<!-- ======= MODAL ======= -->
+<div class="modal-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+        <div class="modal-header-custom">
+            <div class="modal-icon" id="modalIcon">
+                <i id="modalIconClass" class="fas fa-exclamation-circle"></i>
+            </div>
+            <div>
+                <p class="modal-title-custom" id="modalTitle">Título</p>
+                <p class="modal-subtitle"    id="modalSubtitle"></p>
+            </div>
+        </div>
+        <div class="modal-body-custom" id="modalBody"></div>
+        <div class="modal-footer-custom">
+            <button class="btn-modal-close" id="modalCloseBtn" onclick="closeModal()">Entendido</button>
+        </div>
+    </div>
+</div>
+<!-- ======================== -->
+
 <div class="login-container">
     <div class="login-card">
         <div class="login-header">
@@ -152,52 +286,54 @@
         </div>
 
         <div class="form-content">
-            <!-- Mensaje de éxito al registrar -->
+            <!-- Mensaje de éxito al registrar (Thymeleaf) -->
             <div th:if="${param.registro}" class="alert alert-success" role="alert">
                 <i class="fas fa-check-circle me-2"></i>
                 <span th:if="${param.registro == 'exitoso'}">¡Registro exitoso! Ahora puedes iniciar sesión.</span>
                 <span th:if="${param.usuario}">Usuario: <strong th:text="${param.usuario}"></strong></span>
             </div>
 
-            <!-- Mensaje de error -->
+            <!-- Mensaje de error (Thymeleaf) -->
             <div th:if="${error}" class="alert alert-danger" role="alert">
                 <i class="fas fa-exclamation-circle me-2"></i>
                 <span th:text="${error}"></span>
             </div>
 
-            <!-- Mensaje de logout -->
+            <!-- Mensaje de logout (Thymeleaf) -->
             <div th:if="${mensajeLogout}" class="alert alert-success" role="alert">
                 <i class="fas fa-check-circle me-2"></i>
                 <span th:text="${mensajeLogout}"></span>
             </div>
 
-            <form th:action="@{/api/login}" method="post" id="loginForm">
+            <form th:action="@{/api/login}" method="post" id="loginForm" novalidate>
                 <!-- Usuario -->
                 <div class="mb-4">
-                    <label class="form-label">Usuario</label>
-                    <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-user"></i>
-                            </span>
-                        <input type="text" name="nombreusuario" class="form-control"
+                    <label class="form-label" for="inputUsuario">Usuario</label>
+                    <div class="input-group" id="groupUsuario">
+                        <span class="input-group-text" id="iconUsuario">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" id="inputUsuario" name="nombreusuario" class="form-control"
                                placeholder="Ingresa tu usuario" required
-                               th:value="${param.nombreusuario}">
+                               th:value="${param.nombreusuario}"
+                               autocomplete="username">
                     </div>
                 </div>
 
                 <!-- Contraseña -->
                 <div class="mb-4">
-                    <label class="form-label">Contraseña</label>
-                    <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-key"></i>
-                            </span>
-                        <input type="password" name="password" class="form-control"
-                               placeholder="Ingresa tu contraseña" required>
+                    <label class="form-label" for="inputPassword">Contraseña</label>
+                    <div class="input-group" id="groupPassword">
+                        <span class="input-group-text" id="iconPassword">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="password" id="inputPassword" name="password" class="form-control"
+                               placeholder="Ingresa tu contraseña" required
+                               autocomplete="current-password">
                     </div>
                 </div>
 
-                <!-- Campo oculto para token de reCAPTCHA v3 -->
+                <!-- reCAPTCHA token -->
                 <input type="hidden" name="g-recaptcha-response" id="recaptchaToken">
 
                 <button type="submit" class="btn-login mb-3" id="submitBtn">
@@ -220,65 +356,236 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    /* =========================================================
+       MODAL HELPERS
+       ========================================================= */
+    function showModal({ type = 'error', title, subtitle = '', body }) {
+        const overlay    = document.getElementById('loginModal');
+        const iconWrap   = document.getElementById('modalIcon');
+        const iconEl     = document.getElementById('modalIconClass');
+        const titleEl    = document.getElementById('modalTitle');
+        const subtitleEl = document.getElementById('modalSubtitle');
+        const bodyEl     = document.getElementById('modalBody');
+        const closeBtn   = document.getElementById('modalCloseBtn');
+
+        const config = {
+            error:   { icon: 'fa-exclamation-circle', label: 'Entendido' },
+            success: { icon: 'fa-check-circle',        label: 'Continuar' },
+            warning: { icon: 'fa-triangle-exclamation', label: 'Entendido' },
+        };
+
+        const cfg = config[type] || config.error;
+
+        iconWrap.className   = `modal-icon ${type}`;
+        iconEl.className     = `fas ${cfg.icon}`;
+        titleEl.textContent  = title;
+        subtitleEl.textContent = subtitle;
+        closeBtn.className   = `btn-modal-close ${type}`;
+        closeBtn.textContent = cfg.label;
+        bodyEl.innerHTML     = body;
+        overlay.classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('loginModal').classList.remove('show');
+        // Limpiar estados de error en inputs
+        clearInputErrors();
+    }
+
+    // Cerrar con clic fuera del modal
+    document.getElementById('loginModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    /* =========================================================
+       VALIDACIÓN CLIENTE
+       ========================================================= */
+    const USUARIO_MIN = 3;
+    const PASS_MIN    = 6;
+
+    function clearInputErrors() {
+        ['inputUsuario', 'inputPassword'].forEach(id => {
+            document.getElementById(id).classList.remove('is-invalid-custom');
+        });
+        ['iconUsuario', 'iconPassword'].forEach(id => {
+            document.getElementById(id).classList.remove('is-invalid-custom');
+        });
+    }
+
+    function markInputError(inputId, iconId) {
+        document.getElementById(inputId).classList.add('is-invalid-custom');
+        document.getElementById(iconId).classList.add('is-invalid-custom');
+    }
+
+    function validateForm() {
+        const usuario  = document.getElementById('inputUsuario').value.trim();
+        const password = document.getElementById('inputPassword').value;
+        const errors   = [];
+
+        clearInputErrors();
+
+        if (!usuario) {
+            errors.push({ field: 'usuario', msg: 'El nombre de usuario es obligatorio.' });
+        } else if (usuario.length < USUARIO_MIN) {
+            errors.push({ field: 'usuario', msg: `El usuario debe tener al menos ${USUARIO_MIN} caracteres.` });
+        } else if (/\s/.test(usuario)) {
+            errors.push({ field: 'usuario', msg: 'El usuario no debe contener espacios.' });
+        }
+
+        if (!password) {
+            errors.push({ field: 'password', msg: 'La contraseña es obligatoria.' });
+        } else if (password.length < PASS_MIN) {
+            errors.push({ field: 'password', msg: `La contraseña debe tener al menos ${PASS_MIN} caracteres.` });
+        }
+
+        return errors;
+    }
+
+    function buildErrorList(errors) {
+        return `<ul class="validation-list">
+            ${errors.map(e =>
+            `<li><i class="fas fa-circle-xmark"></i><span>${e.msg}</span></li>`
+        ).join('')}
+        </ul>`;
+    }
+
+    /* =========================================================
+       SUBMIT
+       ========================================================= */
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
+        // 1. Validación en cliente
+        const errors = validateForm();
+        if (errors.length > 0) {
+            // Marcar inputs con error
+            errors.forEach(err => {
+                if (err.field === 'usuario')  markInputError('inputUsuario', 'iconUsuario');
+                if (err.field === 'password') markInputError('inputPassword', 'iconPassword');
+            });
+
+            showModal({
+                type:     'error',
+                title:    'Datos incorrectos',
+                subtitle: errors.length === 1
+                    ? 'Hay un campo que necesita corrección'
+                    : `Hay ${errors.length} campos que necesitan corrección`,
+                body: buildErrorList(errors),
+            });
+            return;
+        }
+
+        // 2. Deshabilitar botón y mostrar spinner
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Verificando...
+        `;
+
         console.log('1. Iniciando proceso de login...');
-        
-        // Ejecutar reCAPTCHA
+
+        // 3. reCAPTCHA + fetch (misma lógica original)
         grecaptcha.ready(function() {
             console.log('2. reCAPTCHA ready');
-            
-            grecaptcha.execute('6LdJmHAsAAAAAIxiOLPzSMjlUdd_S_PLSDqg1hbq', {action: 'login'})
-            .then(function(token) {
-                console.log('3. Token generado, longitud:', token.length);
-                
-                document.getElementById('recaptchaToken').value = token;
-                
-                // Crear FormData
-                const formData = new FormData(document.getElementById('loginForm'));
-                
-                // Mostrar los datos que se envían
-                console.log('4. Datos del formulario:');
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ': ' + pair[1].substring(0, 50) + '...');
-                }
-                
-                // Enviar con fetch
-                fetch('/api/login', {
-                    method: 'POST',
-                    body: formData
+
+            grecaptcha.execute('6LdJmHAsAAAAAIxiOLPzSMjlUdd_S_PLSDqg1hbq', { action: 'login' })
+                .then(function(token) {
+                    console.log('3. Token generado, longitud:', token.length);
+                    document.getElementById('recaptchaToken').value = token;
+
+                    const formData = new FormData(document.getElementById('loginForm'));
+
+                    console.log('4. Datos del formulario:');
+                    for (let pair of formData.entries()) {
+                        console.log(pair[0] + ': ' + pair[1].substring(0, 50) + '...');
+                    }
+
+                    return fetch('/api/login', {
+                        method: 'POST',
+                        body: formData
+                    });
                 })
                 .then(response => {
                     console.log('5. Respuesta recibida, status:', response.status);
-                    console.log('5. Headers:', response.headers.get('content-type'));
-                    
-                    if (!response.ok) {
-                        throw new Error('HTTP error! status: ' + response.status);
-                    }
+                    if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
                     return response.json();
                 })
                 .then(data => {
                     console.log('6. Datos JSON:', data);
-                    
+
                     if (data.success) {
                         console.log('7. Login exitoso, redirigiendo a:', data.redirect);
                         window.location.href = data.redirect || '/dashboard';
+
                     } else {
                         console.log('7. Login falló:', data.message);
-                        alert(data.message);
+
+                        // Re-habilitar botón
+                        resetBtn();
+
+                        // Modal de error del servidor
+                        showModal({
+                            type:     'error',
+                            title:    'No se pudo iniciar sesión',
+                            subtitle: 'Credenciales inválidas',
+                            body:     `<ul class="validation-list">
+                            <li>
+                                <i class="fas fa-circle-xmark"></i>
+                                <span>${data.message || 'Usuario o contraseña incorrectos. Verifica tus datos e intenta de nuevo.'}</span>
+                            </li>
+                        </ul>`,
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('8. Error en fetch:', error);
-                    alert('Error en la comunicación con el servidor. Mira la consola (F12) para más detalles.');
+                    resetBtn();
+
+                    showModal({
+                        type:     'error',
+                        title:    'Error de login',
+                        subtitle: 'Credenciales Invalidas',
+                        body:     `<p class="modal-message">
+                        Hubo un problema al iniciar sesion, porfavor trate denuevo.
+                        <br><br>
+                        <small style="color:#94a3b8;">Detalle técnico: ${error.message}</small>
+                    </p>`,
+                    });
                 });
-            })
+        })
             .catch(function(error) {
                 console.error('Error en reCAPTCHA:', error);
-                alert('Error con reCAPTCHA');
+                resetBtn();
+
+                showModal({
+                    type:     'warning',
+                    title:    'Error con reCAPTCHA',
+                    subtitle: 'Verificación de seguridad fallida',
+                    body:     `<p class="modal-message">No se pudo completar la verificación de seguridad. Recarga la página e intenta de nuevo.</p>`,
+                });
             });
-        });
+    });
+
+    function resetBtn() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión';
+    }
+
+    // Limpiar error visual al empezar a escribir
+    document.getElementById('inputUsuario').addEventListener('input', function() {
+        this.classList.remove('is-invalid-custom');
+        document.getElementById('iconUsuario').classList.remove('is-invalid-custom');
+    });
+    document.getElementById('inputPassword').addEventListener('input', function() {
+        this.classList.remove('is-invalid-custom');
+        document.getElementById('iconPassword').classList.remove('is-invalid-custom');
     });
 </script>
 </body>
