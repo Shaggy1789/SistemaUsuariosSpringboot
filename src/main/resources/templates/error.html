@@ -3,268 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${titulo}">¡Oops! Error</title>
+    <title th:text="${titulo}">Error — Santa Mónica</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --gold-dark:  #a07830;
+            --black:      #0d0d0d;
+            --black-2:    #141414;
+            --black-3:    #1c1c1c;
+            --black-4:    #252525;
+            --text-muted: #7a7a7a;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--black);
+            background-image:
+                radial-gradient(ellipse at 30% 60%, rgba(201,168,76,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 20%, rgba(201,168,76,0.04) 0%, transparent 45%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
         }
-        
+
         .error-container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 600px;
-            animation: float 3s ease-in-out infinite;
+            background: var(--black-2);
+            border-radius: 18px;
+            border: 1px solid rgba(201,168,76,0.2);
+            box-shadow:
+                0 0 0 1px rgba(201,168,76,0.05),
+                0 32px 64px rgba(0,0,0,0.7);
+            max-width: 540px;
+            width: 100%;
+            overflow: hidden;
+            animation: float 4s ease-in-out infinite;
         }
-        
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-8px); }
         }
-        
+
+        /* ── HEADER ── */
+        .error-header {
+            background: var(--black-3);
+            border-bottom: 1px solid rgba(201,168,76,0.2);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .error-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .brand {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-bottom: 1.5rem;
+        }
+        .brand i { font-size: 1.3rem; color: var(--gold); }
+        .brand span { font-size: 0.95rem; font-weight: 700; color: #ccc; letter-spacing: 0.5px; }
+
         .error-code {
-            font-size: 8rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 5.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin: 0;
             line-height: 1;
         }
-        
         .error-emoji {
-            font-size: 5rem;
-            margin: 20px 0;
-            animation: bounce 2s infinite;
+            font-size: 3rem;
+            display: block;
+            margin-top: 0.5rem;
+            animation: bounce 2.5s infinite;
         }
-        
         @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+            0%,100% { transform: scale(1); }
+            50%      { transform: scale(1.15); }
         }
-        
+
+        /* ── BODY ── */
+        .error-body { padding: 2rem 2.5rem 2.5rem; }
+
+        .error-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #e8e8e8;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
         .error-message {
-            font-size: 1.5rem;
-            color: #333;
-            margin: 20px 0;
-            padding: 20px;
-            background: #f8f9fa;
+            font-size: 0.9rem;
+            color: #c8c8c8;
+            padding: 1rem 1.25rem;
+            background: var(--black-4);
             border-radius: 10px;
-            border-left: 5px solid #667eea;
+            border-left: 3px solid var(--gold);
+            text-align: left;
+            margin-bottom: 1rem;
         }
-        
+
         .error-details {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-size: 0.83rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
         }
-        
-        .reload-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .origin-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.2);
+            color: var(--gold-light);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-back {
+            background: var(--black-4);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold-light);
+            padding: 11px 24px;
+            border-radius: 9px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px;
+            margin: 5px;
+            transition: all 0.25s;
+        }
+        .btn-back:hover {
+            background: rgba(201,168,76,0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(201,168,76,0.15);
+        }
+
+        .btn-home {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
             border: none;
-            color: white;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px;
+            color: #0d0d0d;
+            padding: 11px 24px;
+            border-radius: 9px;
+            font-size: 0.88rem;
+            font-weight: 700;
             text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px;
+            margin: 5px;
+            transition: all 0.25s;
         }
-        
-        .reload-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-            color: white;
-            text-decoration: none;
+        .btn-home:hover {
+            color: #0d0d0d;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201,168,76,0.35);
         }
-        
-        .home-btn {
-            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-            border: none;
-            color: white;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px;
-            text-decoration: none;
+
+        /* ── DIVIDER ── */
+        .gold-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent);
+            margin: 1.5rem 0;
         }
-        
-        .home-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
-            color: white;
-            text-decoration: none;
-        }
-        
-        .error-trace {
-            margin-top: 30px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: #666;
-            display: none;
-        }
-        
+
+        /* ── TRACE ── */
         .trace-toggle {
-            color: #667eea;
+            color: var(--text-muted);
             cursor: pointer;
-            margin-top: 15px;
-            display: inline-block;
+            font-size: 0.78rem;
+            display: inline-flex; align-items: center; gap: 5px;
+            background: none; border: none; padding: 0;
+            transition: color 0.2s;
         }
-        
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
+        .trace-toggle:hover { color: var(--gold); }
+        .error-trace {
+            display: none;
+            margin-top: 0.75rem;
+            padding: 12px 14px;
+            background: var(--black-4);
+            border-radius: 8px;
+            border: 1px solid rgba(201,168,76,0.1);
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #666;
+            text-align: left;
         }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-        }
-        
-        .page-origin {
-            margin-top: 20px;
-            padding: 10px;
-            background: #e3f2fd;
-            border-radius: 10px;
-            display: inline-block;
-            font-size: 0.9rem;
-            color: #1976d2;
+
+        .footer-note {
+            color: #3a3a3a;
+            font-size: 0.75rem;
+            margin-top: 1.5rem;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    
     <div class="error-container">
-        <div class="error-emoji" id="emoji">🤖</div>
-        <h1 class="error-code">500</h1>
-        
-        <h2>¡Ups! Algo salió mal</h2>
-        
-        <div class="error-message" th:text="${mensaje}">
-            Algo inesperado ocurrió. ¡No te preocupes!
+
+        <div class="error-header">
+            <div class="brand">
+                <i class="fas fa-heartbeat"></i>
+                <span>Clínica de Especialidades Santa Mónica</span>
+            </div>
+            <p class="error-code" id="errorCode">500</p>
+            <span class="error-emoji" id="emoji">⚠️</span>
         </div>
-        
-        <p class="error-details">
-            Parece que hubo un problema técnico. Nuestros desarrolladores han sido notificados.
-        </p>
-        
-        <div class="page-origin" th:if="${origen}">
-            <i class="fas fa-map-marker-alt"></i>
-            Error originado desde: <strong th:text="${origen}"></strong>
-        </div>
-        
-        <div class="mt-4">
-            <!-- Botón dinámico que redirige a la página de origen -->
-            <a th:href="@{${origen == 'login' ? '/login1' : origen == 'registro' ? '/registro' : origen == 'dashboard' ? '/dashboard' : '/login1'}}" 
-               class="reload-btn" id="actionBtn">
-                <i class="fas fa-redo"></i>
-                <span th:text="${origen == 'login' ? 'Volver al Login' : origen == 'registro' ? 'Volver al Registro' : origen == 'dashboard' ? 'Volver al Dashboard' : 'Ir al Login'}">
-                    Recargar Página
-                </span>
-            </a>
-            
-            <a href="/" class="home-btn">
-                <i class="fas fa-home"></i>
-                Ir al Inicio
-            </a>
-        </div>
-        
-        <div class="trace-toggle" onclick="toggleTrace()">
-            <i class="fas fa-code"></i> Mostrar detalles técnicos
-        </div>
-        
-        <div class="error-trace" id="errorTrace">
-            Error: <span th:text="${mensaje}"></span><br>
-            Origen: <span th:text="${origen}"></span><br>
-            Timestamp: <span id="timestamp"></span><br>
-            User Agent: <span id="userAgent"></span>
-        </div>
-        
-        <div class="mt-4">
-            <p class="text-muted">
-                <small>Si el problema persiste, contacta al administrador</small>
+
+        <div class="error-body">
+            <h2 class="error-title">¡Algo salió mal!</h2>
+
+            <div class="error-message">
+                <i class="fas fa-info-circle me-2" style="color:var(--gold);"></i>
+                <span th:text="${mensaje}">Ocurrió un error inesperado.</span>
+            </div>
+
+            <p class="error-details">
+                El equipo técnico ha sido notificado. Si el problema persiste, contacta al administrador del sistema.
             </p>
+
+            <div style="text-align:center;">
+                <div class="origin-badge" th:if="${origen}">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Originado en: <strong th:text="${origen}"></strong>
+                </div>
+            </div>
+
+            <div class="gold-divider"></div>
+
+            <div style="text-align:center;">
+                <a th:href="@{${
+                        origen == 'login'     ? '/login'     :
+                        origen == 'modulos'   ? '/modulos'   :
+                        origen == 'usuarios'  ? '/usuarios'  :
+                        origen == 'perfiles'  ? '/perfiles'  :
+                        origen == 'permisos'  ? '/permisos'  :
+                        '/login'
+                    }}"
+                   class="btn-back" id="btnVolver">
+                    <i class="fas fa-arrow-left"></i>
+                    <span th:text="${
+                        origen == 'login'    ? 'Volver al Login'    :
+                        origen == 'modulos'  ? 'Volver a Módulos'   :
+                        origen == 'usuarios' ? 'Volver a Usuarios'  :
+                        origen == 'perfiles' ? 'Volver a Perfiles'  :
+                        origen == 'permisos' ? 'Volver a Permisos'  :
+                        'Ir al Login'
+                    }">Volver</span>
+                </a>
+
+                <a th:href="@{/}" class="btn-home">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+            </div>
+
+            <div class="gold-divider"></div>
+
+            <div style="text-align:center;">
+                <button class="trace-toggle" onclick="toggleTrace()">
+                    <i class="fas fa-code"></i> Ver detalles técnicos
+                </button>
+                <div class="error-trace" id="errorTrace">
+                    <strong style="color:#888;">Mensaje:</strong> <span th:text="${mensaje}"></span><br>
+                    <strong style="color:#888;">Origen:</strong>  <span th:text="${origen}"></span><br>
+                    <strong style="color:#888;">Timestamp:</strong> <span id="timestamp"></span><br>
+                    <strong style="color:#888;">User-Agent:</strong> <span id="userAgent"></span>
+                </div>
+            </div>
+
+            <p class="footer-note">Sistema de Gestión Clínica &mdash; Santa Mónica &copy; 2025</p>
         </div>
     </div>
 
     <script>
-        // Configurar emoji aleatorio
-        const emojis = ['🤖', '🚀', '💥', '🔥', '🌪️', '⚡', '🌀', '💫', '🛸', '👾'];
-        document.getElementById('emoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        
-        // Crear partículas flotantes
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = `${Math.random() * 100}%`;
-                particle.style.animationDelay = `${Math.random() * 5}s`;
-                particle.style.animationDuration = `${3 + Math.random() * 7}s`;
-                particlesContainer.appendChild(particle);
-            }
-        }
-        
-        // Mostrar/ocultar detalles técnicos
+        const emojis = ['⚠️','🔧','🩺','🏥','🔍','⚡','🛠️','💊'];
+        document.getElementById('emoji').textContent = emojis[Math.floor(Math.random()*emojis.length)];
+
         function toggleTrace() {
             const trace = document.getElementById('errorTrace');
-            trace.style.display = trace.style.display === 'block' ? 'none' : 'block';
+            const btn   = document.querySelector('.trace-toggle');
+            const vis   = trace.style.display === 'block';
+            trace.style.display = vis ? 'none' : 'block';
+            btn.innerHTML = vis
+                ? '<i class="fas fa-code"></i> Ver detalles técnicos'
+                : '<i class="fas fa-eye-slash"></i> Ocultar detalles';
         }
-        
-        // Configurar timestamp y user agent
-        document.getElementById('timestamp').textContent = new Date().toLocaleString();
-        document.getElementById('userAgent').textContent = navigator.userAgent;
-        
-        // Animación para el botón de acción
-        document.getElementById('actionBtn').addEventListener('mouseenter', function() {
-            const emoji = document.getElementById('emoji');
-            emoji.style.animation = 'none';
-            setTimeout(() => {
-                emoji.style.animation = 'bounce 2s infinite';
-            }, 10);
-        });
-        
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', function() {
-            createParticles();
-            
-            // Animar partículas
-            const particles = document.querySelectorAll('.particle');
-            particles.forEach(particle => {
-                particle.style.animation = `float ${3 + Math.random() * 7}s ease-in-out infinite`;
-            });
-        });
+
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('es-MX');
+        document.getElementById('userAgent').textContent  = navigator.userAgent;
     </script>
 </body>
 </html>

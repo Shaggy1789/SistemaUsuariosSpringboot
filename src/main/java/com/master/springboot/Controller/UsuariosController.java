@@ -1,8 +1,8 @@
 package com.master.springboot.Controller;
 
-import com.master.springboot.Models.Roles;
+import com.master.springboot.Models.Perfiles;
 import com.master.springboot.Models.Usuarios;
-import com.master.springboot.service.ServiceRoles;
+import com.master.springboot.service.ServicePerfiles;
 import com.master.springboot.service.ServiceUsuarios;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,204 +12,209 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
 public class UsuariosController {
 
     @Autowired
-    ServiceUsuarios serviceUsuarios;
+    private ServiceUsuarios serviceUsuarios;
 
     @Autowired
-    ServiceRoles serviceRoles;
+    private ServicePerfiles servicePerfiles;
 
-    @GetMapping("api/usuarios")
-    public List<Usuarios> MostrarUsuarios(){
-        return serviceUsuarios.findAll();
-    }
-
-    @GetMapping("api/usuario/{id}")
-    public Usuarios ObtenerPorId(@PathVariable int id){
-        return serviceUsuarios.findById(id);
-    }
-
-    @GetMapping("/api/usuarios/buscar")
-    public ResponseEntity<?> buscarUsuarios(@RequestParam(required = false)String query, @RequestParam(required = false)Integer rolId){
-        try{
+    // ── GET /api/usuarios ─────────────────────────────────────
+    @GetMapping("/api/usuarios")
+    public ResponseEntity<?> mostrarUsuarios() {
+        try {
             List<Usuarios> usuarios = serviceUsuarios.findAll();
-
-            if(query != null && !query.isEmpty()){
-                String queryLower = query.toLowerCase();
-                usuarios = usuarios.stream()
-                        .filter(u ->u.getNombreusuario().toLowerCase().contains(queryLower) ||
-                                (u.getEmail() != null && u.getEmail().toLowerCase().contains(queryLower)))
-                        .collect(Collectors.toList());
-            }
-
-            if(rolId != null){
-                usuarios = usuarios.stream().
-                        filter(u -> u.getRole() != null && u.getRole().getId() == rolId)
-                        .collect(Collectors.toList());
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("data", usuarios);
-            response.put("Total", usuarios.size());
-            return ResponseEntity.ok(response);
-
-        }catch(Exception e){
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Error en la busqueda: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", usuarios);
+            resp.put("Total", usuarios.size());
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return error("Error al obtener usuarios: " + e.getMessage(),
+                         HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // ── GET /api/usuario/{id} ─────────────────────────────────
+    @GetMapping("/api/usuario/{id}")
+    public ResponseEntity<?> obtenerPorId(@PathVariable UUID id) {
+        try {
+            Usuarios u = serviceUsuarios.findById(id);
+            if (u == null) return error("Usuario no encontrado", HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(u);
+        } catch (Exception e) {
+            return error("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // ── GET /api/usuarios/buscar ──────────────────────────────
+    @GetMapping("/api/usuarios/buscar")
+    public ResponseEntity<?> buscarUsuarios(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) UUID perfilId) {
+        try {
+            List<Usuarios> usuarios = serviceUsuarios.buscar(query, perfilId);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", usuarios);
+            resp.put("Total", usuarios.size());
+            return ResponseEntity.ok(resp);
+
+        } catch (Exception e) {
+            return error("Error en la búsqueda: " + e.getMessage(),
+                         HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // ── POST /api/usuarios ────────────────────────────────────
     @PostMapping("/api/usuarios")
-    public ResponseEntity<?> crearUsuario(@RequestBody Usuarios usuario) {
-        Map<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<?> crearUsuario(@RequestBody Map<String, Object> body) {
+        Map<String, Object> resp = new HashMap<>();
         try {
-            System.out.println("=== CREAR USUARIO ===");
+            // ── Leer campos del body ──
+            String usuarioNombre = getString(body, "usuario");
+            String email         = getString(body, "email");
+            String password      = getString(body, "password");
+            String estado        = getString(body, "estado");
+            Object perfilRaw     = body.get("perfilId");
 
-            usuario.setIdusuario(null);
+            // ── Validaciones básicas ──
+            if (usuarioNombre == null || usuarioNombre.isBlank())
+                return error("El campo 'usuario' es obligatorio", HttpStatus.BAD_REQUEST);
+            if (email == null || email.isBlank())
+                return error("El campo 'email' es obligatorio", HttpStatus.BAD_REQUEST);
+            if (password == null || password.isBlank())
+                return error("La contraseña es obligatoria", HttpStatus.BAD_REQUEST);
 
-            if (usuario.getTelefono() == null) {
-                usuario.setTelefono(0L);
+            // ── Verificar duplicado ──
+            if (serviceUsuarios.existsByUsuario(usuarioNombre.trim()))
+                return error("El nombre de usuario ya existe", HttpStatus.CONFLICT);
+
+            // ── Construir entidad ──
+            Usuarios nuevo = new Usuarios();
+            nuevo.setUsuario(usuarioNombre.trim());
+            nuevo.setEmail(email.trim());
+            nuevo.setPassword(md5(password));
+            nuevo.setEstado(estado != null ? estado : "ACTIVO");
+
+            // Asignar perfil si viene en el body
+            if (perfilRaw != null) {
+                UUID perfilId = UUID.fromString(perfilRaw.toString());
+                Perfiles perfil = servicePerfiles.findById(perfilId);
+                if (perfil == null)
+                    return error("Perfil no encontrado", HttpStatus.BAD_REQUEST);
+                nuevo.setPerfil(perfil);
             }
 
-            List<Usuarios> usuariosExistentes = serviceUsuarios.findAll();
-            for (Usuarios u : usuariosExistentes) {
-                if (u.getNombreusuario().equals(usuario.getNombreusuario())) {
-                    response.put("success", false);
-                    response.put("message", "El nombre de usuario ya existe");
-                    return ResponseEntity.badRequest().body(response);
-                }
-            }
+            Usuarios guardado = serviceUsuarios.save(nuevo);
 
-            for (Usuarios u : usuariosExistentes) {
-                if (u.getEmail().equals(usuario.getEmail())) {
-                    response.put("success", false);
-                    response.put("message", "El email ya está registrado");
-                    return ResponseEntity.badRequest().body(response);
-                }
-            }
-
-            if (usuario.getRole() != null && usuario.getRole().getId() > 0) {
-                Roles rol = serviceRoles.findAll().stream()
-                        .filter(r -> r.getId() == usuario.getRole().getId())
-                        .findFirst()
-                        .orElse(null);
-                if (rol == null) {
-                    response.put("success", false);
-                    response.put("message", "Rol no encontrado");
-                    return ResponseEntity.badRequest().body(response);
-                }
-                usuario.setRole(rol);
-            }
-
-            if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
-                usuario.setPassword(md5(usuario.getPassword()));
-            }
-
-            Usuarios nuevoUsuario = serviceUsuarios.save(usuario);
-
-            response.put("success", true);
-            response.put("message", "Usuario creado correctamente");
-            response.put("usuario", nuevoUsuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            resp.put("success", true);
+            resp.put("message", "Usuario creado correctamente");
+            resp.put("data", guardado);
+            return ResponseEntity.status(HttpStatus.CREATED).body(resp);
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Error al crear usuario: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return error("Error al crear usuario: " + e.getMessage(),
+                         HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // ── PUT /api/usuarios/{id} ────────────────────────────────
     @PutMapping("/api/usuarios/{id}")
-    public ResponseEntity<?> actualizarUsuario(@PathVariable int id, @RequestBody Usuarios usuarioActualizado) {
-        Map<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<?> actualizarUsuario(@PathVariable UUID id,
+                                               @RequestBody Map<String, Object> body) {
+        Map<String, Object> resp = new HashMap<>();
         try {
-            System.out.println("=== ACTUALIZAR USUARIO ID: " + id + " ===");
+            Usuarios existente = serviceUsuarios.findById(id);
+            if (existente == null)
+                return error("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-            Usuarios usuarioExistente = serviceUsuarios.findById(id);
+            String usuarioNombre = getString(body, "usuario");
+            String email         = getString(body, "email");
+            String password      = getString(body, "password");
+            String estado        = getString(body, "estado");
+            Object perfilRaw     = body.get("perfilId");
 
-            if (usuarioExistente == null) {
-                response.put("success", false);
-                response.put("message", "Usuario no encontrado");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            // Validar nombre único (excluyendo el actual)
+            if (usuarioNombre != null && !usuarioNombre.isBlank()) {
+                if (serviceUsuarios.existsByUsuarioAndIdNot(usuarioNombre.trim(), id))
+                    return error("El nombre de usuario ya está en uso", HttpStatus.CONFLICT);
+                existente.setUsuario(usuarioNombre.trim());
+            }
+            if (email   != null && !email.isBlank())   existente.setEmail(email.trim());
+            if (estado  != null && !estado.isBlank())  existente.setEstado(estado.trim());
+            if (password != null && !password.isBlank()) existente.setPassword(md5(password));
+
+            if (perfilRaw != null) {
+                UUID perfilId = UUID.fromString(perfilRaw.toString());
+                Perfiles perfil = servicePerfiles.findById(perfilId);
+                if (perfil == null)
+                    return error("Perfil no encontrado", HttpStatus.BAD_REQUEST);
+                existente.setPerfil(perfil);
             }
 
-            usuarioExistente.setNombreusuario(usuarioActualizado.getNombreusuario());
-            usuarioExistente.setApellidopaterno(usuarioActualizado.getApellidopaterno());
-            usuarioExistente.setApellidomaterno(usuarioActualizado.getApellidomaterno());
-            usuarioExistente.setEmail(usuarioActualizado.getEmail());
-            usuarioExistente.setTelefono(usuarioActualizado.getTelefono());
+            Usuarios actualizado = serviceUsuarios.save(existente);
 
-            if (usuarioActualizado.getRole() != null) {
-                usuarioExistente.setRole(usuarioActualizado.getRole());
-            }
-
-            if (usuarioActualizado.getPassword() != null && !usuarioActualizado.getPassword().isEmpty()) {
-                usuarioExistente.setPassword(md5(usuarioActualizado.getPassword()));
-            }
-
-            Usuarios usuarioGuardado = serviceUsuarios.save(usuarioExistente);
-
-            response.put("success", true);
-            response.put("message", "Usuario actualizado correctamente");
-            response.put("usuario", usuarioGuardado);
-            return ResponseEntity.ok(response);
+            resp.put("success", true);
+            resp.put("message", "Usuario actualizado correctamente");
+            resp.put("data", actualizado);
+            return ResponseEntity.ok(resp);
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Error al actualizar: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return error("Error al actualizar: " + e.getMessage(),
+                         HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // ── DELETE /api/usuarios/{id} ─────────────────────────────
     @DeleteMapping("/api/usuarios/{id}")
-    public ResponseEntity<?> eliminarUsuario(@PathVariable int id) {
-        Map<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<?> eliminarUsuario(@PathVariable UUID id) {
         try {
-            System.out.println("=== ELIMINAR USUARIO ID: " + id + " ===");
-
-            Usuarios usuario = serviceUsuarios.findById(id);
-            if (usuario == null) {
-                response.put("success", false);
-                response.put("message", "Usuario no encontrado");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
+            if (serviceUsuarios.findById(id) == null)
+                return error("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
             serviceUsuarios.delete(id);
 
-            response.put("success", true);
-            response.put("message", "Usuario eliminado correctamente");
-            return ResponseEntity.ok(response);
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("message", "Usuario eliminado correctamente");
+            return ResponseEntity.ok(resp);
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Error al eliminar usuario: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return error("Error al eliminar usuario: " + e.getMessage(),
+                         HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+    private String getString(Map<String, Object> body, String key) {
+        Object val = body.get(key);
+        return val != null ? val.toString() : null;
+    }
+
+    private ResponseEntity<Map<String, Object>> error(String msg, HttpStatus status) {
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", false);
+        resp.put("message", msg);
+        return ResponseEntity.status(status).body(resp);
     }
 
     private String md5(String input) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(input.getBytes());
-            java.math.BigInteger no = new java.math.BigInteger(1, messageDigest);
-            String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
+            byte[] digest = md.digest(input.getBytes());
+            java.math.BigInteger no = new java.math.BigInteger(1, digest);
+            String hash = no.toString(16);
+            while (hash.length() < 32) hash = "0" + hash;
+            return hash;
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

@@ -9,8 +9,8 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "usuarios")
-public class Usuarios {
+@Table(name = "perfiles")
+public class Perfiles {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -18,27 +18,14 @@ public class Usuarios {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    // Columna "usuario" en la BD (nombre de login, único)
-    @Column(name = "usuario", nullable = false, unique = true)
-    private String usuario;
+    @Column(name = "nombre", nullable = false, unique = true)
+    private String nombre;
 
-    @Column(name = "password", nullable = false)
-    private String password;
+    @Column(name = "descripcion")
+    private String descripcion;
 
-    // Campo extra para email (no está en el CREATE TABLE original,
-    // agrégalo a la BD si no existe: ALTER TABLE usuarios ADD COLUMN email varchar(255);)
-    @Column(name = "email")
-    private String email;
-
-    // Estado: 'ACTIVO' | 'INACTIVO'
     @Column(name = "estado", columnDefinition = "varchar(255) DEFAULT 'ACTIVO'")
     private String estado = "ACTIVO";
-
-    // Relación con perfiles (perfil_id → perfiles.id)
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "perfil_id",
-                foreignKey = @ForeignKey(name = "usuarios_perfil_id_fkey"))
-    private Perfiles perfil;
 
     @CreationTimestamp
     @Column(name = "creado_en", updatable = false)
@@ -53,20 +40,14 @@ public class Usuarios {
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
-    public String getUsuario() { return usuario; }
-    public void setUsuario(String usuario) { this.usuario = usuario; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
-
-    public Perfiles getPerfil() { return perfil; }
-    public void setPerfil(Perfiles perfil) { this.perfil = perfil; }
 
     public OffsetDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(OffsetDateTime creadoEn) { this.creadoEn = creadoEn; }

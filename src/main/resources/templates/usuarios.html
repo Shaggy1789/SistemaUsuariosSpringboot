@@ -3,549 +3,641 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administración de Usuarios</title>
-    <!-- Bootstrap 5 -->
+    <title>Usuarios — Santa Mónica</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --gold-dark:  #a07830;
+            --black:      #0d0d0d;
+            --black-2:    #111111;
+            --black-3:    #181818;
+            --black-4:    #212121;
+            --black-5:    #2a2a2a;
+            --border:     rgba(201,168,76,0.15);
+            --border-h:   rgba(201,168,76,0.35);
+            --text:       #e2e2e2;
+            --text-muted: #6e6e6e;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: var(--black);
+            background-image: radial-gradient(ellipse at 15% 40%, rgba(201,168,76,0.04) 0%, transparent 55%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
+            color: var(--text);
+            margin: 0; padding: 0;
+            min-height: 100vh;
         }
-        
-        .navbar-custom {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+        /* ══ NAVBAR ══════════════════════════════════════════ */
+        .topnav {
+            background: var(--black-2);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center;
+            padding: 0 1.5rem;
+            height: 52px;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.5);
         }
-        
-        .navbar-custom .navbar-brand {
-            color: white;
+        .topnav::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.4;
+        }
+        .topnav-brand {
+            color: var(--gold-light);
             font-weight: 700;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .navbar-custom .navbar-brand i {
-            margin-right: 10px;
-            font-size: 1.8rem;
-        }
-        
-        .navbar-custom .nav-link {
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            margin: 0 0.2rem;
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-        
-        .navbar-custom .nav-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .navbar-custom .nav-link i {
-            margin-right: 8px;
-        }
-        
-        .navbar-custom .btn-login-nav {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 0.5rem 1.2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-left: 10px;
+            font-size: 0.95rem;
             text-decoration: none;
-            display: inline-block;
+            margin-right: 1.5rem;
+            display: flex; align-items: center; gap: 8px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
         }
-        
-        .navbar-custom .btn-login-nav:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            color: white;
+        .topnav-brand i { color: var(--gold); font-size: 1.1rem; }
+
+        .topnav-menu {
+            display: flex; align-items: stretch;
+            list-style: none; margin: 0; padding: 0;
+            flex: 1; height: 100%;
         }
-        
-        .navbar-custom .user-info {
-            display: flex;
-            align-items: center;
-            color: white;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 0.3rem 1rem 0.3rem 0.5rem;
-            border-radius: 30px;
-            margin-left: 10px;
+        .topnav-menu > li {
+            position: relative;
+            display: flex; align-items: center;
         }
-        
-        .navbar-custom .user-info i {
-            font-size: 1.3rem;
-            margin-right: 8px;
-        }
-        
-        .navbar-custom .user-info span {
-            font-weight: 600;
-            margin-right: 10px;
-        }
-        
-        .admin-container {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .admin-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .card-header-custom {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            color: white;
-            padding: 1.5rem;
-            margin: -2rem -2rem 1.5rem -2rem;
-            border-radius: 0 0 20px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-        
-        .card-header-custom h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin: 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .card-header-custom h2 i {
-            margin-right: 15px;
-            font-size: 2rem;
-        }
-        
-        .btn-custom {
-            background: white;
-            color: #4f46e5;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
+        .topnav-menu > li > a,
+        .topnav-menu > li > span {
+            color: #888;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: 2px solid transparent;
-        }
-        
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
-            color: #4f46e5;
-            border: 2px solid white;
-        }
-        
-        .btn-primary-custom {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
-            color: white;
-        }
-        
-        .filtros-card {
-            background: #f8fafc;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 2px solid #e2e8f0;
-        }
-        
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 10px 15px;
-            border: 2px solid #e2e8f0;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-        
-        .table-custom {
-            border-radius: 15px;
-            overflow: hidden;
-            width: 100%;
-        }
-        
-        .table-custom thead {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            color: white;
-        }
-        
-        .table-custom thead th {
-            border: none;
-            padding: 1rem;
-            font-weight: 600;
-        }
-        
-        .table-custom tbody tr {
-            transition: all 0.2s;
-        }
-        
-        .table-custom tbody tr:hover {
-            background-color: rgba(79, 70, 229, 0.08);
-        }
-        
-        .role-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
             font-size: 0.85rem;
-            font-weight: 600;
-            display: inline-block;
+            font-weight: 500;
+            padding: 0 1rem;
+            height: 100%;
+            display: flex; align-items: center; gap: 6px;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
         }
-        
-        .badge-admin {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .topnav-menu > li > a:hover,
+        .topnav-menu > li > span:hover { color: var(--gold-light); }
+        .topnav-menu > li > span i.arrow { font-size: 0.6rem; transition: transform 0.2s; }
+        .topnav-menu > li:hover > span i.arrow { transform: rotate(180deg); }
+
+        .dropdown-nav {
+            display: none;
+            position: absolute; top: 100%; left: 0;
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-top: 2px solid var(--gold);
+            min-width: 175px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+            z-index: 100;
         }
-        
-        .btn-accion {
-            padding: 8px 12px;
+        .topnav-menu > li:hover .dropdown-nav { display: block; }
+        .dropdown-nav a {
+            display: block; color: #888;
+            text-decoration: none;
+            font-size: 0.83rem;
+            padding: 10px 16px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .dropdown-nav a:hover { background: rgba(201,168,76,0.07); color: var(--gold-light); }
+        .dropdown-nav a.active-page { color: var(--gold); font-weight: 600; }
+
+        .topnav-right {
+            margin-left: auto;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .user-pill {
+            background: rgba(201,168,76,0.07);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 14px 4px 8px;
+            display: flex; align-items: center; gap: 8px;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+        .user-pill i { color: var(--gold); font-size: 1rem; }
+        .user-pill .role-tag {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d;
+            font-size: 0.68rem;
+            font-weight: 700;
             border-radius: 10px;
+            padding: 2px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #888;
+            border-radius: 7px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: flex; align-items: center; gap: 6px;
             transition: all 0.2s;
-            margin: 0 3px;
         }
-        
-        .btn-accion:hover {
-            transform: translateY(-2px);
-        }
-        
-        .total-usuarios {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        
-        .modal-content {
-            border-radius: 20px;
-            border: none;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-header {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            color: white;
-            border-radius: 20px 20px 0 0;
-            padding: 1.5rem;
-            border: none;
-        }
-        
-        .modal-header .btn-close {
-            filter: brightness(0) invert(1);
-        }
-        
-        .modal-body {
-            padding: 2rem;
-        }
-        
-        .modal-footer {
-            border-top: 2px solid #e2e8f0;
+        .btn-logout:hover { border-color: var(--gold); color: var(--gold-light); }
+
+        /* ══ PAGE ════════════════════════════════════════════ */
+        .page-wrap {
+            max-width: 1300px;
+            margin: 0 auto;
             padding: 1.5rem;
         }
-        
-        .password-input-group {
+
+        .page-header {
+            display: flex; align-items: center; gap: 14px;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
             position: relative;
         }
-        
-        .toggle-password {
+        .page-header::after {
+            content: '';
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #64748b;
+            bottom: -1px; left: 0;
+            width: 80px; height: 2px;
+            background: var(--gold);
         }
-        
-        .toggle-password:hover {
-            color: #4f46e5;
+        .page-header-icon {
+            width: 46px; height: 46px;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
         }
-        
-        .is-invalid {
-            border-color: #dc3545 !important;
+        .page-header-icon i { font-size: 1.3rem; color: var(--gold); }
+        .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #e8e8e8; margin: 0; }
+
+        /* Filters */
+        .filter-panel {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
         }
-        
-        .is-valid {
-            border-color: #198754 !important;
-        }
-        
-        .invalid-feedback {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-            display: block;
-        }
-        
-        #telefono::-webkit-outer-spin-button,
-        #telefono::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        /* Estilos de paginado exactamente como la imagen */
-        .pagination-controls {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 20px;
-            padding: 16px 0;
-            font-size: 14px;
-            color: #333;
-        }
-        
-        .rows-per-page {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .rows-per-page select {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 6px 24px 6px 12px;
-            font-size: 14px;
-            color: #333;
-            background-color: white;
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            background-size: 14px;
-        }
-        
-        .rows-per-page select:focus {
-            outline: none;
-            border-color: #4f46e5;
-        }
-        
-        .pagination-info {
-            color: #666;
-        }
-        
-        .pagination-info strong {
-            color: #333;
+        .filter-panel .form-label {
+            font-size: 0.75rem;
             font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        .pagination-arrows {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-left: 10px;
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            background: var(--black-4);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            transition: border-color 0.2s;
         }
-        
-        .pagination-arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            background-color: white;
-            color: #666;
+        .filter-panel .form-control::placeholder { color: #4a4a4a; }
+        .filter-panel .form-control:focus,
+        .filter-panel .form-select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+            background: var(--black-4);
+            color: var(--text);
+            outline: none;
+        }
+        .filter-panel .form-select option { background: var(--black-4); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(201,168,76,0.3); }
+
+        .btn-gold-outline {
+            background: transparent;
+            border: 1px solid var(--border-h);
+            color: var(--gold-light);
+            border-radius: 8px;
+            padding: 7px 18px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-gold-outline:hover { background: rgba(201,168,76,0.08); border-color: var(--gold); }
+
+        .count-row {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: 0.75rem;
+            font-size: 0.82rem; color: var(--text-muted);
+        }
+        .count-dot {
+            width: 8px; height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Toolbar */
+        .table-toolbar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        .results-label { font-weight: 700; color: #888; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-add {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d;
+            border: none;
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(201,168,76,0.3); }
+
+        /* Table */
+        .table-card {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .table-custom {
+            width: 100%; border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+        .table-custom thead tr {
+            background: var(--black-4);
+            border-bottom: 1px solid var(--border);
+        }
+        .table-custom thead th {
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--gold);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            border: none;
+        }
+        .table-custom tbody tr {
+            border-bottom: 1px solid rgba(201,168,76,0.07);
+            transition: background 0.15s;
+        }
+        .table-custom tbody tr:last-child { border-bottom: none; }
+        .table-custom tbody tr:hover { background: rgba(201,168,76,0.04); }
+        .table-custom tbody td {
+            padding: 11px 16px;
+            color: #b8b8b8;
+            vertical-align: middle;
+        }
+
+        .role-badge {
+            background: rgba(201,168,76,0.1);
+            color: var(--gold-light);
+            border: 1px solid rgba(201,168,76,0.2);
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .role-badge.admin {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d;
+            border: none;
+        }
+
+        .btn-edit {
+            background: transparent;
+            border: 1px solid rgba(201,168,76,0.25);
+            color: var(--gold);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            transition: all 0.2s;
+        }
+        .btn-edit:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+        .btn-del {
+            background: transparent;
+            border: 1px solid rgba(229,62,62,0.25);
+            color: #fc8181;
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            transition: all 0.2s;
+            margin-left: 4px;
+        }
+        .btn-del:hover { background: rgba(229,62,62,0.1); border-color: #e53e3e; }
+
+        /* Pagination */
+        .pagination-bar {
+            display: flex; align-items: center; justify-content: flex-end;
+            gap: 16px;
+            padding: 10px 16px;
+            border-top: 1px solid rgba(201,168,76,0.07);
+            background: var(--black-4);
+            font-size: 0.8rem; color: var(--text-muted);
+        }
+        .rows-label { display: flex; align-items: center; gap: 8px; }
+        .rows-label select {
+            background: var(--black-5);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            color: var(--text-muted);
+            padding: 4px 20px 4px 8px;
+            font-size: 0.8rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c9a84c' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-color: var(--black-5);
+            cursor: pointer;
+        }
+        .pg-arrow {
+            width: 28px; height: 28px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: var(--black-5);
+            color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; text-decoration: none;
+            font-size: 0.75rem;
+            transition: all 0.15s;
+        }
+        .pg-arrow:hover:not(.disabled) { background: rgba(201,168,76,0.1); border-color: var(--gold); color: var(--gold); }
+        .pg-arrow.disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Bottom */
+        .btn-menu-bottom {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            color: var(--gold-light);
+            border-radius: 8px;
+            padding: 8px 22px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
             text-decoration: none;
-            font-size: 14px;
+            display: inline-block;
+            transition: all 0.2s;
+            margin-top: 1rem;
         }
-        
-        .pagination-arrow:hover:not(.disabled) {
-            background-color: #4f46e5;
-            border-color: #4f46e5;
-            color: white;
+        .btn-menu-bottom:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* ══ MODALS ═══════════════════════════════════════════ */
+        .modal-content {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7);
         }
-        
-        .pagination-arrow.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background-color: #f5f5f5;
+        .modal-header {
+            background: var(--black-4);
+            border-bottom: 1px solid var(--border);
+            border-radius: 14px 14px 0 0;
+            padding: 1.1rem 1.5rem;
+            position: relative;
         }
-        
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            border-radius: 14px 14px 0 0;
+        }
+        .modal-title { font-size: 0.95rem; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 8px; }
+        .modal-header .btn-close { filter: invert(0.7) sepia(1) saturate(2) hue-rotate(10deg); }
+        .modal-body { padding: 1.5rem; background: var(--black-3); }
+        .modal-footer { border-top: 1px solid var(--border); padding: 1rem 1.5rem; background: var(--black-3); border-radius: 0 0 14px 14px; }
+
+        .modal-body .form-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-body .form-control,
+        .modal-body .form-select {
+            background: var(--black-4);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+            padding: 9px 12px;
+            transition: border-color 0.2s;
+        }
+        .modal-body .form-control::placeholder { color: #444; }
+        .modal-body .form-control:focus,
+        .modal-body .form-select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+            background: var(--black-4); color: var(--text); outline: none;
+        }
+        .modal-body .form-select option { background: var(--black-4); }
+        .modal-body .input-group-text {
+            background: var(--black-5);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-right: none;
+            color: var(--gold);
+            font-size: 0.85rem;
+        }
+        .modal-body .input-group .form-control,
+        .modal-body .input-group .form-select { border-left: none; }
+
+        .is-invalid { border-color: #e53e3e !important; }
+        .is-valid   { border-color: var(--gold) !important; }
+        .invalid-feedback { color: #fc8181; font-size: 0.75rem; margin-top: 3px; display: block; }
+
+        .toggle-password {
+            position: absolute; right: 12px; top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer; color: #555; z-index: 5;
+        }
+        .toggle-password:hover { color: var(--gold); }
+
+        .modal-header.danger { background: rgba(229,62,62,0.1); }
+        .modal-header.danger .modal-title { color: #fc8181; }
+
+        /* States */
+        .state-cell { text-align: center; padding: 2.5rem 1rem !important; color: #444; }
+        .state-cell i { font-size: 2rem; display: block; margin-bottom: 0.75rem; }
+
+        /* Toast */
+        #appToast {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            padding: 12px 20px; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
         @media (max-width: 768px) {
-            .admin-container {
-                padding: 1rem;
-            }
-            .navbar-custom {
-                padding: 1rem;
-            }
-            .card-header-custom {
-                flex-direction: column;
-                gap: 15px;
-            }
+            .page-wrap { padding: 1rem; }
+            .topnav-menu > li > a,
+            .topnav-menu > li > span { padding: 0 0.6rem; font-size: 0.78rem; }
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-custom">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/}">
-            <i class="fas fa-lock"></i>
-            <span>Mi Aplicación</span>
-        </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/holamundo}">
-                        <i class="fas fa-globe"></i> Hola Mundo
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/usuarios}">
-                        <i class="fa-solid fa-circle-user"></i>Usuarios
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/galeria}">
-                        <i class="fas fa-images"></i> Galería
-                    </a>
-                </li>
-            </ul>
-
-            <ul class="navbar-nav">
-                <li class="nav-item" th:if="${session.usuario != null}">
-                    <div class="user-info">
-                        <i class="fas fa-user-circle"></i>
-                        <span th:text="${session.usuario.nombreusuario}">Usuario</span>
-                        <span class="badge bg-light text-dark" th:text="${session.usuario.role.nombre}">Rol</span>
-                    </div>
-                </li>
-                <li class="nav-item" th:if="${session.usuario != null}">
-                    <a class="btn-login-nav" th:href="@{/logout}">
-                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                    </a>
-                </li>
-                <li class="nav-item" th:unless="${session.usuario != null}">
-                    <a class="btn-login-nav" th:href="@{/login1}">
-                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                    </a>
-                </li>
-                <li class="nav-item" th:unless="${session.usuario != null}">
-                    <a class="btn-register-nav" th:href="@{/registro}">
-                        <i class="fas fa-user-plus"></i> Registrarse
-                    </a>
-                </li>
-            </ul>
+<!-- ══ NAVBAR ══ -->
+<nav class="topnav">
+    <a class="topnav-brand" th:href="@{/}">
+        <i class="fas fa-heartbeat"></i> Santa Mónica
+    </a>
+    <ul class="topnav-menu">
+        <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
+        <li>
+            <span>Almacén <i class="fas fa-chevron-down arrow"></i></span>
+            <div class="dropdown-nav">
+                <a th:href="@{/almacen}">Inventario</a>
+            </div>
+        </li>
+        <li>
+            <span>Seguridad <i class="fas fa-chevron-down arrow"></i></span>
+            <div class="dropdown-nav">
+                <a th:href="@{/perfil}">Perfil</a>
+                <a th:href="@{/permisos}">Permisos Perfil</a>
+                <a th:href="@{/usuarios}" class="active-page">Usuario</a>
+            </div>
+        </li>
+        <li>
+            <span>Herramientas <i class="fas fa-chevron-down arrow"></i></span>
+            <div class="dropdown-nav">
+                <a th:href="@{/galeria}">Galería</a>
+            </div>
+        </li>
+    </ul>
+    <div class="topnav-right">
+        <div class="user-pill" th:if="${session.usuario != null}">
+            <i class="fas fa-user-circle"></i>
+            <span th:text="${session.usuario.usuario}">Usuario</span>
+            <span class="role-tag" th:if="${session.usuario.perfil != null}" th:text="${session.usuario.perfil.nombre}">Rol</span>
         </div>
+        <a class="btn-logout" th:if="${session.usuario != null}" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i> Salir
+        </a>
+        <a class="btn-logout" th:unless="${session.usuario != null}" th:href="@{/login}">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </a>
     </div>
 </nav>
 
-<div class="admin-container">
-    <div class="admin-card">
-        <div class="card-header-custom">
-            <h2>
-                <i class="fas fa-users-cog"></i>
-                Gestión de Usuarios
-            </h2>
-            <div class="d-flex gap-3 align-items-center">
-                    <span class="total-usuarios" id="totalUsuarios">
-                        <i class="fas fa-database me-2"></i>
-                        Total: <span id="totalCount">0</span> usuarios
-                    </span>
-                <button class="btn-custom" onclick="abrirModalNuevo()">
-                    <i class="fas fa-user-plus"></i> Nuevo Usuario
+<!-- ══ CONTENT ══ -->
+<div class="page-wrap">
+
+    <div class="page-header">
+        <div class="page-header-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <h1>Gestión de Usuarios</h1>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-panel">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Usuario</label>
+                <input type="text" id="buscarInput" class="form-control" placeholder="Buscar...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Perfil</label>
+                <select id="rolSelect" class="form-select">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <select id="estadoSelect" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="ACTIVO">Activo</option>
+                    <option value="INACTIVO">Inactivo</option>
+                </select>
+            </div>
+            <div class="col-md-auto d-flex gap-2">
+                <button class="btn-gold" id="filtrarBtn">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button class="btn-gold-outline" id="limpiarBtn">
+                    <i class="fas fa-undo"></i> Limpiar
                 </button>
             </div>
         </div>
-
-        <div class="filtros-card">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-search me-2"></i>Buscar
-                    </label>
-                    <input type="text" id="buscarInput" class="form-control"
-                           placeholder="Nombre, email o teléfono...">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold text-muted">
-                        <i class="fas fa-filter me-2"></i>Rol
-                    </label>
-                    <select id="rolSelect" class="form-select">
-                        <option value="">Todos los roles</option>
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button id="filtrarBtn" class="btn-primary-custom w-100">
-                        <i class="fas fa-filter me-2"></i>Filtrar
-                    </button>
-                </div>
-            </div>
+        <div class="count-row">
+            <span class="count-dot"></span>
+            <span>Total: <strong id="totalCount" style="color:var(--gold-light);">0</strong> registros</span>
         </div>
+    </div>
 
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <button class="btn-add" onclick="abrirModalNuevo()" title="Nuevo usuario">
+            <i class="fas fa-plus"></i>
+        </button>
+        <span class="results-label">Resultados</span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
         <div class="table-responsive">
-            <table class="table table-custom">
+            <table class="table-custom">
                 <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Apellidos</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Perfil</th>
+                        <th>Tipo Usuario</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
                 </thead>
                 <tbody id="tablaUsuarios">
-                <tr>
-                    <td colspan="7" class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2">Cargando usuarios...</p>
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="7" class="state-cell">
+                            <i class="fas fa-spinner fa-spin" style="color:var(--gold);"></i>
+                            Cargando usuarios...
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Paginado estilo imagen -->
-        <div class="pagination-controls">
-            <div class="rows-per-page">
-                Rows per page:
+        <div class="pagination-bar">
+            <div class="rows-label">
+                Filas por página:
                 <select id="itemsPerPageSelect">
                     <option value="10">10</option>
                     <option value="20">20</option>
@@ -553,29 +645,36 @@
                     <option value="100">100</option>
                 </select>
             </div>
-            
-            <div class="pagination-info">
-                <span id="startRecord">0</span>-<span id="endRecord">0</span> of <strong id="totalRecords">0</strong>
-            </div>
-            
-            <div class="pagination-arrows">
-                <a href="#" class="pagination-arrow" id="prevPage" onclick="cambiarPagina(currentPage - 1); return false;">
+            <span>
+                <span id="startRecord">0</span>–<span id="endRecord">0</span>
+                de <strong id="totalRecords" style="color:var(--gold-light);">0</strong>
+            </span>
+            <div style="display:flex;gap:4px;">
+                <a href="#" class="pg-arrow" id="prevPage" onclick="cambiarPagina(currentPage-1);return false;">
                     <i class="fas fa-chevron-left"></i>
                 </a>
-                <a href="#" class="pagination-arrow" id="nextPage" onclick="cambiarPagina(currentPage + 1); return false;">
+                <a href="#" class="pg-arrow" id="nextPage" onclick="cambiarPagina(currentPage+1);return false;">
                     <i class="fas fa-chevron-right"></i>
                 </a>
             </div>
         </div>
     </div>
+
+    <div style="text-align:right;">
+        <a th:href="@{/}" class="btn-menu-bottom">
+            <i class="fas fa-th-large me-1"></i> Menú
+        </a>
+    </div>
 </div>
 
+
+<!-- ══ MODAL: CREAR / EDITAR ══ -->
 <div class="modal fade" id="usuarioModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">
-                    <i class="fas fa-user-plus me-2"></i>
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus"></i>
                     <span id="modalTitleText">Nuevo Usuario</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -583,22 +682,20 @@
             <div class="modal-body">
                 <form id="usuarioForm">
                     <input type="hidden" id="usuarioId">
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Nombre de Usuario *</label>
+                            <label class="form-label">Nombre de Usuario *</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                                 <input type="text" class="form-control" id="nombreusuario"
                                        placeholder="Máx. 10 caracteres" maxlength="10"
-                                       oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
-                                       onblur="validarTexto(this, 'usuario')" required>
+                                       oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,'')"
+                                       onblur="validarTexto(this,'usuario')" required>
                             </div>
                             <div id="nombreusuarioError" class="invalid-feedback"></div>
                         </div>
-
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Email *</label>
+                            <label class="form-label">Email *</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                 <input type="email" class="form-control" id="email"
@@ -608,49 +705,45 @@
                             <div id="emailError" class="invalid-feedback"></div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Apellido Paterno *</label>
+                            <label class="form-label">Apellido Paterno *</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
                                 <input type="text" class="form-control" id="apellidopaterno"
                                        placeholder="Solo letras" maxlength="10"
-                                       oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
-                                       onblur="validarTexto(this, 'apellido paterno')" required>
+                                       oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,'')"
+                                       onblur="validarTexto(this,'apellido paterno')" required>
                             </div>
                             <div id="apellidopaternoError" class="invalid-feedback"></div>
                         </div>
-
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Apellido Materno *</label>
+                            <label class="form-label">Apellido Materno *</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
                                 <input type="text" class="form-control" id="apellidomaterno"
                                        placeholder="Solo letras" maxlength="10"
-                                       oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
-                                       onblur="validarTexto(this, 'apellido materno')" required>
+                                       oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,'')"
+                                       onblur="validarTexto(this,'apellido materno')" required>
                             </div>
                             <div id="apellidomaternoError" class="invalid-feedback"></div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Teléfono *</label>
+                            <label class="form-label">Teléfono *</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                 <input type="tel" class="form-control" id="telefono"
                                        placeholder="10 dígitos" maxlength="10"
-                                       oninput="soloNumeros(event); validarTelefono(this)" required>
+                                       oninput="soloNumeros(event);validarTelefono(this)" required>
                             </div>
                             <div id="telefonoError" class="invalid-feedback"></div>
                         </div>
-
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Rol *</label>
+                            <label class="form-label">Rol *</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                                <span class="input-group-text"><i class="fas fa-shield-alt"></i></span>
                                 <select class="form-select" id="rol" required>
                                     <option value="">Seleccionar rol</option>
                                 </select>
@@ -658,32 +751,30 @@
                             <div id="rolError" class="invalid-feedback"></div>
                         </div>
                     </div>
-
                     <div class="row" id="passwordFields">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Contraseña *</label>
-                            <div class="input-group password-input-group">
+                            <label class="form-label">Contraseña *</label>
+                            <div class="input-group position-relative">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                 <input type="password" class="form-control" id="password"
                                        placeholder="Mínimo 4 caracteres" maxlength="10"
-                                       oninput="document.getElementById('confirmPassword').value ? validarPassword('password', 'confirmPassword') : null">
+                                       oninput="document.getElementById('confirmPassword').value?validarPassword('password','confirmPassword'):null">
                                 <span class="toggle-password" onclick="togglePassword('password')">
-                                        <i class="fas fa-eye"></i>
-                                    </span>
+                                    <i class="fas fa-eye"></i>
+                                </span>
                             </div>
                             <div id="passwordError" class="invalid-feedback"></div>
                         </div>
-
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Confirmar Contraseña</label>
-                            <div class="input-group password-input-group">
+                            <label class="form-label">Confirmar Contraseña</label>
+                            <div class="input-group position-relative">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                 <input type="password" class="form-control" id="confirmPassword"
                                        placeholder="Repite la contraseña" maxlength="10"
-                                       oninput="validarPassword('password', 'confirmPassword')">
+                                       oninput="validarPassword('password','confirmPassword')">
                                 <span class="toggle-password" onclick="togglePassword('confirmPassword')">
-                                        <i class="fas fa-eye"></i>
-                                    </span>
+                                    <i class="fas fa-eye"></i>
+                                </span>
                             </div>
                             <div id="confirmPasswordError" class="invalid-feedback"></div>
                         </div>
@@ -691,37 +782,34 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Cancelar
-                </button>
-                <button type="button" class="btn btn-primary" onclick="guardarUsuario()">
-                    <i class="fas fa-save me-1"></i>Guardar
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn-gold" onclick="guardarUsuario()">
+                    <i class="fas fa-save"></i> Guardar
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+
+<!-- ══ MODAL: ELIMINAR ══ -->
 <div class="modal fade" id="eliminarModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header danger">
                 <h5 class="modal-title">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Confirmar Eliminación
+                    <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center py-4">
-                <i class="fas fa-user-times fa-4x text-danger mb-3"></i>
-                <h5>¿Estás seguro de eliminar al usuario?</h5>
-                <p id="usuarioAEliminar" class="fw-bold text-danger"></p>
-                <p class="text-muted">Esta acción no se puede deshacer.</p>
+                <i class="fas fa-user-times fa-3x mb-3" style="color:#fc8181;"></i>
+                <h5 style="color:#e2e2e2;">¿Eliminar al usuario?</h5>
+                <p id="usuarioAEliminar" class="fw-bold" style="color:#fc8181;"></p>
+                <p style="color:#666;font-size:0.85rem;">Esta acción no se puede deshacer.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Cancelar
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-danger" onclick="confirmarEliminar()">
                     <i class="fas fa-trash me-1"></i>Eliminar
                 </button>
@@ -730,8 +818,8 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let usuarioIdEliminar = null;
     let modalInstance = null;
@@ -740,7 +828,7 @@
     let itemsPerPage = 50;
     let allUsuarios = [];
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         modalInstance = new bootstrap.Modal(document.getElementById('usuarioModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
         cargarRoles();
@@ -748,9 +836,14 @@
 
         document.getElementById('filtrarBtn').addEventListener('click', cargarUsuarios);
         document.getElementById('buscarInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') cargarUsuarios();
+            if (e.key==='Enter') cargarUsuarios();
         });
-
+        document.getElementById('limpiarBtn').addEventListener('click', function() {
+            document.getElementById('buscarInput').value = '';
+            document.getElementById('rolSelect').value = '';
+            document.getElementById('estadoSelect').value = '';
+            cargarUsuarios();
+        });
         document.getElementById('itemsPerPageSelect').addEventListener('change', function(e) {
             itemsPerPage = parseInt(e.target.value);
             currentPage = 1;
@@ -758,437 +851,234 @@
         });
     });
 
-    function soloNumeros(e) {
-        const input = e.target;
-        input.value = input.value.replace(/[^0-9]/g, '');
-        if (input.value.length > 10) {
-            input.value = input.value.slice(0, 10);
-        }
+    function mostrarUsuariosPaginados() {
+        const start = (currentPage-1)*itemsPerPage;
+        const end   = Math.min(start+itemsPerPage, allUsuarios.length);
+        const total = Math.ceil(allUsuarios.length/itemsPerPage);
+        document.getElementById('startRecord').textContent = allUsuarios.length>0 ? start+1 : 0;
+        document.getElementById('endRecord').textContent   = end;
+        document.getElementById('prevPage').classList.toggle('disabled', currentPage===1);
+        document.getElementById('nextPage').classList.toggle('disabled', currentPage===total||total===0);
+        mostrarUsuarios(allUsuarios.slice(start, end));
     }
 
-    function validarTelefono(input) {
-        const telefono = input.value;
-        const errorSpan = document.getElementById('telefonoError');
-
-        if (telefono.length === 0) {
-            errorSpan.textContent = 'El teléfono es requerido';
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else if (telefono.length < 10) {
-            errorSpan.textContent = 'El teléfono debe tener 10 dígitos';
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else if (!/^\d+$/.test(telefono)) {
-            errorSpan.textContent = 'Solo se permiten números';
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else {
-            errorSpan.textContent = '';
-            input.classList.remove('is-invalid');
-            input.classList.add('is-valid');
-            return true;
+    function mostrarUsuarios(usuarios) {
+        const tbody = document.getElementById('tablaUsuarios');
+        if (!usuarios||usuarios.length===0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="state-cell">
+                <i class="fas fa-users-slash" style="color:var(--gold-dark);"></i>
+                No se encontraron usuarios
+            </td></tr>`;
+            return;
         }
+        tbody.innerHTML = usuarios.map(u => {
+            const rolNombre = u.role ? u.role.nombre : 'Usuario';
+            const esAdmin   = u.role && u.role.id === 1;
+            const estadoColor = u.estado === 'ACTIVO' ? '#4ade80' : '#fc8181';
+            return `<tr>
+                <td><i class="fas fa-user-circle me-2" style="color:var(--gold-dark);"></i>${u.nombreusuario||''}</td>
+                <td>${u.apellidopaterno||''} ${u.apellidomaterno||''}</td>
+                <td><span class="role-badge ${esAdmin?'admin':''}">${rolNombre}</span></td>
+                <td>${u.email||''}</td>
+                <td><span style="font-size:0.75rem;color:${estadoColor};font-weight:600;text-transform:uppercase;letter-spacing:0.4px;">${u.estado||'—'}</span></td>
+                <td><button class="btn-edit" onclick="abrirModalEditar(${u.idusuario})" title="Editar">
+                    <i class="fas fa-pencil-alt"></i>
+                </button></td>
+                <td><button class="btn-del" onclick="abrirModalEliminar(${u.idusuario},'${u.nombreusuario}')" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                </button></td>
+            </tr>`;
+        }).join('');
     }
 
-    function validarEmail(input) {
-        const email = input.value;
-        const errorSpan = document.getElementById('emailError');
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!email) {
-            errorSpan.textContent = 'El email es requerido';
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else if (!emailRegex.test(email)) {
-            errorSpan.textContent = 'Ingresa un email válido (ejemplo@dominio.com)';
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else {
-            errorSpan.textContent = '';
-            input.classList.remove('is-invalid');
-            input.classList.add('is-valid');
-            return true;
-        }
-    }
-
-    function validarTexto(input, campo) {
-        const valor = input.value;
-        const errorSpan = document.getElementById(input.id + 'Error');
-
-        if (!valor) {
-            errorSpan.textContent = `El ${campo} es requerido`;
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else if (valor.length < 3) {
-            errorSpan.textContent = `El ${campo} debe tener al menos 3 caracteres`;
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor)) {
-            errorSpan.textContent = 'Solo se permiten letras';
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            return false;
-        } else {
-            errorSpan.textContent = '';
-            input.classList.remove('is-invalid');
-            input.classList.add('is-valid');
-            return true;
-        }
-    }
-
-    function validarPassword(passwordId, confirmId) {
-        const passwordInput = document.getElementById(passwordId);
-        const confirmInput = document.getElementById(confirmId);
-        const errorSpan = document.getElementById('passwordError');
-        const confirmErrorSpan = document.getElementById('confirmPasswordError');
-
-        if (!passwordInput.value) {
-            errorSpan.textContent = 'La contraseña es requerida';
-            passwordInput.classList.add('is-invalid');
-            return false;
-        } else if (passwordInput.value.length < 4) {
-            errorSpan.textContent = 'La contraseña debe tener al menos 4 caracteres';
-            passwordInput.classList.add('is-invalid');
-            return false;
-        } else if (passwordInput.value !== confirmInput.value) {
-            errorSpan.textContent = 'Las contraseñas no coinciden';
-            confirmErrorSpan.textContent = 'Las contraseñas no coinciden';
-            passwordInput.classList.add('is-invalid');
-            confirmInput.classList.add('is-invalid');
-            return false;
-        } else {
-            errorSpan.textContent = '';
-            confirmErrorSpan.textContent = '';
-            passwordInput.classList.remove('is-invalid');
-            confirmInput.classList.remove('is-invalid');
-            passwordInput.classList.add('is-valid');
-            confirmInput.classList.add('is-valid');
-            return true;
-        }
+    function cambiarPagina(nueva) {
+        const total = Math.ceil(allUsuarios.length/itemsPerPage);
+        if (nueva>=1&&nueva<=total) { currentPage=nueva; mostrarUsuariosPaginados(); }
     }
 
     function cargarRoles() {
         fetch('/api/roles')
-            .then(response => {
-                if(!response.ok){
-                    throw new Error(response.statusText);
-                }
-                return response.json();
-            })
+            .then(r=>r.ok?r.json():Promise.reject(r.statusText))
             .then(data => {
-                console.log('Roles recibidos:', data);
-                const rolSelect = document.getElementById('rolSelect');
-                const rolModalSelect = document.getElementById('rol');
-                rolSelect.innerHTML = '<option value="">Todos los roles</option>';
-                rolModalSelect.innerHTML = '<option value="">Seleccionar rol</option>';
-                if (Array.isArray(data)) {
-                    data.forEach(rol => {
-                        rolSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
-                        rolModalSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
-                    });
-                } else if (data.data && Array.isArray(data.data)) {
-                    data.data.forEach(rol => {
-                        rolSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
-                        rolModalSelect.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
-                    });
-                } else {
-                    console.error('Estructura de roles no reconocida:', data);
-                    rolSelect.innerHTML = `
-                        <option value="">Todos los roles</option>
-                        <option value="1">Administrador</option>
-                        <option value="2">Usuario</option>
-                    `;
-                    rolModalSelect.innerHTML = `
-                        <option value="">Seleccionar rol</option>
-                        <option value="1">Administrador</option>
-                        <option value="2">Usuario</option>
-                    `;
-                }
+                const rS = document.getElementById('rolSelect');
+                const rM = document.getElementById('rol');
+                rS.innerHTML = '<option value="">Todos</option>';
+                rM.innerHTML = '<option value="">Seleccionar rol</option>';
+                const lista = Array.isArray(data)?data:(data.data||[]);
+                lista.forEach(rol => {
+                    rS.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
+                    rM.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
+                });
             })
-            .catch(error => {
-                console.error('Error al cargar roles:', error);
-                document.getElementById('rolSelect').innerHTML = `
-                    <option value="">Todos los roles</option>
-                    <option value="1">Administrador</option>
-                    <option value="2">Usuario</option>
-                `;
-                document.getElementById('rol').innerHTML = `
-                    <option value="">Seleccionar rol</option>
-                    <option value="1">Administrador</option>
-                    <option value="2">Usuario</option>
-                `;
+            .catch(()=>{
+                document.getElementById('rolSelect').innerHTML='<option value="">Todos</option><option value="1">Administrador</option><option value="2">Usuario</option>';
+                document.getElementById('rol').innerHTML='<option value="">Seleccionar rol</option><option value="1">Administrador</option><option value="2">Usuario</option>';
             });
     }
 
     function cargarUsuarios() {
         const buscar = document.getElementById('buscarInput').value;
-        const rol = document.getElementById('rolSelect').value;
+        const rol    = document.getElementById('rolSelect').value;
         let url = '/api/usuarios/buscar?';
-        if (buscar) url += 'query=' + encodeURIComponent(buscar) + '&';
-        if (rol) url += 'rolId=' + rol + '&';
+        if (buscar) url+='query='+encodeURIComponent(buscar)+'&';
+        if (rol)    url+='rolId='+rol+'&';
         fetch(url)
-            .then(response => {
-                if(!response.ok){
-                    return response.text().then(text => {
-                        throw new Error(`Status: ${response.status}, Respuesta: ${text.substring(0,200)}`);
-                    });
-                }
-                return response.json();
+            .then(r=>r.ok?r.json():r.text().then(t=>{throw new Error(t);}))
+            .then(data=>{
+                allUsuarios = data.data||[];
+                document.getElementById('totalCount').textContent  = allUsuarios.length;
+                document.getElementById('totalRecords').textContent= allUsuarios.length;
+                currentPage=1; mostrarUsuariosPaginados();
             })
-            .then(data => {
-                if (data && data.data) {
-                    allUsuarios = data.data;
-                    document.getElementById('totalCount').textContent = data.Total || data.data.length;
-                    document.getElementById('totalRecords').textContent = allUsuarios.length;
-                    currentPage = 1;
-                    mostrarUsuariosPaginados();
-                } else {
-                    allUsuarios = [];
-                    mostrarUsuarios([]);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                fetch('/api/usuarios')
-                    .then(response => response.json())
-                    .then(usuarios => {
-                        allUsuarios = usuarios;
-                        document.getElementById('totalCount').textContent = usuarios.length;
-                        document.getElementById('totalRecords').textContent = usuarios.length;
-                        currentPage = 1;
-                        mostrarUsuariosPaginados();
-                    })
-                    .catch(err => {
-                        document.getElementById('tablaUsuarios').innerHTML = `
-                            <tr>
-                                <td colspan="7" class="text-center text-danger py-4">
-                                    <i class="fas fa-exclamation-circle fa-3x mb-3"></i>
-                                    <h5>Error al cargar usuarios</h5>
-                                    <p class="text-muted">${error.message}</p>
-                                </td>
-                            </tr>
-                        `;
-                    });
+            .catch(()=>{
+                fetch('/api/usuarios').then(r=>r.json()).then(us=>{
+                    allUsuarios=us;
+                    document.getElementById('totalCount').textContent=us.length;
+                    document.getElementById('totalRecords').textContent=us.length;
+                    currentPage=1; mostrarUsuariosPaginados();
+                }).catch(()=>{
+                    document.getElementById('tablaUsuarios').innerHTML=
+                        `<tr><td colspan="7" class="state-cell"><i class="fas fa-exclamation-circle" style="color:#fc8181;"></i>Error al cargar usuarios</td></tr>`;
+                });
             });
     }
 
-    function mostrarUsuariosPaginados() {
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = Math.min(start + itemsPerPage, allUsuarios.length);
-        const usuariosPagina = allUsuarios.slice(start, end);
-        
-        document.getElementById('startRecord').textContent = allUsuarios.length > 0 ? start + 1 : 0;
-        document.getElementById('endRecord').textContent = end;
-        
-        // Actualizar estado de flechas
-        const totalPages = Math.ceil(allUsuarios.length / itemsPerPage);
-        document.getElementById('prevPage').classList.toggle('disabled', currentPage === 1);
-        document.getElementById('nextPage').classList.toggle('disabled', currentPage === totalPages);
-        
-        mostrarUsuarios(usuariosPagina);
-    }
-
-    function mostrarUsuarios(usuarios) {
-        const tbody = document.getElementById('tablaUsuarios');
-        if (!usuarios || usuarios.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center py-5">
-                        <i class="fas fa-users-slash fa-3x mb-3" style="color: #94a3b8;"></i>
-                        <h5 style="color: #64748b;">No se encontraron usuarios</h5>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        let html = '';
-        usuarios.forEach(u => {
-            const rolClass = u.role && u.role.id === 1 ? 'badge-admin' : '';
-            const rolNombre = u.role ? u.role.nombre : 'Usuario';
-            html += `
-                <tr>
-                    <td><i class="fas fa-user-circle me-2" style="color: #4f46e5;"></i>${u.nombreusuario || ''}</td>
-                    <td>${u.apellidopaterno || ''} ${u.apellidomaterno || ''}</td>
-                    <td>${u.email || ''}</td>
-                    <td>${u.telefono || ''}</td>
-                    <td><span class="role-badge ${rolClass}">${rolNombre}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary btn-accion me-1"
-                                onclick="abrirModalEditar(${u.idusuario})" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger btn-accion"
-                                onclick="abrirModalEliminar(${u.idusuario}, '${u.nombreusuario}')" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-        tbody.innerHTML = html;
-    }
-
-    function cambiarPagina(nuevaPagina) {
-        const totalPages = Math.ceil(allUsuarios.length / itemsPerPage);
-        if (nuevaPagina >= 1 && nuevaPagina <= totalPages) {
-            currentPage = nuevaPagina;
-            mostrarUsuariosPaginados();
-        }
+    function limpiarValidaciones() {
+        document.querySelectorAll('.is-invalid').forEach(el=>el.classList.remove('is-invalid'));
+        document.querySelectorAll('.is-valid').forEach(el=>el.classList.remove('is-valid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el=>el.textContent='');
     }
 
     function abrirModalNuevo() {
-        document.getElementById('modalTitleText').textContent = 'Nuevo Usuario';
+        document.getElementById('modalTitleText').textContent='Nuevo Usuario';
         document.getElementById('usuarioForm').reset();
-        document.getElementById('usuarioId').value = '';
-        document.getElementById('password').required = true;
-        document.getElementById('confirmPassword').required = true;
-        document.getElementById('passwordFields').style.display = 'flex';
-        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
-        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-        modalInstance.show();
+        document.getElementById('usuarioId').value='';
+        document.getElementById('password').required=true;
+        document.getElementById('confirmPassword').required=true;
+        document.getElementById('passwordFields').style.display='flex';
+        limpiarValidaciones(); modalInstance.show();
     }
 
     function abrirModalEditar(id) {
-        document.getElementById('modalTitleText').textContent = 'Editar Usuario';
-        document.getElementById('password').required = false;
-        document.getElementById('confirmPassword').required = false;
-        document.getElementById('passwordFields').style.display = 'none';
-        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
-        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-        fetch(`/api/usuario/${id}`)
-            .then(response => response.json())
-            .then(usuario => {
-                document.getElementById('usuarioId').value = usuario.idusuario;
-                document.getElementById('nombreusuario').value = usuario.nombreusuario;
-                document.getElementById('apellidopaterno').value = usuario.apellidopaterno;
-                document.getElementById('apellidomaterno').value = usuario.apellidomaterno;
-                document.getElementById('email').value = usuario.email;
-                document.getElementById('telefono').value = usuario.telefono;
-                document.getElementById('rol').value = usuario.role ? usuario.role.id : '';
-                modalInstance.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al cargar el usuario');
-            });
+        document.getElementById('modalTitleText').textContent='Editar Usuario';
+        document.getElementById('password').required=false;
+        document.getElementById('confirmPassword').required=false;
+        document.getElementById('passwordFields').style.display='none';
+        limpiarValidaciones();
+        fetch(`/api/usuario/${id}`).then(r=>r.json()).then(u=>{
+            document.getElementById('usuarioId').value       = u.idusuario;
+            document.getElementById('nombreusuario').value   = u.nombreusuario;
+            document.getElementById('apellidopaterno').value = u.apellidopaterno;
+            document.getElementById('apellidomaterno').value = u.apellidomaterno;
+            document.getElementById('email').value           = u.email;
+            document.getElementById('telefono').value        = u.telefono;
+            document.getElementById('rol').value             = u.role?u.role.id:'';
+            modalInstance.show();
+        }).catch(()=>mostrarToast('Error al cargar el usuario','error'));
     }
 
     function guardarUsuario() {
-        const id = document.getElementById('usuarioId').value;
-        const esNuevo = !id;
-        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        const nombreValido = validarTexto(document.getElementById('nombreusuario'), 'usuario');
-        const apellidoPaternoValido = validarTexto(document.getElementById('apellidopaterno'), 'apellido paterno');
-        const apellidoMaternoValido = validarTexto(document.getElementById('apellidomaterno'), 'apellido materno');
-        const emailValido = validarEmail(document.getElementById('email'));
-        const telefonoValido = validarTelefono(document.getElementById('telefono'));
-        const rolSelect = document.getElementById('rol');
-        const rolError = document.getElementById('rolError');
-        if (!rolSelect.value) {
-            rolError.textContent = 'Selecciona un rol';
-            rolSelect.classList.add('is-invalid');
-            return;
-        } else {
-            rolError.textContent = '';
-            rolSelect.classList.remove('is-invalid');
-            rolSelect.classList.add('is-valid');
-        }
-        let passwordValido = true;
-        if (esNuevo) {
-            passwordValido = validarPassword('password', 'confirmPassword');
-        }
-        if (!nombreValido || !apellidoPaternoValido || !apellidoMaternoValido ||
-            !emailValido || !telefonoValido || !passwordValido) {
-            return;
-        }
-        const usuarioData = {
-            nombreusuario: document.getElementById('nombreusuario').value,
+        const id=document.getElementById('usuarioId').value;
+        const esNuevo=!id; limpiarValidaciones();
+        const nOk  = validarTexto(document.getElementById('nombreusuario'),'usuario');
+        const apOk = validarTexto(document.getElementById('apellidopaterno'),'apellido paterno');
+        const amOk = validarTexto(document.getElementById('apellidomaterno'),'apellido materno');
+        const emOk = validarEmail(document.getElementById('email'));
+        const telOk= validarTelefono(document.getElementById('telefono'));
+        const rolSel=document.getElementById('rol');
+        const rolErr=document.getElementById('rolError');
+        let rolOk=true;
+        if (!rolSel.value){rolErr.textContent='Selecciona un rol';rolSel.classList.add('is-invalid');rolOk=false;}
+        else{rolSel.classList.remove('is-invalid');rolSel.classList.add('is-valid');}
+        let passOk=true;
+        if(esNuevo) passOk=validarPassword('password','confirmPassword');
+        if(!nOk||!apOk||!amOk||!emOk||!telOk||!rolOk||!passOk) return;
+
+        const datos={
+            nombreusuario:   document.getElementById('nombreusuario').value,
             apellidopaterno: document.getElementById('apellidopaterno').value,
             apellidomaterno: document.getElementById('apellidomaterno').value,
-            email: document.getElementById('email').value,
-            telefono: document.getElementById('telefono').value ? parseInt(document.getElementById('telefono').value) : 0,
-            role: rolSelect.value ? { id: parseInt(rolSelect.value) } : null
+            email:           document.getElementById('email').value,
+            telefono:        parseInt(document.getElementById('telefono').value)||0,
+            role:            rolSel.value?{id:parseInt(rolSel.value)}:null
         };
-        if (!esNuevo && id) {
-            usuarioData.idusuario = parseInt(id);
-        }
-        if (esNuevo) {
-            usuarioData.password = document.getElementById('password').value;
-        }
-        const url = esNuevo ? '/api/usuarios' : `/api/usuarios/${id}`;
-        const method = esNuevo ? 'POST' : 'PUT';
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(usuarioData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                modalInstance.hide();
-                cargarUsuarios();
-                alert(esNuevo ? 'Usuario creado correctamente' : 'Usuario actualizado correctamente');
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al guardar el usuario');
-        });
+        if(!esNuevo) datos.idusuario=parseInt(id);
+        if(esNuevo)  datos.password=document.getElementById('password').value;
+
+        fetch(esNuevo?'/api/usuarios':`/api/usuarios/${id}`,{
+            method: esNuevo?'POST':'PUT',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(datos)
+        }).then(r=>r.json()).then(data=>{
+            if(data.success){modalInstance.hide();cargarUsuarios();mostrarToast(esNuevo?'Usuario creado correctamente':'Usuario actualizado correctamente','success');}
+            else mostrarToast('Error: '+data.message,'error');
+        }).catch(()=>mostrarToast('Error al guardar el usuario','error'));
     }
 
-    function abrirModalEliminar(id, nombre) {
-        usuarioIdEliminar = id;
-        document.getElementById('usuarioAEliminar').textContent = nombre;
+    function abrirModalEliminar(id,nombre){
+        usuarioIdEliminar=id;
+        document.getElementById('usuarioAEliminar').textContent=nombre;
         eliminarModalInstance.show();
     }
 
-    function confirmarEliminar() {
-        if (!usuarioIdEliminar) return;
-        fetch(`/api/usuarios/${usuarioIdEliminar}`, {
-            method: 'DELETE'
-        })
-        .then(response => response.json())
-        .then(data => {
-            eliminarModalInstance.hide();
-            if (data.success) {
-                cargarUsuarios();
-                alert('Usuario eliminado correctamente');
-            } else {
-                alert('Error al eliminar usuario');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al eliminar usuario');
-        });
+    function confirmarEliminar(){
+        if(!usuarioIdEliminar) return;
+        fetch(`/api/usuarios/${usuarioIdEliminar}`,{method:'DELETE'})
+            .then(r=>r.json()).then(data=>{
+                eliminarModalInstance.hide();
+                if(data.success){cargarUsuarios();mostrarToast('Usuario eliminado correctamente','success');}
+                else mostrarToast('Error al eliminar usuario','error');
+            }).catch(()=>mostrarToast('Error al eliminar usuario','error'));
     }
 
-    function togglePassword(inputId) {
-        const input = document.getElementById(inputId);
-        const icon = input.parentElement.querySelector('.toggle-password i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
+    /* ── VALIDACIONES ── */
+    function soloNumeros(e){e.target.value=e.target.value.replace(/[^0-9]/g,'').slice(0,10);}
+    function validarTexto(input,campo){
+        const val=input.value.trim();const err=document.getElementById(input.id+'Error');
+        if(!val){err.textContent=`El ${campo} es requerido`;input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
+        if(val.length<3){err.textContent=`Mínimo 3 caracteres`;input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
+        if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(val)){err.textContent='Solo letras';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
+        err.textContent='';input.classList.remove('is-invalid');input.classList.add('is-valid');return true;
+    }
+    function validarEmail(input){
+        const val=input.value;const err=document.getElementById('emailError');
+        if(!val){err.textContent='El email es requerido';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){err.textContent='Email inválido';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
+        err.textContent='';input.classList.remove('is-invalid');input.classList.add('is-valid');return true;
+    }
+    function validarTelefono(input){
+        const val=input.value;const err=document.getElementById('telefonoError');
+        if(!val){err.textContent='El teléfono es requerido';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
+        if(val.length<10){err.textContent='Debe tener 10 dígitos';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
+        err.textContent='';input.classList.remove('is-invalid');input.classList.add('is-valid');return true;
+    }
+    function validarPassword(pId,cId){
+        const p=document.getElementById(pId),c=document.getElementById(cId);
+        const pE=document.getElementById('passwordError'),cE=document.getElementById('confirmPasswordError');
+        if(!p.value){pE.textContent='La contraseña es requerida';p.classList.add('is-invalid');return false;}
+        if(p.value.length<4){pE.textContent='Mínimo 4 caracteres';p.classList.add('is-invalid');return false;}
+        if(p.value!==c.value){pE.textContent='Las contraseñas no coinciden';cE.textContent='No coinciden';p.classList.add('is-invalid');c.classList.add('is-invalid');return false;}
+        pE.textContent='';cE.textContent='';p.classList.remove('is-invalid');c.classList.remove('is-invalid');p.classList.add('is-valid');c.classList.add('is-valid');return true;
+    }
+    function togglePassword(id){
+        const inp=document.getElementById(id);const ico=inp.parentElement.querySelector('.toggle-password i');
+        if(inp.type==='password'){inp.type='text';ico.classList.replace('fa-eye','fa-eye-slash');}
+        else{inp.type='password';ico.classList.replace('fa-eye-slash','fa-eye');}
+    }
+
+    /* ── TOAST ── */
+    function mostrarToast(msg,tipo){
+        const ex=document.getElementById('appToast');if(ex)ex.remove();
+        const t=document.createElement('div');t.id='appToast';
+        const isSuccess=tipo==='success';
+        t.style.cssText=`position:fixed;bottom:24px;right:24px;z-index:9999;
+            background:${isSuccess?'linear-gradient(135deg,#a07830,#c9a84c)':'linear-gradient(135deg,#9b2c2c,#e53e3e)'};
+            color:${isSuccess?'#0d0d0d':'#fff'};padding:12px 20px;border-radius:10px;
+            font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:10px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.5);letter-spacing:0.2px;`;
+        t.innerHTML=`<i class="fas ${isSuccess?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
+        document.body.appendChild(t);
+        setTimeout(()=>t.remove(),3500);
     }
 </script>
 </body>

@@ -1,10 +1,8 @@
 package com.master.springboot.Controller;
 
-import com.master.springboot.Models.Roles;
 import com.master.springboot.Models.Usuarios;
 import com.master.springboot.service.AuthCaptchaService;
 import com.master.springboot.service.ServiceUsuarios;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -150,10 +148,7 @@ public class LoginController {
                 nuevoUsuario.setPassword(md5(password));
                 nuevoUsuario.setTelefono(telefono);
 
-                Roles role = new Roles();
-                role.setId(3);
-                role.setNombre("Usuario");
-                nuevoUsuario.setRole(role);
+
 
                 Usuarios usuarioGuardado = serviceUsuarios.save(nuevoUsuario);
 
