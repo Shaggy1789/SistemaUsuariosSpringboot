@@ -517,26 +517,13 @@
     <a class="topnav-brand" th:href="@{/}">
         <i class="fas fa-heartbeat"></i> Santa Mónica
     </a>
-    <ul class="topnav-menu">
+    <ul class="topnav-menu" id="navMenu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
-        <li>
-            <span>Almacén <i class="fas fa-chevron-down arrow"></i></span>
-            <div class="dropdown-nav">
-                <a th:href="@{/almacen}">Inventario</a>
-            </div>
-        </li>
-        <li>
-            <span>Seguridad <i class="fas fa-chevron-down arrow"></i></span>
-            <div class="dropdown-nav">
-                <a th:href="@{/perfil}">Perfil</a>
-                <a th:href="@{/permisos}">Permisos Perfil</a>
-                <a th:href="@{/usuarios}" class="active-page">Usuario</a>
-            </div>
-        </li>
-        <li>
-            <span>Herramientas <i class="fas fa-chevron-down arrow"></i></span>
-            <div class="dropdown-nav">
-                <a th:href="@{/galeria}">Galería</a>
+        <!-- Módulos dinámicos desde /api/modulos -->
+        <li id="navModulosItem" style="display:none;">
+            <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
+            <div class="dropdown-nav" id="navModulosDropdown">
+                <!-- se llena con JS -->
             </div>
         </li>
     </ul>
@@ -1080,6 +1067,30 @@
         document.body.appendChild(t);
         setTimeout(()=>t.remove(),3500);
     }
+
+    /* ── Navbar dinámico desde /api/modulos ── */
+    function cargarNavModulos() {
+        fetch('/api/modulos')
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => {
+                const modulos  = data.data || [];
+                const dropdown = document.getElementById('navModulosDropdown');
+                const navItem  = document.getElementById('navModulosItem');
+                if (modulos.length === 0) return;
+
+                const paginaActual = window.location.pathname;
+                dropdown.innerHTML = modulos.map(m => {
+                    const href  = m.ruta || ('/' + (m.nombre || '').toLowerCase().replace(/\s+/g,'-'));
+                    const label = m.nombreMostrar || m.nombre || 'Módulo';
+                    const activo = paginaActual === href ? ' class="active-page"' : '';
+                    return `<a href="${href}"${activo}>${label}</a>`;
+                }).join('');
+                navItem.style.display = 'flex';
+            })
+            .catch(() => {}); // Si falla, el navbar simplemente no muestra el dropdown
+    }
+
+    cargarNavModulos();
 </script>
 </body>
 </html>

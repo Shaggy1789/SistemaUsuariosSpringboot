@@ -3,275 +3,618 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${titulo}">Dashboard</title>
-    <!-- Bootstrap 5 -->
+    <title th:text="${titulo}">Dashboard — Santa Mónica</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --gold-dark:  #a07830;
+            --black:      #0d0d0d;
+            --black-2:    #111111;
+            --black-3:    #181818;
+            --black-4:    #212121;
+            --black-5:    #2a2a2a;
+            --border:     rgba(201,168,76,0.15);
+            --text:       #e2e2e2;
+            --text-muted: #6e6e6e;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--black);
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.05) 0%, transparent 55%),
+                              radial-gradient(ellipse at 80% 10%, rgba(201,168,76,0.03) 0%, transparent 45%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
+            color: var(--text);
+            margin: 0; padding: 0;
         }
-        .navbar-custom {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            padding: 1rem 2rem;
+
+        /* ══ NAVBAR ══════════════════════════════════════════ */
+        .topnav {
+            background: var(--black-2);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center;
+            padding: 0 1.5rem;
+            height: 52px;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.5);
         }
-        .navbar-custom .navbar-brand {
-            color: white;
+        .topnav::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.4;
+        }
+        .topnav-brand {
+            color: var(--gold-light);
             font-weight: 700;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-        }
-        .navbar-custom .navbar-brand i {
-            margin-right: 10px;
-            font-size: 1.8rem;
-        }
-        .navbar-custom .nav-link {
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-        .navbar-custom .nav-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-        .navbar-custom .nav-link i {
-            margin-right: 8px;
-        }
-        .navbar-custom .btn-login-nav {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 0.5rem 1.2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-left: 10px;
+            font-size: 0.95rem;
             text-decoration: none;
-            display: inline-block;
+            margin-right: 1.5rem;
+            display: flex; align-items: center; gap: 8px;
+            white-space: nowrap; letter-spacing: 0.3px;
         }
-        .navbar-custom .btn-login-nav:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            color: white;
+        .topnav-brand i { color: var(--gold); font-size: 1.1rem; }
+
+        .topnav-menu {
+            display: flex; align-items: stretch;
+            list-style: none; margin: 0; padding: 0;
+            flex: 1; height: 100%;
         }
-        .navbar-custom .btn-register-nav {
-            background: white;
-            color: #4f46e5;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-left: 10px;
+        .topnav-menu > li { position: relative; display: flex; align-items: center; }
+        .topnav-menu > li > a,
+        .topnav-menu > li > span {
+            color: #888; text-decoration: none;
+            font-size: 0.85rem; font-weight: 500;
+            padding: 0 1rem; height: 100%;
+            display: flex; align-items: center; gap: 6px;
+            cursor: pointer; white-space: nowrap;
+            transition: color 0.2s;
+        }
+        .topnav-menu > li > a:hover,
+        .topnav-menu > li > span:hover { color: var(--gold-light); }
+        .topnav-menu > li > a.active   { color: var(--gold); }
+
+        .topnav-menu > li > span i.arrow { font-size: 0.6rem; transition: transform 0.2s; }
+        .topnav-menu > li:hover > span i.arrow { transform: rotate(180deg); }
+
+        .dropdown-nav {
+            display: none;
+            position: absolute; top: 100%; left: 0;
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-top: 2px solid var(--gold);
+            min-width: 175px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+            z-index: 100;
+        }
+        .topnav-menu > li:hover .dropdown-nav { display: block; }
+        .dropdown-nav a {
+            display: block; color: #888; text-decoration: none;
+            font-size: 0.83rem; padding: 10px 16px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .dropdown-nav a:hover { background: rgba(201,168,76,0.07); color: var(--gold-light); }
+
+        .topnav-right {
+            margin-left: auto;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .user-pill {
+            background: rgba(201,168,76,0.07);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 14px 4px 8px;
+            display: flex; align-items: center; gap: 8px;
+            color: #aaa; font-size: 0.8rem;
+        }
+        .user-pill i { color: var(--gold); font-size: 1rem; }
+        .user-pill .role-tag {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d;
+            font-size: 0.68rem; font-weight: 700;
+            border-radius: 10px; padding: 2px 8px;
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #888; border-radius: 7px;
+            padding: 5px 12px; font-size: 0.8rem;
             text-decoration: none;
-            display: inline-block;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
         }
-        .navbar-custom .btn-register-nav:hover {
-            background: #f8fafc;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-            color: #4f46e5;
-        }
-        .navbar-custom .user-info {
-            display: flex;
-            align-items: center;
-            color: white;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 0.3rem 1rem 0.3rem 0.5rem;
-            border-radius: 30px;
-            margin-left: 10px;
-        }
-        .navbar-custom .user-info i {
-            font-size: 1.3rem;
-            margin-right: 8px;
-        }
-        .navbar-custom .user-info span {
-            font-weight: 600;
-            margin-right: 10px;
-        }
-        .dashboard-container {
-            padding: 2rem;
-            max-width: 1400px;
+        .btn-logout:hover { border-color: var(--gold); color: var(--gold-light); }
+
+        /* ══ PAGE ════════════════════════════════════════════ */
+        .page-wrap {
+            max-width: 1300px;
             margin: 0 auto;
+            padding: 2rem 1.5rem;
         }
-        .welcome-section {
+
+        /* Welcome banner */
+        .welcome-banner {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
             display: flex;
             align-items: center;
             gap: 20px;
             margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .welcome-banner::after {
+            content: '\f015';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 2rem; top: 50%;
+            transform: translateY(-50%);
+            font-size: 8rem;
+            color: rgba(201,168,76,0.04);
+            pointer-events: none;
         }
         .welcome-avatar {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
+            width: 64px; height: 64px;
+            background: rgba(201,168,76,0.1);
+            border: 2px solid rgba(201,168,76,0.3);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
+        .welcome-avatar i { font-size: 1.6rem; color: var(--gold); }
         .welcome-text h1 {
-            font-size: 2rem;
+            font-size: 1.5rem; font-weight: 700;
+            color: #e8e8e8; margin: 0 0 0.3rem;
+        }
+        .welcome-text h1 span { color: var(--gold-light); }
+        .welcome-text p { color: var(--text-muted); margin: 0; font-size: 0.88rem; }
+        .welcome-meta {
+            margin-left: auto; text-align: right;
+            flex-shrink: 0;
+        }
+        .welcome-meta .date {
+            font-size: 0.82rem; color: var(--text-muted);
+            display: block; margin-bottom: 4px;
+        }
+        .welcome-meta .perfil-badge {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d;
+            font-size: 0.75rem; font-weight: 700;
+            padding: 4px 14px; border-radius: 12px;
+            text-transform: uppercase; letter-spacing: 0.4px;
+            display: inline-block;
+        }
+
+        /* Section title */
+        .section-title {
+            font-size: 0.75rem;
             font-weight: 700;
-            color: white;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 8px;
         }
-        .welcome-text p {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 0;
+        .section-title::after {
+            content: '';
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
         }
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
+
+        /* Stats cards */
+        .stat-card {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-radius: 14px;
             padding: 1.5rem;
-            color: white;
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
-            transition: all 0.3s;
+            transition: all 0.25s;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .stat-card:hover { border-color: rgba(201,168,76,0.35); transform: translateY(-3px); }
+        .stat-card:hover::before { opacity: 1; }
+
+        .stat-icon {
+            width: 46px; height: 46px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.2);
+            color: var(--gold);
+        }
+        .stat-icon.blue   { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); color: #60a5fa; }
+        .stat-icon.green  { background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.2); color: #4ade80; }
+        .stat-icon.red    { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); color: #f87171; }
+        .stat-icon.purple { background: rgba(167,139,250,0.08); border-color: rgba(167,139,250,0.2); color: #a78bfa; }
+
+        .stat-value {
+            font-size: 2rem; font-weight: 800;
+            color: #e8e8e8; margin: 0 0 0.25rem; line-height: 1;
+        }
+        .stat-label {
+            font-size: 0.82rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .stat-trend {
+            margin-top: 0.75rem;
+            font-size: 0.78rem;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .stat-trend.up   { color: #4ade80; }
+        .stat-trend.down { color: #f87171; }
+        .stat-trend.neutral { color: var(--text-muted); }
+
+        /* Module cards (accesos rápidos) */
+        .module-card {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-decoration: none;
+            display: flex; align-items: center; gap: 16px;
+            transition: all 0.25s;
             height: 100%;
         }
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.3);
+        .module-card:hover {
+            border-color: rgba(201,168,76,0.4);
+            background: var(--black-4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
-        .stats-card i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        .module-icon {
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; color: var(--gold);
+            flex-shrink: 0;
+            transition: background 0.25s;
         }
-        .stats-card h3 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .module-card:hover .module-icon {
+            background: rgba(201,168,76,0.15);
         }
-        .stats-card p {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin: 0;
+        .module-info h3 {
+            font-size: 0.95rem; font-weight: 700;
+            color: #e0e0e0; margin: 0 0 4px;
+        }
+        .module-info p {
+            font-size: 0.78rem; color: var(--text-muted);
+            margin: 0; line-height: 1.4;
+        }
+        .module-arrow {
+            margin-left: auto; color: #3a3a3a;
+            font-size: 0.8rem; flex-shrink: 0;
+            transition: color 0.25s, transform 0.25s;
+        }
+        .module-card:hover .module-arrow { color: var(--gold); transform: translateX(3px); }
+
+        /* Activity / info panel */
+        .info-panel {
+            background: var(--black-3);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+        }
+        .info-panel-title {
+            font-size: 0.82rem; font-weight: 700;
+            color: var(--gold); text-transform: uppercase;
+            letter-spacing: 0.6px; margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .info-row {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(201,168,76,0.06);
+            font-size: 0.85rem;
+        }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-row .label { color: var(--text-muted); }
+        .info-row .value { color: #d0d0d0; font-weight: 600; }
+        .info-row .value.active { color: #4ade80; }
+        .info-row .value.gold   { color: var(--gold-light); }
+
+        @media (max-width: 768px) {
+            .page-wrap { padding: 1rem; }
+            .welcome-banner { flex-direction: column; text-align: center; padding: 1.5rem; }
+            .welcome-meta { margin-left: 0; text-align: center; }
+            .welcome-banner::after { display: none; }
         }
     </style>
 </head>
 <body>
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-custom">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/}">
-            <i class="fas fa-lock"></i>
-            <span>Mi Aplicación</span>
-        </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Menú principal - SOLO visible con sesión -->
-            <ul class="navbar-nav me-auto" th:if="${session.usuario != null}">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/holamundo}">
-                        <i class="fas fa-globe"></i> Hola Mundo
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/usuarios}">
-                        <i class="fa-solid fa-circle-user"></i> Usuarios
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/galeria}">
-                        <i class="fas fa-images"></i> Galería
-                    </a>
-                </li>
-            </ul>
-
-            <!-- Botones de usuario -->
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item" th:if="${session.usuario != null}">
-                    <div class="user-info">
-                        <i class="fas fa-user-circle"></i>
-                        <span th:text="${session.usuario.nombreusuario}">Usuario</span>
-                    </div>
-                </li>
-                <li class="nav-item" th:if="${session.usuario != null}">
-                    <a class="btn-login-nav" th:href="@{/logout}">
-                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                    </a>
-                </li>
-                <li class="nav-item" th:unless="${session.usuario != null}">
-                    <a class="btn-login-nav" th:href="@{/login1}">
-                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                    </a>
-                </li>
-                <li class="nav-item" th:unless="${session.usuario != null}">
-                    <a class="btn-register-nav" th:href="@{/registro}">
-                        <i class="fas fa-user-plus"></i> Registrarse
-                    </a>
-                </li>
-            </ul>
+<!-- ══ NAVBAR ══ -->
+<nav class="topnav">
+    <a class="topnav-brand" th:href="@{/}">
+        <i class="fas fa-heartbeat"></i> Santa Mónica
+    </a>
+    <ul class="topnav-menu" id="navMenu">
+        <li><a th:href="@{/}" class="active"><i class="fas fa-home"></i> Inicio</a></li>
+        <!-- Los módulos se inyectan aquí dinámicamente desde /api/modulos -->
+        <li id="navModulosItem" style="display:none;">
+            <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
+            <div class="dropdown-nav" id="navModulosDropdown">
+                <!-- se llena con JS -->
+            </div>
+        </li>
+    </ul>
+    <div class="topnav-right">
+        <div class="user-pill">
+            <i class="fas fa-user-circle"></i>
+            <span th:text="${session.usuario.usuario}">Usuario</span>
+            <span class="role-tag"
+                  th:if="${session.usuario.perfil != null}"
+                  th:text="${session.usuario.perfil.nombre}">Rol</span>
         </div>
+        <a class="btn-logout" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i> Salir
+        </a>
     </div>
 </nav>
 
-<!-- Contenido principal -->
-<div class="dashboard-container">
-    <div class="welcome-section">
+<!-- ══ CONTENT ══ -->
+<div class="page-wrap">
+
+    <!-- Welcome -->
+    <div class="welcome-banner">
         <div class="welcome-avatar">
-            <i class="fas fa-user"></i>
+            <i class="fas fa-user-circle"></i>
         </div>
         <div class="welcome-text">
-            <h1>
-                ¡Bienvenido, <span th:text="${session.usuario != null ? session.usuario.nombreusuario : 'Usuario'}">Usuario</span>!
-            </h1>
-            <p th:text="${session.usuario != null ? 'Has iniciado sesión correctamente' : 'Por favor inicia sesión'}"></p>
+            <h1>Bienvenido, <span th:text="${session.usuario.usuario}">Usuario</span></h1>
+            <p>
+                <i class="fas fa-circle" style="font-size:0.5rem;color:#4ade80;vertical-align:middle;margin-right:4px;"></i>
+                Sesión activa &mdash; Clínica de Especialidades Santa Mónica
+            </p>
+        </div>
+        <div class="welcome-meta">
+            <span class="date" id="fechaHoy"></span>
+            <span class="perfil-badge"
+                  th:if="${session.usuario.perfil != null}"
+                  th:text="${session.usuario.perfil.nombre}">Perfil</span>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-3 col-sm-6 mb-4">
-            <div class="stats-card">
-                <i class="fas fa-users"></i>
-                <h3>156</h3>
-                <p>Usuarios</p>
+    <!-- Stats -->
+    <div class="section-title">Resumen del sistema</div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-value" id="totalUsuarios">—</div>
+                <div class="stat-label">Usuarios registrados</div>
+                <div class="stat-trend neutral">
+                    <i class="fas fa-database"></i> Total en el sistema
+                </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-4">
-            <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <i class="fas fa-camera"></i>
-                <h3>43</h3>
-                <p>Fotos</p>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-id-badge"></i></div>
+                <div class="stat-value" id="totalPerfiles">—</div>
+                <div class="stat-label">Perfiles activos</div>
+                <div class="stat-trend up">
+                    <i class="fas fa-arrow-up"></i> RBAC configurado
+                </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-4">
-            <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <i class="fas fa-image"></i>
-                <h3>12</h3>
-                <p>Álbumes</p>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-th-large"></i></div>
+                <div class="stat-value" id="totalModulos">—</div>
+                <div class="stat-label">Módulos del sistema</div>
+                <div class="stat-trend neutral">
+                    <i class="fas fa-puzzle-piece"></i> Control de acceso
+                </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-4">
-            <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                <i class="fas fa-clock"></i>
-                <h3>15</h3>
-                <p>Minutos</p>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-shield-alt"></i></div>
+                <div class="stat-value">RBAC</div>
+                <div class="stat-label">Modelo de seguridad</div>
+                <div class="stat-trend up">
+                    <i class="fas fa-check-circle"></i> Activo
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Accesos rápidos + Panel de info -->
+    <div class="row g-3">
+        <!-- Accesos rápidos — se generan dinámicamente desde /api/modulos -->
+        <div class="col-lg-8">
+            <div class="section-title">Accesos rápidos</div>
+            <div class="row g-3" id="modulosGrid">
+                <!-- skeleton mientras carga -->
+                <div class="col-sm-6">
+                    <div class="module-card" style="opacity:0.3;pointer-events:none;">
+                        <div class="module-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                        <div class="module-info"><h3>Cargando...</h3><p>Obteniendo módulos desde la base de datos</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de sesión -->
+        <div class="col-lg-4">
+            <div class="section-title">Sesión actual</div>
+            <div class="info-panel">
+                <div class="info-panel-title">
+                    <i class="fas fa-user-shield"></i> Información de acceso
+                </div>
+                <div class="info-row">
+                    <span class="label">Usuario</span>
+                    <span class="value gold" th:text="${session.usuario.usuario}">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Perfil</span>
+                    <span class="value"
+                          th:text="${session.usuario.perfil != null ? session.usuario.perfil.nombre : 'Sin perfil'}">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Estado</span>
+                    <span class="value active">
+                        <i class="fas fa-circle" style="font-size:0.5rem;vertical-align:middle;margin-right:3px;"></i>
+                        <span th:text="${session.usuario.estado}">ACTIVO</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Email</span>
+                    <span class="value" th:text="${session.usuario.email ?: '—'}">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Seguridad</span>
+                    <span class="value active">
+                        <i class="fas fa-shield-alt" style="margin-right:3px;"></i>Sesión activa
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /page-wrap -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ── Fecha actual ──────────────────────────────────────────
+    document.getElementById('fechaHoy').textContent =
+        new Date().toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    // ── Icono por nombre de módulo (fallback genérico) ────────
+    function iconoParaModulo(nombre) {
+        const n = (nombre || '').toLowerCase();
+        if (n.includes('usuario'))  return 'fa-users';
+        if (n.includes('perfil'))   return 'fa-id-badge';
+        if (n.includes('permiso'))  return 'fa-lock';
+        if (n.includes('modulo') || n.includes('módulo')) return 'fa-th-large';
+        if (n.includes('config'))   return 'fa-cogs';
+        if (n.includes('bitacora') || n.includes('bitácora')) return 'fa-clipboard-list';
+        if (n.includes('almacen') || n.includes('almacén'))   return 'fa-boxes-stacked';
+        if (n.includes('galeria') || n.includes('galería'))   return 'fa-images';
+        if (n.includes('reporte')) return 'fa-chart-bar';
+        return 'fa-puzzle-piece';
+    }
+
+    // ── Cargar módulos desde la BD ────────────────────────────
+    function cargarModulos() {
+        fetch('/api/modulos')
+            .then(r => r.ok ? r.json() : Promise.reject('Error ' + r.status))
+            .then(data => {
+                const modulos = data.data || [];
+
+                // 1. Llenar el dropdown del navbar
+                const dropdown = document.getElementById('navModulosDropdown');
+                const navItem  = document.getElementById('navModulosItem');
+
+                if (modulos.length > 0) {
+                    dropdown.innerHTML = modulos
+                        .map(m => {
+                            // Usar la ruta del módulo si existe, si no usar /nombreMostrar en minúsculas
+                            const href = m.ruta || ('/' + (m.nombre || '').toLowerCase().replace(/\s+/g, '-'));
+                            const label = m.nombreMostrar || m.nombre || 'Módulo';
+                            return `<a href="${href}">${label}</a>`;
+                        })
+                        .join('');
+                    navItem.style.display = 'flex';
+                }
+
+                // 2. Llenar los accesos rápidos del dashboard
+                const grid = document.getElementById('modulosGrid');
+                if (modulos.length === 0) {
+                    grid.innerHTML = `<div class="col-12">
+                        <div style="color:var(--text-muted);font-size:0.85rem;padding:1rem 0;">
+                            <i class="fas fa-info-circle me-2"></i>No hay módulos registrados aún.
+                        </div>
+                    </div>`;
+                    return;
+                }
+
+                grid.innerHTML = modulos.map(m => {
+                    const href  = m.ruta || ('/' + (m.nombre || '').toLowerCase().replace(/\s+/g, '-'));
+                    const label = m.nombreMostrar || m.nombre || 'Módulo';
+                    const icono = m.icono || iconoParaModulo(m.nombre);
+                    return `
+                        <div class="col-sm-6">
+                            <a href="${href}" class="module-card">
+                                <div class="module-icon">
+                                    <i class="fas ${icono}"></i>
+                                </div>
+                                <div class="module-info">
+                                    <h3>${label}</h3>
+                                    <p>Ir al módulo ${label.toLowerCase()}</p>
+                                </div>
+                                <i class="fas fa-chevron-right module-arrow"></i>
+                            </a>
+                        </div>`;
+                }).join('');
+
+                // Actualizar contador de módulos en stats
+                document.getElementById('totalModulos').textContent = modulos.length;
+            })
+            .catch(() => {
+                document.getElementById('modulosGrid').innerHTML = `
+                    <div class="col-12">
+                        <div style="color:#f87171;font-size:0.85rem;padding:1rem 0;">
+                            <i class="fas fa-exclamation-circle me-2"></i>No se pudieron cargar los módulos.
+                        </div>
+                    </div>`;
+            });
+    }
+
+    // ── Contadores ────────────────────────────────────────────
+    function cargarContadores() {
+        fetch('/api/usuarios/buscar')
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (data?.Total !== undefined)
+                    document.getElementById('totalUsuarios').textContent = data.Total;
+            }).catch(() => {});
+
+        fetch('/api/perfiles')
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (data?.total !== undefined)
+                    document.getElementById('totalPerfiles').textContent = data.total;
+                else if (data?.data)
+                    document.getElementById('totalPerfiles').textContent = data.data.length;
+            }).catch(() => {});
+
+        // El contador de módulos lo actualiza cargarModulos() directamente
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    cargarModulos();
+    cargarContadores();
+</script>
 </body>
 </html>
