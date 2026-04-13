@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -23,170 +24,106 @@ public class LoginController {
     @Autowired
     private AuthCaptchaService authCaptchaService;
 
+    // ── POST /api/login ───────────────────────────────────────
     @PostMapping("/login")
     public ResponseEntity<?> procesarLogin(
-            @RequestParam String nombreusuario,
+            @RequestParam String usuario,
             @RequestParam String password,
             @RequestParam("g-recaptcha-response") String recaptchaResponse,
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
 
+        // 1. Verificar reCAPTCHA
         if (!authCaptchaService.verifyRecaptcha(recaptchaResponse)) {
             response.put("success", false);
-            response.put("message", "Error en el inicio de sesión");
+            response.put("message", "Error en la verificación de seguridad. Intenta de nuevo.");
             response.put("error", "captcha");
             return ResponseEntity.badRequest().body(response);
         }
 
+        // 2. Buscar usuario en BD (tabla usuarios, campo "usuario")
         List<Usuarios> usuarios = serviceUsuarios.findAll();
 
-        for (Usuarios usuario : usuarios) {
-            if (usuario.getNombreusuario().equals(nombreusuario)) {
+        for (Usuarios u : usuarios) {
+            if (u.getUsuario().equals(usuario)) {
+
+                // 3. Validar estado
+                if (!"ACTIVO".equalsIgnoreCase(u.getEstado())) {
+                    response.put("success", false);
+                    response.put("message", "Tu cuenta está inactiva. Contacta al administrador.");
+                    response.put("error", "inactivo");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+                }
+
+                // 4. Verificar contraseña (MD5)
                 String hashedPassword = md5(password);
+                if (u.getPassword() != null && u.getPassword().equals(hashedPassword)) {
 
-                if (usuario.getPassword() != null &&
-                        usuario.getPassword().equals(hashedPassword)) {
+                    // 5. Guardar sesión
+                    session.setAttribute("usuario", u);
 
-                    session.setAttribute("usuario", usuario);
+                    // 6. Construir respuesta
+                    Map<String, Object> datosUsuario = new HashMap<>();
+                    datosUsuario.put("id", u.getId().toString());
+                    datosUsuario.put("usuario", u.getUsuario());
+                    if (u.getPerfil() != null) {
+                        datosUsuario.put("perfilId", u.getPerfil().getId().toString());
+                        datosUsuario.put("perfilNombre", u.getPerfil().getNombre());
+                    }
 
                     response.put("success", true);
                     response.put("message", "Login exitoso");
                     response.put("redirect", "/");
-
-                    Map<String, Object> datosUsuario = new HashMap<>();
-                    datosUsuario.put("id", usuario.getIdusuario());
-                    datosUsuario.put("nombre", usuario.getNombreusuario());
-                    datosUsuario.put("email", usuario.getEmail());
                     response.put("usuario", datosUsuario);
-
                     return ResponseEntity.ok(response);
+
                 } else {
                     response.put("success", false);
-                    response.put("message", "Error en el inicio de sesión");
+                    response.put("message", "Contraseña incorrecta. Verifica tus credenciales.");
                     response.put("error", "password");
                     return ResponseEntity.badRequest().body(response);
                 }
             }
         }
 
+        // Usuario no encontrado
         response.put("success", false);
-        response.put("message", "Error en el inicio de sesión");
+        response.put("message", "El usuario no existe. Verifica tus credenciales.");
         response.put("error", "usuario");
         return ResponseEntity.badRequest().body(response);
     }
 
-    @PostMapping("/registro")
-    public ResponseEntity<?> procesarRegistro(
-            @RequestParam(required = false) Integer idusuario,
-            @RequestParam String nombre,
-            @RequestParam String apellidopaterno,
-            @RequestParam String apellidomaterno,
-            @RequestParam String email,
-            @RequestParam(required = false) String password,
-            @RequestParam long telefono,
-            @RequestParam(value = "g-recaptcha-response", required = false) String recaptchaResponse,
-            HttpSession session) {  // ← CAMBIADO: HttpServletResponse por HttpSession
-
-        Map<String, Object> jsonResponse = new HashMap<>();
-
-        if (idusuario != null && idusuario > 0) {
-            try {
-                Usuarios usuarioExistente = serviceUsuarios.findById(idusuario);
-                if (usuarioExistente == null) {
-                    jsonResponse.put("success", false);
-                    jsonResponse.put("message", "Usuario no encontrado");
-                    return ResponseEntity.badRequest().body(jsonResponse);
-                }
-
-                usuarioExistente.setNombreusuario(nombre);
-                usuarioExistente.setApellidopaterno(apellidopaterno);
-                usuarioExistente.setApellidomaterno(apellidomaterno);
-                usuarioExistente.setEmail(email);
-                usuarioExistente.setTelefono(telefono);
-
-                if (password != null && !password.isEmpty()) {
-                    usuarioExistente.setPassword(md5(password));
-                }
-
-                serviceUsuarios.save(usuarioExistente);
-
-                jsonResponse.put("success", true);
-                jsonResponse.put("message", "Usuario actualizado correctamente");
-                return ResponseEntity.ok(jsonResponse);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "Error al actualizar: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonResponse);
-            }
-        } else {
-            if (!authCaptchaService.verifyRecaptcha(recaptchaResponse)) {
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "CAPTCHA inválido, por favor trata de nuevo");
-                jsonResponse.put("error", "captcha");
-                return ResponseEntity.badRequest().body(jsonResponse);
-            }
-
-            List<Usuarios> usuarios = serviceUsuarios.findAll();
-            for (Usuarios usuario : usuarios) {
-                if (usuario.getNombreusuario().equals(nombre)) {
-                    jsonResponse.put("success", false);
-                    jsonResponse.put("message", "El usuario ya existe");
-                    jsonResponse.put("error", "usuario_existente");
-                    return ResponseEntity.badRequest().body(jsonResponse);
-                }
-            }
-
-            try {
-                Usuarios nuevoUsuario = new Usuarios();
-                nuevoUsuario.setNombreusuario(nombre);
-                nuevoUsuario.setApellidopaterno(apellidopaterno);
-                nuevoUsuario.setApellidomaterno(apellidomaterno);
-                nuevoUsuario.setEmail(email);
-                nuevoUsuario.setPassword(md5(password));
-                nuevoUsuario.setTelefono(telefono);
-
-
-
-                Usuarios usuarioGuardado = serviceUsuarios.save(nuevoUsuario);
-
-                // ← AGREGADO: Iniciar sesión automáticamente
-                session.setAttribute("usuario", usuarioGuardado);
-
-                jsonResponse.put("success", true);
-                jsonResponse.put("message", "¡Registro exitoso!");
-                jsonResponse.put("redirect", "/");
-                return ResponseEntity.ok(jsonResponse);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "Error al registrar: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonResponse);
-            }
-        }
-    }
+    // ── POST /api/logout ──────────────────────────────────────
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "Adiooos :D");
-        response.put("redirect", "/login1");
+        response.put("message", "Sesión cerrada correctamente");
+        response.put("redirect", "/login");
         return ResponseEntity.ok(response);
     }
 
+    // ── GET /api/sesion ───────────────────────────────────────
     @GetMapping("/sesion")
     public ResponseEntity<?> obtenerSesion(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         Usuarios usuario = (Usuarios) session.getAttribute("usuario");
 
         if (usuario != null) {
+            Map<String, Object> datosUsuario = new HashMap<>();
+            datosUsuario.put("id", usuario.getId().toString());
+            datosUsuario.put("usuario", usuario.getUsuario());
+            datosUsuario.put("estado", usuario.getEstado());
+            if (usuario.getPerfil() != null) {
+                datosUsuario.put("perfilId", usuario.getPerfil().getId().toString());
+                datosUsuario.put("perfilNombre", usuario.getPerfil().getNombre());
+            }
+
             response.put("success", true);
-            response.put("usuario", usuario);
             response.put("autenticado", true);
+            response.put("usuario", datosUsuario);
             response.put("mensaje", "Sesión activa");
         } else {
             response.put("success", true);
@@ -196,15 +133,14 @@ public class LoginController {
         return ResponseEntity.ok(response);
     }
 
+    // ── MD5 helper ────────────────────────────────────────────
     private String md5(String input) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
             byte[] messageDigest = md.digest(input.getBytes());
             java.math.BigInteger no = new java.math.BigInteger(1, messageDigest);
             String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
+            while (hashtext.length() < 32) hashtext = "0" + hashtext;
             return hashtext;
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
