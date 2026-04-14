@@ -63,7 +63,7 @@ public class HomeController {
     }
 
     // ── PERFILES ──────────────────────────────────────────────
-    @GetMapping("/perfiles")
+    @GetMapping("/perfil")
     public String mostrarPerfiles(HttpSession session, Model model) {
         if (session.getAttribute("usuario") == null) return "redirect:/login";
         model.addAttribute("titulo", "Perfiles — Santa Mónica");
@@ -71,7 +71,7 @@ public class HomeController {
     }
 
     // ── CONFIGURACIÓN (módulos) ───────────────────────────────
-    @GetMapping("/configuracion")
+    @GetMapping("/config")
     public String mostrarConfiguracion(HttpSession session, Model model) {
         if (session.getAttribute("usuario") == null) return "redirect:/login";
         model.addAttribute("titulo", "Configuración — Santa Mónica");

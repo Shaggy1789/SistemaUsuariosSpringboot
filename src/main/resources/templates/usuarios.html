@@ -180,105 +180,157 @@
         .page-header-icon i { font-size: 1.3rem; color: var(--gold); }
         .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #e8e8e8; margin: 0; }
 
-        /* Filters */
-        .filter-panel {
+        /* ══ FILTROS ESTILO CAPTURA ══ */
+        .filtros-captura {
             background: var(--black-3);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.25rem 1.5rem;
             margin-bottom: 1.25rem;
         }
-        .filter-panel .form-label {
+        .filtros-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .filtro-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filtro-item label {
             font-size: 0.75rem;
             font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            display: block;
+            color: var(--gold);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .filter-panel .form-control,
-        .filter-panel .form-select {
+        .filtro-item input,
+        .filtro-item select {
             background: var(--black-4);
-            border: 1px solid rgba(201,168,76,0.15);
-            border-radius: 8px;
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 6px;
             color: var(--text);
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             padding: 8px 12px;
+            min-width: 200px;
             transition: border-color 0.2s;
         }
-        .filter-panel .form-control::placeholder { color: #4a4a4a; }
-        .filter-panel .form-control:focus,
-        .filter-panel .form-select:focus {
+        .filtro-item input:focus,
+        .filtro-item select:focus {
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
-            background: var(--black-4);
-            color: var(--text);
             outline: none;
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
         }
-        .filter-panel .form-select option { background: var(--black-4); }
+        .filtro-item select option {
+            background: var(--black-4);
+        }
+        .filtro-todos {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            padding-bottom: 8px;
+        }
+        .filtro-todos label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .filtro-todos input[type="checkbox"] {
+            accent-color: var(--gold);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .filtro-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+            padding-bottom: 8px;
+        }
 
-        .btn-gold {
+        .btn-buscar {
             background: linear-gradient(135deg, var(--gold-dark), var(--gold));
             color: #0d0d0d;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 8px 20px;
             font-size: 0.85rem;
             font-weight: 700;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             transition: all 0.2s;
-            display: inline-flex; align-items: center; gap: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
-        .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(201,168,76,0.3); }
-
-        .btn-gold-outline {
+        .btn-buscar:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(201,168,76,0.3);
+        }
+        .btn-limpiar {
             background: transparent;
             border: 1px solid var(--border-h);
             color: var(--gold-light);
-            border-radius: 8px;
-            padding: 7px 18px;
+            border-radius: 6px;
+            padding: 8px 16px;
             font-size: 0.85rem;
-            font-weight: 600;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             transition: all 0.2s;
-            display: inline-flex; align-items: center; gap: 6px;
         }
-        .btn-gold-outline:hover { background: rgba(201,168,76,0.08); border-color: var(--gold); }
+        .btn-limpiar:hover {
+            background: rgba(201,168,76,0.08);
+            border-color: var(--gold);
+        }
 
-        .count-row {
-            display: flex; align-items: center; gap: 8px;
-            margin-top: 0.75rem;
-            font-size: 0.82rem; color: var(--text-muted);
+        /* Resultados label */
+        .resultados-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1rem 0 0.75rem 0;
         }
-        .count-dot {
-            width: 8px; height: 8px;
+        .resultados-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .resultados-label::before {
+            content: '';
+            width: 4px;
+            height: 18px;
             background: var(--gold);
-            border-radius: 50%;
-            display: inline-block;
+            border-radius: 2px;
         }
-
-        /* Toolbar */
-        .table-toolbar {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 0.75rem;
-        }
-        .results-label { font-weight: 700; color: #888; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-add {
+        .btn-nuevo {
             background: linear-gradient(135deg, var(--gold-dark), var(--gold));
             color: #0d0d0d;
             border: none;
-            width: 36px; height: 36px;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 0.85rem;
             font-weight: 700;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             transition: all 0.2s;
         }
-        .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(201,168,76,0.3); }
+        .btn-nuevo:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(201,168,76,0.3);
+        }
 
         /* Table */
         .table-card {
@@ -288,7 +340,8 @@
             overflow: hidden;
         }
         .table-custom {
-            width: 100%; border-collapse: collapse;
+            width: 100%;
+            border-collapse: collapse;
             font-size: 0.86rem;
         }
         .table-custom thead tr {
@@ -303,6 +356,7 @@
             letter-spacing: 0.6px;
             text-transform: uppercase;
             border: none;
+            text-align: left;
         }
         .table-custom tbody tr {
             border-bottom: 1px solid rgba(201,168,76,0.07);
@@ -345,6 +399,7 @@
             transition: all 0.2s;
         }
         .btn-edit:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+        
         .btn-del {
             background: transparent;
             border: 1px solid rgba(229,62,62,0.25);
@@ -358,16 +413,43 @@
         }
         .btn-del:hover { background: rgba(229,62,62,0.1); border-color: #e53e3e; }
 
+        .estado-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .estado-badge.activo {
+            background: rgba(74, 222, 128, 0.12);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.25);
+        }
+        .estado-badge.inactivo {
+            background: rgba(252, 129, 129, 0.12);
+            color: #fc8181;
+            border: 1px solid rgba(252, 129, 129, 0.25);
+        }
+
         /* Pagination */
         .pagination-bar {
-            display: flex; align-items: center; justify-content: flex-end;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
             gap: 16px;
             padding: 10px 16px;
             border-top: 1px solid rgba(201,168,76,0.07);
             background: var(--black-4);
-            font-size: 0.8rem; color: var(--text-muted);
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
-        .rows-label { display: flex; align-items: center; gap: 8px; }
+        .rows-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .rows-label select {
             background: var(--black-5);
             border: 1px solid var(--border);
@@ -383,21 +465,36 @@
             cursor: pointer;
         }
         .pg-arrow {
-            width: 28px; height: 28px;
+            width: 28px;
+            height: 28px;
             border: 1px solid var(--border);
             border-radius: 5px;
             background: var(--black-5);
             color: var(--text-muted);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
             font-size: 0.75rem;
             transition: all 0.15s;
         }
-        .pg-arrow:hover:not(.disabled) { background: rgba(201,168,76,0.1); border-color: var(--gold); color: var(--gold); }
-        .pg-arrow.disabled { opacity: 0.3; cursor: not-allowed; }
+        .pg-arrow:hover:not(.disabled) {
+            background: rgba(201,168,76,0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .pg-arrow.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
-        /* Bottom */
-        .btn-menu-bottom {
+        /* Menu bottom */
+        .menu-bottom {
+            margin-top: 1.5rem;
+            text-align: right;
+        }
+        .btn-menu {
             background: var(--black-3);
             border: 1px solid var(--border);
             color: var(--gold-light);
@@ -409,11 +506,41 @@
             text-decoration: none;
             display: inline-block;
             transition: all 0.2s;
-            margin-top: 1rem;
         }
-        .btn-menu-bottom:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-menu:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
 
-        /* ══ MODALS ═══════════════════════════════════════════ */
+        /* States */
+        .state-cell {
+            text-align: center;
+            padding: 2.5rem 1rem !important;
+            color: #444;
+        }
+        .state-cell i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Toast */
+        #appToast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        /* ══ MODALS ══ */
         .modal-content {
             background: var(--black-3);
             border: 1px solid var(--border);
@@ -430,15 +557,34 @@
         .modal-header::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
             border-radius: 14px 14px 0 0;
         }
-        .modal-title { font-size: 0.95rem; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 8px; }
-        .modal-header .btn-close { filter: invert(0.7) sepia(1) saturate(2) hue-rotate(10deg); }
-        .modal-body { padding: 1.5rem; background: var(--black-3); }
-        .modal-footer { border-top: 1px solid var(--border); padding: 1rem 1.5rem; background: var(--black-3); border-radius: 0 0 14px 14px; }
-
+        .modal-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-header .btn-close {
+            filter: invert(0.7) sepia(1) saturate(2) hue-rotate(10deg);
+        }
+        .modal-body {
+            padding: 1.5rem;
+            background: var(--black-3);
+        }
+        .modal-footer {
+            border-top: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            background: var(--black-3);
+            border-radius: 0 0 14px 14px;
+        }
         .modal-body .form-label {
             font-size: 0.75rem;
             font-weight: 600;
@@ -458,14 +604,17 @@
             padding: 9px 12px;
             transition: border-color 0.2s;
         }
-        .modal-body .form-control::placeholder { color: #444; }
         .modal-body .form-control:focus,
         .modal-body .form-select:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
-            background: var(--black-4); color: var(--text); outline: none;
+            background: var(--black-4);
+            color: var(--text);
+            outline: none;
         }
-        .modal-body .form-select option { background: var(--black-4); }
+        .modal-body .form-select option {
+            background: var(--black-4);
+        }
         .modal-body .input-group-text {
             background: var(--black-5);
             border: 1px solid rgba(201,168,76,0.15);
@@ -474,39 +623,79 @@
             font-size: 0.85rem;
         }
         .modal-body .input-group .form-control,
-        .modal-body .input-group .form-select { border-left: none; }
+        .modal-body .input-group .form-select {
+            border-left: none;
+        }
 
         .is-invalid { border-color: #e53e3e !important; }
-        .is-valid   { border-color: var(--gold) !important; }
-        .invalid-feedback { color: #fc8181; font-size: 0.75rem; margin-top: 3px; display: block; }
+        .is-valid { border-color: var(--gold) !important; }
+        .invalid-feedback {
+            color: #fc8181;
+            font-size: 0.75rem;
+            margin-top: 3px;
+            display: block;
+        }
 
         .toggle-password {
-            position: absolute; right: 12px; top: 50%;
+            position: absolute;
+            right: 12px;
+            top: 50%;
             transform: translateY(-50%);
-            cursor: pointer; color: #555; z-index: 5;
+            cursor: pointer;
+            color: #555;
+            z-index: 5;
         }
         .toggle-password:hover { color: var(--gold); }
 
-        .modal-header.danger { background: rgba(229,62,62,0.1); }
-        .modal-header.danger .modal-title { color: #fc8181; }
+        .modal-header.danger {
+            background: rgba(229,62,62,0.1);
+        }
+        .modal-header.danger .modal-title {
+            color: #fc8181;
+        }
 
-        /* States */
-        .state-cell { text-align: center; padding: 2.5rem 1rem !important; color: #444; }
-        .state-cell i { font-size: 2rem; display: block; margin-bottom: 0.75rem; }
-
-        /* Toast */
-        #appToast {
-            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-            padding: 12px 20px; border-radius: 10px;
-            font-size: 0.85rem; font-weight: 600;
-            display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        /* Perfil combo + input */
+        .perfil-combo-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .perfil-combo-container select {
+            flex: 1;
+        }
+        .perfil-combo-container input {
+            flex: 1;
+        }
+        .btn-nuevo-perfil {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-nuevo-perfil:hover {
+            background: rgba(201,168,76,0.1);
+        }
+        .perfil-nuevo-input {
+            display: none;
+        }
+        .perfil-nuevo-input.show {
+            display: block;
+        }
+        .perfil-select-container.show {
+            display: none;
         }
 
         @media (max-width: 768px) {
             .page-wrap { padding: 1rem; }
-            .topnav-menu > li > a,
-            .topnav-menu > li > span { padding: 0 0.6rem; font-size: 0.78rem; }
+            .filtros-row { flex-direction: column; align-items: stretch; }
+            .filtro-item input,
+            .filtro-item select { min-width: 100%; }
+            .filtro-buttons { margin-left: 0; }
         }
     </style>
 </head>
@@ -519,12 +708,9 @@
     </a>
     <ul class="topnav-menu" id="navMenu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
-        <!-- Módulos dinámicos desde /api/modulos -->
         <li id="navModulosItem" style="display:none;">
             <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
-            <div class="dropdown-nav" id="navModulosDropdown">
-                <!-- se llena con JS -->
-            </div>
+            <div class="dropdown-nav" id="navModulosDropdown"></div>
         </li>
     </ul>
     <div class="topnav-right">
@@ -552,48 +738,49 @@
         <h1>Gestión de Usuarios</h1>
     </div>
 
-    <!-- Filters -->
-    <div class="filter-panel">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label">Usuario</label>
-                <input type="text" id="buscarInput" class="form-control" placeholder="Buscar...">
+    <!-- ══ FILTROS ESTILO CAPTURA ══ -->
+    <div class="filtros-captura">
+        <div class="filtros-row">
+            <div class="filtro-item">
+                <label>Usuario:</label>
+                <input type="text" id="buscarInput" placeholder="Buscar usuario...">
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Perfil</label>
-                <select id="rolSelect" class="form-select">
-                    <option value="">Todos</option>
+            <div class="filtro-item">
+                <label>Perfil:</label>
+                <select id="perfilSelect">
+                    <option value="">Todos los perfiles</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Estado</label>
-                <select id="estadoSelect" class="form-select">
+            <div class="filtro-item">
+                <label>Estado:</label>
+                <select id="estadoSelect">
                     <option value="">Todos</option>
                     <option value="ACTIVO">Activo</option>
                     <option value="INACTIVO">Inactivo</option>
                 </select>
             </div>
-            <div class="col-md-auto d-flex gap-2">
-                <button class="btn-gold" id="filtrarBtn">
+            <div class="filtro-todos">
+                <label>
+                    <input type="checkbox" id="todosCheckbox"> - Todos
+                </label>
+            </div>
+            <div class="filtro-buttons">
+                <button class="btn-buscar" id="buscarBtn">
                     <i class="fas fa-search"></i> Buscar
                 </button>
-                <button class="btn-gold-outline" id="limpiarBtn">
-                    <i class="fas fa-undo"></i> Limpiar
+                <button class="btn-limpiar" id="limpiarBtn">
+                    <i class="fas fa-times"></i> Limpiar
                 </button>
             </div>
         </div>
-        <div class="count-row">
-            <span class="count-dot"></span>
-            <span>Total: <strong id="totalCount" style="color:var(--gold-light);">0</strong> registros</span>
-        </div>
     </div>
 
-    <!-- Toolbar -->
-    <div class="table-toolbar">
-        <button class="btn-add" onclick="abrirModalNuevo()" title="Nuevo usuario">
-            <i class="fas fa-plus"></i>
+    <!-- Resultados -->
+    <div class="resultados-header">
+        <span class="resultados-label">[Resultados]</span>
+        <button class="btn-nuevo" onclick="abrirModalNuevo()">
+            <i class="fas fa-plus"></i> Nuevo Usuario
         </button>
-        <span class="results-label">Resultados</span>
     </div>
 
     <!-- Table -->
@@ -605,8 +792,8 @@
                         <th>Usuario</th>
                         <th>Perfil</th>
                         <th>Tipo Usuario</th>
-                        <th>Email</th>
                         <th>Estado</th>
+                        <th>Estado Registro</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
@@ -647,13 +834,13 @@
         </div>
     </div>
 
-    <div style="text-align:right;">
-        <a th:href="@{/}" class="btn-menu-bottom">
-            <i class="fas fa-th-large me-1"></i> Menú
+    <!-- Menú -->
+    <div class="menu-bottom">
+        <a th:href="@{/}" class="btn-menu">
+            <i class="fas fa-bars me-1"></i> Menú
         </a>
     </div>
 </div>
-
 
 <!-- ══ MODAL: CREAR / EDITAR ══ -->
 <div class="modal fade" id="usuarioModal" tabindex="-1">
@@ -671,13 +858,11 @@
                     <input type="hidden" id="usuarioId">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombre de Usuario *</label>
+                            <label class="form-label">Usuario *</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                                 <input type="text" class="form-control" id="nombreusuario"
-                                       placeholder="Máx. 10 caracteres" maxlength="10"
-                                       oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,'')"
-                                       onblur="validarTexto(this,'usuario')" required>
+                                       placeholder="Nombre de usuario" maxlength="50" required>
                             </div>
                             <div id="nombreusuarioError" class="invalid-feedback"></div>
                         </div>
@@ -686,56 +871,47 @@
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                 <input type="email" class="form-control" id="email"
-                                       placeholder="ejemplo@dominio.com" maxlength="50"
-                                       oninput="validarEmail(this)" required>
+                                       placeholder="ejemplo@dominio.com" maxlength="50" required>
                             </div>
                             <div id="emailError" class="invalid-feedback"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Apellido Paterno *</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                <input type="text" class="form-control" id="apellidopaterno"
-                                       placeholder="Solo letras" maxlength="10"
-                                       oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,'')"
-                                       onblur="validarTexto(this,'apellido paterno')" required>
+                            <label class="form-label">Perfil *</label>
+                            <!-- Selector de perfil existente -->
+                            <div id="perfilSelectContainer" class="perfil-select-container">
+                                <div class="perfil-combo-container">
+                                    <select class="form-select" id="rol" required>
+                                        <option value="">Seleccionar perfil</option>
+                                    </select>
+                                    <button type="button" class="btn-nuevo-perfil" onclick="mostrarNuevoPerfil()">
+                                        <i class="fas fa-plus"></i> Nuevo
+                                    </button>
+                                </div>
                             </div>
-                            <div id="apellidopaternoError" class="invalid-feedback"></div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Apellido Materno *</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                <input type="text" class="form-control" id="apellidomaterno"
-                                       placeholder="Solo letras" maxlength="10"
-                                       oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,'')"
-                                       onblur="validarTexto(this,'apellido materno')" required>
-                            </div>
-                            <div id="apellidomaternoError" class="invalid-feedback"></div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Teléfono *</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                <input type="tel" class="form-control" id="telefono"
-                                       placeholder="10 dígitos" maxlength="10"
-                                       oninput="soloNumeros(event);validarTelefono(this)" required>
-                            </div>
-                            <div id="telefonoError" class="invalid-feedback"></div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Rol *</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-shield-alt"></i></span>
-                                <select class="form-select" id="rol" required>
-                                    <option value="">Seleccionar rol</option>
-                                </select>
+                            <!-- Input para nuevo perfil -->
+                            <div id="perfilNuevoContainer" class="perfil-nuevo-input">
+                                <div class="perfil-combo-container">
+                                    <input type="text" class="form-control" id="nuevoPerfilInput" 
+                                           placeholder="Nombre del nuevo perfil" maxlength="50">
+                                    <button type="button" class="btn-nuevo-perfil" onclick="cancelarNuevoPerfil()">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
+                                <div id="nuevoPerfilError" class="invalid-feedback"></div>
                             </div>
                             <div id="rolError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estado</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-toggle-on"></i></span>
+                                <select class="form-select" id="estadoUsuario">
+                                    <option value="ACTIVO">Activo</option>
+                                    <option value="INACTIVO">Inactivo</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="row" id="passwordFields">
@@ -744,8 +920,7 @@
                             <div class="input-group position-relative">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                 <input type="password" class="form-control" id="password"
-                                       placeholder="Mínimo 4 caracteres" maxlength="10"
-                                       oninput="document.getElementById('confirmPassword').value?validarPassword('password','confirmPassword'):null">
+                                       placeholder="Contraseña" maxlength="50">
                                 <span class="toggle-password" onclick="togglePassword('password')">
                                     <i class="fas fa-eye"></i>
                                 </span>
@@ -757,8 +932,7 @@
                             <div class="input-group position-relative">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                 <input type="password" class="form-control" id="confirmPassword"
-                                       placeholder="Repite la contraseña" maxlength="10"
-                                       oninput="validarPassword('password','confirmPassword')">
+                                       placeholder="Confirmar contraseña" maxlength="50">
                                 <span class="toggle-password" onclick="togglePassword('confirmPassword')">
                                     <i class="fas fa-eye"></i>
                                 </span>
@@ -777,7 +951,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- ══ MODAL: ELIMINAR ══ -->
 <div class="modal fade" id="eliminarModal" tabindex="-1">
@@ -805,7 +978,6 @@
     </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let usuarioIdEliminar = null;
@@ -814,22 +986,32 @@
     let currentPage = 1;
     let itemsPerPage = 50;
     let allUsuarios = [];
+    let perfilesExistentes = [];
 
     document.addEventListener('DOMContentLoaded', function () {
         modalInstance = new bootstrap.Modal(document.getElementById('usuarioModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
-        cargarRoles();
+        cargarPerfiles();
         cargarUsuarios();
 
-        document.getElementById('filtrarBtn').addEventListener('click', cargarUsuarios);
+        document.getElementById('buscarBtn').addEventListener('click', cargarUsuarios);
         document.getElementById('buscarInput').addEventListener('keypress', function(e) {
-            if (e.key==='Enter') cargarUsuarios();
+            if (e.key === 'Enter') cargarUsuarios();
         });
         document.getElementById('limpiarBtn').addEventListener('click', function() {
             document.getElementById('buscarInput').value = '';
-            document.getElementById('rolSelect').value = '';
+            document.getElementById('perfilSelect').value = '';
             document.getElementById('estadoSelect').value = '';
+            document.getElementById('todosCheckbox').checked = false;
             cargarUsuarios();
+        });
+        document.getElementById('todosCheckbox').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.getElementById('buscarInput').value = '';
+                document.getElementById('perfilSelect').value = '';
+                document.getElementById('estadoSelect').value = '';
+                cargarUsuarios();
+            }
         });
         document.getElementById('itemsPerPageSelect').addEventListener('change', function(e) {
             itemsPerPage = parseInt(e.target.value);
@@ -838,20 +1020,44 @@
         });
     });
 
+    function mostrarNuevoPerfil() {
+        document.getElementById('perfilSelectContainer').classList.add('show');
+        document.getElementById('perfilNuevoContainer').classList.add('show');
+        document.getElementById('rol').required = false;
+        document.getElementById('nuevoPerfilInput').focus();
+    }
+
+    function cancelarNuevoPerfil() {
+        document.getElementById('perfilSelectContainer').classList.remove('show');
+        document.getElementById('perfilNuevoContainer').classList.remove('show');
+        document.getElementById('rol').required = true;
+        document.getElementById('nuevoPerfilInput').value = '';
+        document.getElementById('nuevoPerfilError').textContent = '';
+        document.getElementById('nuevoPerfilInput').classList.remove('is-invalid');
+    }
+
+    function resetPerfilSelector() {
+        document.getElementById('perfilSelectContainer').classList.remove('show');
+        document.getElementById('perfilNuevoContainer').classList.remove('show');
+        document.getElementById('rol').required = true;
+        document.getElementById('nuevoPerfilInput').value = '';
+        document.getElementById('nuevoPerfilError').textContent = '';
+    }
+
     function mostrarUsuariosPaginados() {
-        const start = (currentPage-1)*itemsPerPage;
-        const end   = Math.min(start+itemsPerPage, allUsuarios.length);
-        const total = Math.ceil(allUsuarios.length/itemsPerPage);
-        document.getElementById('startRecord').textContent = allUsuarios.length>0 ? start+1 : 0;
-        document.getElementById('endRecord').textContent   = end;
-        document.getElementById('prevPage').classList.toggle('disabled', currentPage===1);
-        document.getElementById('nextPage').classList.toggle('disabled', currentPage===total||total===0);
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = Math.min(start + itemsPerPage, allUsuarios.length);
+        const total = Math.ceil(allUsuarios.length / itemsPerPage);
+        document.getElementById('startRecord').textContent = allUsuarios.length > 0 ? start + 1 : 0;
+        document.getElementById('endRecord').textContent = end;
+        document.getElementById('prevPage').classList.toggle('disabled', currentPage === 1);
+        document.getElementById('nextPage').classList.toggle('disabled', currentPage === total || total === 0);
         mostrarUsuarios(allUsuarios.slice(start, end));
     }
 
     function mostrarUsuarios(usuarios) {
         const tbody = document.getElementById('tablaUsuarios');
-        if (!usuarios||usuarios.length===0) {
+        if (!usuarios || usuarios.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" class="state-cell">
                 <i class="fas fa-users-slash" style="color:var(--gold-dark);"></i>
                 No se encontraron usuarios
@@ -859,19 +1065,21 @@
             return;
         }
         tbody.innerHTML = usuarios.map(u => {
-            const rolNombre = u.role ? u.role.nombre : 'Usuario';
-            const esAdmin   = u.role && u.role.id === 1;
-            const estadoColor = u.estado === 'ACTIVO' ? '#4ade80' : '#fc8181';
+            const perfilNombre = u.perfil ? u.perfil.nombre : '—';
+            const tipoUsuario = perfilNombre !== '-';
+            const estado = u.estado || '—'? perfilNombre :'Sin perfil';
+            const estadoClass = estado === 'ACTIVO' ? 'activo' : 'inactivo';
+            
             return `<tr>
-                <td><i class="fas fa-user-circle me-2" style="color:var(--gold-dark);"></i>${u.nombreusuario||''}</td>
-                <td>${u.apellidopaterno||''} ${u.apellidomaterno||''}</td>
-                <td><span class="role-badge ${esAdmin?'admin':''}">${rolNombre}</span></td>
-                <td>${u.email||''}</td>
-                <td><span style="font-size:0.75rem;color:${estadoColor};font-weight:600;text-transform:uppercase;letter-spacing:0.4px;">${u.estado||'—'}</span></td>
-                <td><button class="btn-edit" onclick="abrirModalEditar(${u.idusuario})" title="Editar">
+                <td><i class="fas fa-user-circle me-2" style="color:var(--gold-dark);"></i>${u.usuario || '—'}</td>
+                <td>${perfilNombre}</td>
+                <td>${tipoUsuario}</td>
+                <td><span class="estado-badge ${estadoClass}">${estado}</span></td>
+                <td><span class="estado-badge ${estadoClass}">${estado}</span></td>
+                <td><button class="btn-edit" onclick="abrirModalEditar('${u.id}')" title="Editar">
                     <i class="fas fa-pencil-alt"></i>
                 </button></td>
-                <td><button class="btn-del" onclick="abrirModalEliminar(${u.idusuario},'${u.nombreusuario}')" title="Eliminar">
+                <td><button class="btn-del" onclick="abrirModalEliminar('${u.id}','${u.usuario || ''}')" title="Eliminar">
                     <i class="fas fa-trash"></i>
                 </button></td>
             </tr>`;
@@ -879,215 +1087,323 @@
     }
 
     function cambiarPagina(nueva) {
-        const total = Math.ceil(allUsuarios.length/itemsPerPage);
-        if (nueva>=1&&nueva<=total) { currentPage=nueva; mostrarUsuariosPaginados(); }
+        const total = Math.ceil(allUsuarios.length / itemsPerPage);
+        if (nueva >= 1 && nueva <= total) {
+            currentPage = nueva;
+            mostrarUsuariosPaginados();
+        }
     }
 
-    function cargarRoles() {
-        fetch('/api/roles')
-            .then(r=>r.ok?r.json():Promise.reject(r.statusText))
+    function cargarPerfiles() {
+        fetch('/api/perfiles')
+            .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
             .then(data => {
-                const rS = document.getElementById('rolSelect');
-                const rM = document.getElementById('rol');
-                rS.innerHTML = '<option value="">Todos</option>';
-                rM.innerHTML = '<option value="">Seleccionar rol</option>';
-                const lista = Array.isArray(data)?data:(data.data||[]);
-                lista.forEach(rol => {
-                    rS.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
-                    rM.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`;
+                const perfilSelect = document.getElementById('perfilSelect');
+                const rolSelect = document.getElementById('rol');
+                perfilSelect.innerHTML = '<option value="">Todos los perfiles</option>';
+                rolSelect.innerHTML = '<option value="">Seleccionar perfil</option>';
+                const lista = Array.isArray(data) ? data : (data.data || []);
+                perfilesExistentes = lista.map(p => p.nombre.toUpperCase());
+                lista.forEach(perfil => {
+                    perfilSelect.innerHTML += `<option value="${perfil.id}">${perfil.nombre}</option>`;
+                    rolSelect.innerHTML += `<option value="${perfil.id}">${perfil.nombre}</option>`;
                 });
             })
-            .catch(()=>{
-                document.getElementById('rolSelect').innerHTML='<option value="">Todos</option><option value="1">Administrador</option><option value="2">Usuario</option>';
-                document.getElementById('rol').innerHTML='<option value="">Seleccionar rol</option><option value="1">Administrador</option><option value="2">Usuario</option>';
+            .catch(() => {
+                document.getElementById('perfilSelect').innerHTML = '<option value="">Todos los perfiles</option>';
+                document.getElementById('rol').innerHTML = '<option value="">Seleccionar perfil</option>';
             });
     }
 
     function cargarUsuarios() {
         const buscar = document.getElementById('buscarInput').value;
-        const rol    = document.getElementById('rolSelect').value;
+        const perfilId = document.getElementById('perfilSelect').value;
+        const estado = document.getElementById('estadoSelect').value;
+        
         let url = '/api/usuarios/buscar?';
-        if (buscar) url+='query='+encodeURIComponent(buscar)+'&';
-        if (rol)    url+='rolId='+rol+'&';
+        if (buscar) url += 'query=' + encodeURIComponent(buscar) + '&';
+        if (perfilId) url += 'perfilId=' + perfilId + '&';
+        
         fetch(url)
-            .then(r=>r.ok?r.json():r.text().then(t=>{throw new Error(t);}))
-            .then(data=>{
-                allUsuarios = data.data||[];
-                document.getElementById('totalCount').textContent  = allUsuarios.length;
-                document.getElementById('totalRecords').textContent= allUsuarios.length;
-                currentPage=1; mostrarUsuariosPaginados();
+            .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t); }))
+            .then(data => {
+                let usuarios = data.data || [];
+                if (estado) {
+                    usuarios = usuarios.filter(u => u.estado === estado);
+                }
+                allUsuarios = usuarios;
+                document.getElementById('totalRecords').textContent = allUsuarios.length;
+                currentPage = 1;
+                mostrarUsuariosPaginados();
             })
-            .catch(()=>{
-                fetch('/api/usuarios').then(r=>r.json()).then(us=>{
-                    allUsuarios=us;
-                    document.getElementById('totalCount').textContent=us.length;
-                    document.getElementById('totalRecords').textContent=us.length;
-                    currentPage=1; mostrarUsuariosPaginados();
-                }).catch(()=>{
-                    document.getElementById('tablaUsuarios').innerHTML=
-                        `<tr><td colspan="7" class="state-cell"><i class="fas fa-exclamation-circle" style="color:#fc8181;"></i>Error al cargar usuarios</td></tr>`;
-                });
+            .catch(() => {
+                fetch('/api/usuarios')
+                    .then(r => r.json())
+                    .then(data => {
+                        let usuarios = data.data || data || [];
+                        if (estado) {
+                            usuarios = usuarios.filter(u => u.estado === estado);
+                        }
+                        allUsuarios = usuarios;
+                        document.getElementById('totalRecords').textContent = allUsuarios.length;
+                        currentPage = 1;
+                        mostrarUsuariosPaginados();
+                    })
+                    .catch(() => {
+                        document.getElementById('tablaUsuarios').innerHTML =
+                            `<tr><td colspan="7" class="state-cell"><i class="fas fa-exclamation-circle" style="color:#fc8181;"></i>Error al cargar usuarios</td></tr>`;
+                    });
             });
     }
 
     function limpiarValidaciones() {
-        document.querySelectorAll('.is-invalid').forEach(el=>el.classList.remove('is-invalid'));
-        document.querySelectorAll('.is-valid').forEach(el=>el.classList.remove('is-valid'));
-        document.querySelectorAll('.invalid-feedback').forEach(el=>el.textContent='');
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
     }
 
     function abrirModalNuevo() {
-        document.getElementById('modalTitleText').textContent='Nuevo Usuario';
+        document.getElementById('modalTitleText').textContent = 'Nuevo Usuario';
         document.getElementById('usuarioForm').reset();
-        document.getElementById('usuarioId').value='';
-        document.getElementById('password').required=true;
-        document.getElementById('confirmPassword').required=true;
-        document.getElementById('passwordFields').style.display='flex';
-        limpiarValidaciones(); modalInstance.show();
+        document.getElementById('usuarioId').value = '';
+        document.getElementById('estadoUsuario').value = 'ACTIVO';
+        document.getElementById('password').required = true;
+        document.getElementById('confirmPassword').required = true;
+        document.getElementById('passwordFields').style.display = 'flex';
+        resetPerfilSelector();
+        limpiarValidaciones();
+        modalInstance.show();
     }
 
     function abrirModalEditar(id) {
-        document.getElementById('modalTitleText').textContent='Editar Usuario';
-        document.getElementById('password').required=false;
-        document.getElementById('confirmPassword').required=false;
-        document.getElementById('passwordFields').style.display='none';
+        document.getElementById('modalTitleText').textContent = 'Editar Usuario';
+        document.getElementById('password').required = false;
+        document.getElementById('confirmPassword').required = false;
+        document.getElementById('passwordFields').style.display = 'none';
+        resetPerfilSelector();
         limpiarValidaciones();
-        fetch(`/api/usuario/${id}`).then(r=>r.json()).then(u=>{
-            document.getElementById('usuarioId').value       = u.idusuario;
-            document.getElementById('nombreusuario').value   = u.nombreusuario;
-            document.getElementById('apellidopaterno').value = u.apellidopaterno;
-            document.getElementById('apellidomaterno').value = u.apellidomaterno;
-            document.getElementById('email').value           = u.email;
-            document.getElementById('telefono').value        = u.telefono;
-            document.getElementById('rol').value             = u.role?u.role.id:'';
-            modalInstance.show();
-        }).catch(()=>mostrarToast('Error al cargar el usuario','error'));
+        fetch(`/api/usuario/${id}`)
+            .then(r => r.json())
+            .then(u => {
+                document.getElementById('usuarioId').value = u.id;
+                document.getElementById('nombreusuario').value = u.usuario || '';
+                document.getElementById('email').value = u.email || '';
+                document.getElementById('rol').value = u.perfil ? u.perfil.id : '';
+                document.getElementById('estadoUsuario').value = u.estado || 'ACTIVO';
+                modalInstance.show();
+            })
+            .catch(() => mostrarToast('Error al cargar el usuario', 'error'));
     }
 
-    function guardarUsuario() {
-        const id=document.getElementById('usuarioId').value;
-        const esNuevo=!id; limpiarValidaciones();
-        const nOk  = validarTexto(document.getElementById('nombreusuario'),'usuario');
-        const apOk = validarTexto(document.getElementById('apellidopaterno'),'apellido paterno');
-        const amOk = validarTexto(document.getElementById('apellidomaterno'),'apellido materno');
-        const emOk = validarEmail(document.getElementById('email'));
-        const telOk= validarTelefono(document.getElementById('telefono'));
-        const rolSel=document.getElementById('rol');
-        const rolErr=document.getElementById('rolError');
-        let rolOk=true;
-        if (!rolSel.value){rolErr.textContent='Selecciona un rol';rolSel.classList.add('is-invalid');rolOk=false;}
-        else{rolSel.classList.remove('is-invalid');rolSel.classList.add('is-valid');}
-        let passOk=true;
-        if(esNuevo) passOk=validarPassword('password','confirmPassword');
-        if(!nOk||!apOk||!amOk||!emOk||!telOk||!rolOk||!passOk) return;
+    async function guardarUsuario() {
+        const id = document.getElementById('usuarioId').value;
+        const esNuevo = !id;
+        limpiarValidaciones();
+        
+        const usuario = document.getElementById('nombreusuario').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const estado = document.getElementById('estadoUsuario').value;
+        const password = document.getElementById('password').value;
+        
+        let isValid = true;
+        
+        if (!usuario) {
+            document.getElementById('nombreusuarioError').textContent = 'El usuario es requerido';
+            document.getElementById('nombreusuario').classList.add('is-invalid');
+            isValid = false;
+        }
+        if (!email) {
+            document.getElementById('emailError').textContent = 'El email es requerido';
+            document.getElementById('email').classList.add('is-invalid');
+            isValid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            document.getElementById('emailError').textContent = 'Email inválido';
+            document.getElementById('email').classList.add('is-invalid');
+            isValid = false;
+        }
+        if (esNuevo && !password) {
+            document.getElementById('passwordError').textContent = 'La contraseña es requerida';
+            document.getElementById('password').classList.add('is-invalid');
+            isValid = false;
+        }
+        if (esNuevo && password && password.length < 4) {
+            document.getElementById('passwordError').textContent = 'Mínimo 4 caracteres';
+            document.getElementById('password').classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Validar perfil
+        let perfilId = null;
+        const usandoNuevoPerfil = document.getElementById('perfilNuevoContainer').classList.contains('show');
+        
+        if (usandoNuevoPerfil) {
+            const nuevoPerfilNombre = document.getElementById('nuevoPerfilInput').value.trim().toUpperCase();
+            if (!nuevoPerfilNombre) {
+                document.getElementById('nuevoPerfilError').textContent = 'El nombre del perfil es requerido';
+                document.getElementById('nuevoPerfilInput').classList.add('is-invalid');
+                isValid = false;
+            } else {
+                // Verificar si el perfil ya existe
+                const perfilExistente = perfilesExistentes.includes(nuevoPerfilNombre);
+                if (perfilExistente) {
+                    document.getElementById('nuevoPerfilError').textContent = 'Este perfil ya existe';
+                    document.getElementById('nuevoPerfilInput').classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    // Crear el nuevo perfil
+                    try {
+                        const nuevoPerfil = await crearPerfil(nuevoPerfilNombre);
+                        perfilId = nuevoPerfil.id;
+                        mostrarToast('Perfil creado correctamente', 'success');
+                        // Recargar la lista de perfiles
+                        await cargarPerfilesAsync();
+                    } catch (error) {
+                        document.getElementById('nuevoPerfilError').textContent = 'Error al crear el perfil';
+                        document.getElementById('nuevoPerfilInput').classList.add('is-invalid');
+                        isValid = false;
+                    }
+                }
+            }
+        } else {
+            perfilId = document.getElementById('rol').value;
+            if (!perfilId) {
+                document.getElementById('rolError').textContent = 'Selecciona un perfil';
+                document.getElementById('rol').classList.add('is-invalid');
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) return;
 
-        const datos={
-            nombreusuario:   document.getElementById('nombreusuario').value,
-            apellidopaterno: document.getElementById('apellidopaterno').value,
-            apellidomaterno: document.getElementById('apellidomaterno').value,
-            email:           document.getElementById('email').value,
-            telefono:        parseInt(document.getElementById('telefono').value)||0,
-            role:            rolSel.value?{id:parseInt(rolSel.value)}:null
+        const datos = {
+            usuario: usuario,
+            email: email,
+            estado: estado
         };
-        if(!esNuevo) datos.idusuario=parseInt(id);
-        if(esNuevo)  datos.password=document.getElementById('password').value;
+        if (perfilId) datos.perfilId = perfilId;
+        if (esNuevo && password) datos.password = password;
 
-        fetch(esNuevo?'/api/usuarios':`/api/usuarios/${id}`,{
-            method: esNuevo?'POST':'PUT',
-            headers:{'Content-Type':'application/json'},
+        const url = esNuevo ? '/api/usuarios' : `/api/usuarios/${id}`;
+        fetch(url, {
+            method: esNuevo ? 'POST' : 'PUT',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos)
-        }).then(r=>r.json()).then(data=>{
-            if(data.success){modalInstance.hide();cargarUsuarios();mostrarToast(esNuevo?'Usuario creado correctamente':'Usuario actualizado correctamente','success');}
-            else mostrarToast('Error: '+data.message,'error');
-        }).catch(()=>mostrarToast('Error al guardar el usuario','error'));
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    modalInstance.hide();
+                    cargarUsuarios();
+                    mostrarToast(esNuevo ? 'Usuario creado correctamente' : 'Usuario actualizado correctamente', 'success');
+                } else {
+                    mostrarToast('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(() => mostrarToast('Error al guardar el usuario', 'error'));
     }
 
-    function abrirModalEliminar(id,nombre){
-        usuarioIdEliminar=id;
-        document.getElementById('usuarioAEliminar').textContent=nombre;
+    async function crearPerfil(nombre) {
+        const response = await fetch('/api/perfiles', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                nombre: nombre,
+                estado: 'ACTIVO'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error al crear perfil');
+        }
+        
+        const data = await response.json();
+        return data.data;
+    }
+
+    async function cargarPerfilesAsync() {
+        const response = await fetch('/api/perfiles');
+        const data = await response.json();
+        const perfilSelect = document.getElementById('perfilSelect');
+        const rolSelect = document.getElementById('rol');
+        perfilSelect.innerHTML = '<option value="">Todos los perfiles</option>';
+        rolSelect.innerHTML = '<option value="">Seleccionar perfil</option>';
+        const lista = Array.isArray(data) ? data : (data.data || []);
+        perfilesExistentes = lista.map(p => p.nombre.toUpperCase());
+        lista.forEach(perfil => {
+            perfilSelect.innerHTML += `<option value="${perfil.id}">${perfil.nombre}</option>`;
+            rolSelect.innerHTML += `<option value="${perfil.id}">${perfil.nombre}</option>`;
+        });
+    }
+
+    function abrirModalEliminar(id, nombre) {
+        usuarioIdEliminar = id;
+        document.getElementById('usuarioAEliminar').textContent = nombre;
         eliminarModalInstance.show();
     }
 
-    function confirmarEliminar(){
-        if(!usuarioIdEliminar) return;
-        fetch(`/api/usuarios/${usuarioIdEliminar}`,{method:'DELETE'})
-            .then(r=>r.json()).then(data=>{
+    function confirmarEliminar() {
+        if (!usuarioIdEliminar) return;
+        fetch(`/api/usuarios/${usuarioIdEliminar}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(data => {
                 eliminarModalInstance.hide();
-                if(data.success){cargarUsuarios();mostrarToast('Usuario eliminado correctamente','success');}
-                else mostrarToast('Error al eliminar usuario','error');
-            }).catch(()=>mostrarToast('Error al eliminar usuario','error'));
+                if (data.success) {
+                    cargarUsuarios();
+                    mostrarToast('Usuario eliminado correctamente', 'success');
+                } else {
+                    mostrarToast('Error al eliminar usuario', 'error');
+                }
+            })
+            .catch(() => mostrarToast('Error al eliminar usuario', 'error'));
     }
 
-    /* ── VALIDACIONES ── */
-    function soloNumeros(e){e.target.value=e.target.value.replace(/[^0-9]/g,'').slice(0,10);}
-    function validarTexto(input,campo){
-        const val=input.value.trim();const err=document.getElementById(input.id+'Error');
-        if(!val){err.textContent=`El ${campo} es requerido`;input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
-        if(val.length<3){err.textContent=`Mínimo 3 caracteres`;input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
-        if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(val)){err.textContent='Solo letras';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
-        err.textContent='';input.classList.remove('is-invalid');input.classList.add('is-valid');return true;
-    }
-    function validarEmail(input){
-        const val=input.value;const err=document.getElementById('emailError');
-        if(!val){err.textContent='El email es requerido';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
-        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){err.textContent='Email inválido';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
-        err.textContent='';input.classList.remove('is-invalid');input.classList.add('is-valid');return true;
-    }
-    function validarTelefono(input){
-        const val=input.value;const err=document.getElementById('telefonoError');
-        if(!val){err.textContent='El teléfono es requerido';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
-        if(val.length<10){err.textContent='Debe tener 10 dígitos';input.classList.add('is-invalid');input.classList.remove('is-valid');return false;}
-        err.textContent='';input.classList.remove('is-invalid');input.classList.add('is-valid');return true;
-    }
-    function validarPassword(pId,cId){
-        const p=document.getElementById(pId),c=document.getElementById(cId);
-        const pE=document.getElementById('passwordError'),cE=document.getElementById('confirmPasswordError');
-        if(!p.value){pE.textContent='La contraseña es requerida';p.classList.add('is-invalid');return false;}
-        if(p.value.length<4){pE.textContent='Mínimo 4 caracteres';p.classList.add('is-invalid');return false;}
-        if(p.value!==c.value){pE.textContent='Las contraseñas no coinciden';cE.textContent='No coinciden';p.classList.add('is-invalid');c.classList.add('is-invalid');return false;}
-        pE.textContent='';cE.textContent='';p.classList.remove('is-invalid');c.classList.remove('is-invalid');p.classList.add('is-valid');c.classList.add('is-valid');return true;
-    }
-    function togglePassword(id){
-        const inp=document.getElementById(id);const ico=inp.parentElement.querySelector('.toggle-password i');
-        if(inp.type==='password'){inp.type='text';ico.classList.replace('fa-eye','fa-eye-slash');}
-        else{inp.type='password';ico.classList.replace('fa-eye-slash','fa-eye');}
+    function togglePassword(id) {
+        const inp = document.getElementById(id);
+        const ico = inp.parentElement.querySelector('.toggle-password i');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            ico.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            inp.type = 'password';
+            ico.classList.replace('fa-eye-slash', 'fa-eye');
+        }
     }
 
-    /* ── TOAST ── */
-    function mostrarToast(msg,tipo){
-        const ex=document.getElementById('appToast');if(ex)ex.remove();
-        const t=document.createElement('div');t.id='appToast';
-        const isSuccess=tipo==='success';
-        t.style.cssText=`position:fixed;bottom:24px;right:24px;z-index:9999;
-            background:${isSuccess?'linear-gradient(135deg,#a07830,#c9a84c)':'linear-gradient(135deg,#9b2c2c,#e53e3e)'};
-            color:${isSuccess?'#0d0d0d':'#fff'};padding:12px 20px;border-radius:10px;
+    function mostrarToast(msg, tipo) {
+        const ex = document.getElementById('appToast');
+        if (ex) ex.remove();
+        const t = document.createElement('div');
+        t.id = 'appToast';
+        const isSuccess = tipo === 'success';
+        t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
+            background:${isSuccess ? 'linear-gradient(135deg,#a07830,#c9a84c)' : 'linear-gradient(135deg,#9b2c2c,#e53e3e)'};
+            color:${isSuccess ? '#0d0d0d' : '#fff'};padding:12px 20px;border-radius:10px;
             font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:10px;
             box-shadow:0 8px 24px rgba(0,0,0,0.5);letter-spacing:0.2px;`;
-        t.innerHTML=`<i class="fas ${isSuccess?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
+        t.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>${msg}`;
         document.body.appendChild(t);
-        setTimeout(()=>t.remove(),3500);
+        setTimeout(() => t.remove(), 3500);
     }
 
-    /* ── Navbar dinámico desde /api/modulos ── */
     function cargarNavModulos() {
         fetch('/api/modulos')
             .then(r => r.ok ? r.json() : Promise.reject())
             .then(data => {
-                const modulos  = data.data || [];
+                const modulos = data.data || [];
                 const dropdown = document.getElementById('navModulosDropdown');
-                const navItem  = document.getElementById('navModulosItem');
+                const navItem = document.getElementById('navModulosItem');
                 if (modulos.length === 0) return;
 
                 const paginaActual = window.location.pathname;
                 dropdown.innerHTML = modulos.map(m => {
-                    const href  = m.ruta || ('/' + (m.nombre || '').toLowerCase().replace(/\s+/g,'-'));
+                    const href = m.ruta || ('/' + (m.nombre || '').toLowerCase().replace(/\s+/g, '-'));
                     const label = m.nombreMostrar || m.nombre || 'Módulo';
                     const activo = paginaActual === href ? ' class="active-page"' : '';
                     return `<a href="${href}"${activo}>${label}</a>`;
                 }).join('');
                 navItem.style.display = 'flex';
             })
-            .catch(() => {}); // Si falla, el navbar simplemente no muestra el dropdown
+            .catch(() => {});
     }
 
     cargarNavModulos();
