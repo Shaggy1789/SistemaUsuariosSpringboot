@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo}">Permisos — Santa Mónica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --gold-dark:  #a07830;
+            --black:      #0d0d0d;
+            --black-2:    #111111;
+            --black-3:    #181818;
+            --black-4:    #212121;
+            --black-5:    #2a2a2a;
+            --border:     rgba(201,168,76,0.15);
+            --border-h:   rgba(201,168,76,0.35);
+            --text:       #e2e2e2;
+            --text-muted: #6e6e6e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--black);
+            background-image: radial-gradient(ellipse at 15% 40%, rgba(201,168,76,0.04) 0%, transparent 55%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text); margin: 0; padding: 0; min-height: 100vh;
+        }
+
+        /* ══ NAVBAR ══ */
+        .topnav {
+            background: var(--black-2); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 1.5rem;
+            height: 52px; position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+        }
+        .topnav::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4;
+        }
+        .topnav-brand {
+            color: var(--gold-light); font-weight: 700; font-size: 0.95rem;
+            text-decoration: none; margin-right: 1.5rem;
+            display: flex; align-items: center; gap: 8px; white-space: nowrap;
+        }
+        .topnav-brand i { color: var(--gold); font-size: 1.1rem; }
+        .topnav-menu {
+            display: flex; align-items: stretch; list-style: none;
+            margin: 0; padding: 0; flex: 1; height: 100%;
+        }
+        .topnav-menu > li { position: relative; display: flex; align-items: center; }
+        .topnav-menu > li > a, .topnav-menu > li > span {
+            color: #888; text-decoration: none; font-size: 0.85rem; font-weight: 500;
+            padding: 0 1rem; height: 100%;
+            display: flex; align-items: center; gap: 6px;
+            cursor: pointer; white-space: nowrap; transition: color 0.2s;
+        }
+        .topnav-menu > li > a:hover, .topnav-menu > li > span:hover { color: var(--gold-light); }
+        .topnav-menu > li > a.active { color: var(--gold); }
+        .topnav-menu > li > span i.arrow { font-size: 0.6rem; transition: transform 0.2s; }
+        .topnav-menu > li:hover > span i.arrow { transform: rotate(180deg); }
+        .dropdown-nav {
+            display: none; position: absolute; top: 100%; left: 0;
+            background: var(--black-3); border: 1px solid var(--border);
+            border-top: 2px solid var(--gold); min-width: 175px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6); z-index: 100;
+        }
+        .topnav-menu > li:hover .dropdown-nav { display: block; }
+        .dropdown-nav a {
+            display: block; color: #888; text-decoration: none;
+            font-size: 0.83rem; padding: 10px 16px; transition: background 0.15s, color 0.15s;
+        }
+        .dropdown-nav a:hover { background: rgba(201,168,76,0.07); color: var(--gold-light); }
+        .dropdown-nav a.active-page { color: var(--gold); font-weight: 600; }
+        .topnav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+        .user-pill {
+            background: rgba(201,168,76,0.07); border: 1px solid var(--border);
+            border-radius: 20px; padding: 4px 14px 4px 8px;
+            display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 0.8rem;
+        }
+        .user-pill i { color: var(--gold); }
+        .user-pill .role-tag {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d; font-size: 0.68rem; font-weight: 700;
+            border-radius: 10px; padding: 2px 8px; text-transform: uppercase;
+        }
+        .btn-logout {
+            background: transparent; border: 1px solid var(--border);
+            color: #888; border-radius: 7px; padding: 5px 12px; font-size: 0.8rem;
+            text-decoration: none; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+        }
+        .btn-logout:hover { border-color: var(--gold); color: var(--gold-light); }
+
+        /* ══ PAGE ══ */
+        .page-wrap { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+        .page-header {
+            display: flex; align-items: center; gap: 14px;
+            padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem; position: relative;
+        }
+        .page-header::after {
+            content: ''; position: absolute; bottom: -1px; left: 0;
+            width: 80px; height: 2px; background: var(--gold);
+        }
+        .page-header-icon {
+            width: 46px; height: 46px; background: rgba(201,168,76,0.08);
+            border: 1px solid var(--border); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .page-header-icon i { font-size: 1.3rem; color: var(--gold); }
+        .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #e8e8e8; margin: 0; }
+
+        /* Selector de perfil */
+        .selector-panel {
+            background: var(--black-3); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
+            display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap;
+        }
+        .selector-panel .form-label {
+            font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block;
+        }
+        .selector-panel .form-select {
+            background: var(--black-4); border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 8px; color: var(--text); font-size: 0.9rem; padding: 9px 14px;
+            min-width: 280px; transition: border-color 0.2s;
+        }
+        .selector-panel .form-select:focus {
+            border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+            background: var(--black-4); color: var(--text); outline: none;
+        }
+        .selector-panel .form-select option { background: var(--black-4); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #0d0d0d; border: none; border-radius: 8px;
+            padding: 9px 22px; font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+            text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(201,168,76,0.3); }
+        .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-gold-outline {
+            background: transparent; border: 1px solid var(--border-h);
+            color: var(--gold-light); border-radius: 8px;
+            padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-gold-outline:hover { background: rgba(201,168,76,0.08); border-color: var(--gold); }
+        .btn-gold-outline:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Badge admin */
+        .admin-badge {
+            background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25);
+            color: var(--gold-light); border-radius: 20px;
+            padding: 4px 14px; font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            display: inline-flex; align-items: center; gap: 6px; margin-left: auto;
+        }
+
+        /* ══ TABLA DE PERMISOS ══ */
+        .permisos-card {
+            background: var(--black-3); border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden;
+        }
+
+        .permisos-header {
+            background: var(--black-4); border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .permisos-header-label {
+            font-size: 0.7rem; font-weight: 700; color: var(--gold);
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .permisos-header-actions { display: flex; gap: 8px; }
+
+        table.permisos-table {
+            width: 100%; border-collapse: collapse; font-size: 0.85rem;
+        }
+        table.permisos-table thead tr {
+            background: var(--black-4); border-bottom: 1px solid var(--border);
+        }
+        table.permisos-table thead th {
+            padding: 12px 16px; font-weight: 600; font-size: 0.72rem;
+            color: var(--gold); letter-spacing: 0.6px; text-transform: uppercase;
+            text-align: center; border: none; white-space: nowrap;
+        }
+        table.permisos-table thead th:first-child { text-align: left; min-width: 200px; }
+
+        table.permisos-table tbody tr {
+            border-bottom: 1px solid rgba(201,168,76,0.06);
+            transition: background 0.15s;
+        }
+        table.permisos-table tbody tr:last-child { border-bottom: none; }
+        table.permisos-table tbody tr:hover { background: rgba(201,168,76,0.03); }
+        table.permisos-table tbody td {
+            padding: 13px 16px; color: #b8b8b8; text-align: center;
+            vertical-align: middle;
+        }
+        table.permisos-table tbody td:first-child {
+            text-align: left; font-weight: 600; color: #d0d0d0;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .modulo-icon-cell {
+            width: 32px; height: 32px; border-radius: 7px;
+            background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.15);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold); font-size: 0.85rem; flex-shrink: 0;
+        }
+
+        /* Checkbox personalizado */
+        .perm-check {
+            appearance: none; -webkit-appearance: none;
+            width: 18px; height: 18px;
+            background: var(--black-5);
+            border: 1.5px solid rgba(201,168,76,0.25);
+            border-radius: 4px; cursor: pointer;
+            transition: all 0.2s; position: relative;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .perm-check:checked {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            border-color: var(--gold);
+        }
+        .perm-check:checked::after {
+            content: '✓'; position: absolute;
+            color: #0d0d0d; font-size: 0.7rem; font-weight: 900; line-height: 1;
+        }
+        .perm-check:hover:not(:checked) { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+
+        /* Estado vacío / loading */
+        .state-row td {
+            text-align: center !important; padding: 3rem !important;
+            color: var(--text-muted) !important; font-weight: 400 !important;
+        }
+        .state-row td i { font-size: 2rem; display: block; margin-bottom: 0.75rem; color: var(--gold-dark); }
+
+        /* Toolbar inferior */
+        .save-toolbar {
+            background: var(--black-4); border-top: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .save-toolbar .hint { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* Toast */
+        #appToast {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            padding: 12px 20px; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap { padding: 1rem; }
+            .selector-panel { flex-direction: column; align-items: flex-start; }
+            .selector-panel .form-select { min-width: 100%; }
+            table.permisos-table { font-size: 0.75rem; }
+            table.permisos-table thead th,
+            table.permisos-table tbody td { padding: 10px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="topnav">
+    <a class="topnav-brand" th:href="@{/}">
+        <i class="fas fa-heartbeat"></i> Santa Mónica
+    </a>
+    <ul class="topnav-menu" id="navMenu">
+        <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
+        <li id="navModulosItem" style="display:none;">
+            <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
+            <div class="dropdown-nav" id="navModulosDropdown"></div>
+        </li>
+    </ul>
+    <div class="topnav-right">
+        <div class="user-pill">
+            <i class="fas fa-user-circle"></i>
+            <span th:text="${session.usuario.usuario}">Usuario</span>
+            <span class="role-tag"
+                  th:if="${session.usuario.perfil != null}"
+                  th:text="${session.usuario.perfil.nombre}">Rol</span>
+        </div>
+        <a class="btn-logout" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i> Salir
+        </a>
+    </div>
+</nav>
+
+<!-- ══ CONTENT ══ -->
+<div class="page-wrap">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-icon">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <div>
+            <h1>Permisos por Perfil</h1>
+        </div>
+        <div class="admin-badge" style="margin-left:auto;">
+            <i class="fas fa-crown"></i> Solo Administrador
+        </div>
+    </div>
+
+    <!-- Selector de perfil -->
+    <div class="selector-panel">
+        <div>
+            <label class="form-label">Perfil:</label>
+            <select id="perfilSelect" class="form-select">
+                <option value="">— Selecciona un perfil —</option>
+            </select>
+        </div>
+        <button class="btn-gold" id="btnBuscar" onclick="cargarPermisos()">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+    </div>
+
+    <!-- Tabla de permisos -->
+    <div class="permisos-card" id="permisosCard" style="display:none;">
+
+        <div class="permisos-header">
+            <span class="permisos-header-label">
+                <i class="fas fa-th-large me-2"></i>Módulos del sistema
+            </span>
+            <div class="permisos-header-actions">
+                <button class="btn-gold-outline" onclick="marcarTodos(true)">
+                    <i class="fas fa-check-double"></i> Todos
+                </button>
+                <button class="btn-gold-outline" onclick="marcarTodos(false)">
+                    <i class="fas fa-times"></i> Ninguno
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="permisos-table">
+                <thead>
+                    <tr id="tablaHeader">
+                        <th>Módulo</th>
+                        <!-- columnas de tipos de permiso se generan dinámicamente -->
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                    <tr class="state-row">
+                        <td colspan="9">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Cargando permisos...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Toolbar guardar -->
+        <div class="save-toolbar">
+            <span class="hint">
+                <i class="fas fa-info-circle me-1"></i>
+                Los cambios se aplican al guardar.
+            </span>
+            <div style="display:flex;gap:8px;">
+                <button class="btn-gold-outline" onclick="cancelar()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="btn-gold" id="btnGuardar" onclick="guardarTodos()">
+                    <i class="fas fa-save"></i> Guardar permisos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado inicial (sin perfil seleccionado) -->
+    <div id="estadoInicial"
+         style="text-align:center;padding:4rem 1rem;color:var(--text-muted);">
+        <i class="fas fa-shield-alt"
+           style="font-size:3rem;color:var(--gold-dark);display:block;margin-bottom:1rem;opacity:0.4;"></i>
+        <p style="font-size:0.9rem;">Selecciona un perfil y presiona <strong style="color:var(--gold-light);">Buscar</strong> para ver sus permisos.</p>
+    </div>
+
+</div><!-- /page-wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let tiposPermiso   = [];   // [ {id, nombre, nombreMostrar}, ... ]
+    let modulosPermisos = [];  // estado actual de la tabla
+    let perfilActual   = null;
+
+    // ── INIT ─────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarNavModulos();
+        cargarPerfiles();
+        cargarTiposPermiso();
+
+        // Buscar con Enter en el select
+        document.getElementById('perfilSelect').addEventListener('keydown', e => {
+            if (e.key === 'Enter') cargarPermisos();
+        });
+    });
+
+    // ── NAVBAR dinámico ───────────────────────────────────────
+    function cargarNavModulos() {
+        fetch('/api/modulos')
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => {
+                const modulos  = data.data || [];
+                const dropdown = document.getElementById('navModulosDropdown');
+                const navItem  = document.getElementById('navModulosItem');
+                if (!modulos.length) return;
+                const paginaActual = window.location.pathname;
+                dropdown.innerHTML = modulos.map(m => {
+                    const href  = m.ruta || ('/' + (m.nombre||'').toLowerCase().replace(/\s+/g,'-'));
+                    const label = m.nombreMostrar || m.nombre || 'Módulo';
+                    const activo = paginaActual === href ? ' class="active-page"' : '';
+                    return `<a href="${href}"${activo}>${label}</a>`;
+                }).join('');
+                navItem.style.display = 'flex';
+            }).catch(() => {});
+    }
+
+    // ── CARGAR PERFILES ───────────────────────────────────────
+    function cargarPerfiles() {
+        fetch('/api/permisos/perfiles')
+            .then(r => r.json())
+            .then(data => {
+                const sel = document.getElementById('perfilSelect');
+                sel.innerHTML = '<option value="">— Selecciona un perfil —</option>';
+                (data.data || []).forEach(p => {
+                    sel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+                });
+            }).catch(() => mostrarToast('Error al cargar perfiles', 'error'));
+    }
+
+    // ── CARGAR TIPOS DE PERMISO ───────────────────────────────
+    function cargarTiposPermiso() {
+        fetch('/api/permisos/tipos')
+            .then(r => r.json())
+            .then(data => { tiposPermiso = data.data || []; })
+            .catch(() => {});
+    }
+
+    // ── CARGAR PERMISOS DEL PERFIL SELECCIONADO ───────────────
+    function cargarPermisos() {
+        const perfilId = document.getElementById('perfilSelect').value;
+        if (!perfilId) {
+            mostrarToast('Selecciona un perfil primero', 'warning');
+            return;
+        }
+        perfilActual = perfilId;
+
+        document.getElementById('estadoInicial').style.display  = 'none';
+        document.getElementById('permisosCard').style.display   = 'block';
+        document.getElementById('tablaBody').innerHTML = `
+            <tr class="state-row"><td colspan="${tiposPermiso.length + 1}">
+                <i class="fas fa-spinner fa-spin"></i> Cargando...
+            </td></tr>`;
+
+        fetch(`/api/permisos/${perfilId}`)
+            .then(r => r.json())
+            .then(data => {
+                modulosPermisos = data.data || [];
+                renderTabla();
+            }).catch(() => mostrarToast('Error al cargar permisos', 'error'));
+    }
+
+    // ── RENDERIZAR TABLA ──────────────────────────────────────
+    function renderTabla() {
+        // Cabecera dinámica con los tipos de permiso
+        const header = document.getElementById('tablaHeader');
+        header.innerHTML = '<th>Módulo</th>' +
+            tiposPermiso.map(tp =>
+                `<th title="${tp.nombre}">${tp.nombreMostrar || tp.nombre}</th>`
+            ).join('');
+
+        // Filas
+        const tbody = document.getElementById('tablaBody');
+        if (!modulosPermisos.length) {
+            tbody.innerHTML = `<tr class="state-row"><td colspan="${tiposPermiso.length+1}">
+                <i class="fas fa-box-open"></i>No hay módulos registrados
+            </td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = modulosPermisos.map((m, mi) => {
+            const icono = m.moduloIcono || iconoFallback(m.moduloNombre);
+            const cols  = tiposPermiso.map(tp => {
+                const checked = (m.tiposPermisoIds || []).includes(tp.id) ? 'checked' : '';
+                return `<td>
+                    <input type="checkbox" class="perm-check"
+                           data-modulo="${m.moduloId}"
+                           data-tipo="${tp.id}"
+                           ${checked}
+                           onchange="onCheckChange('${m.moduloId}','${tp.id}',this.checked)">
+                </td>`;
+            }).join('');
+
+            return `<tr>
+                <td>
+                    <div class="modulo-icon-cell">
+                        <i class="fas ${icono}"></i>
+                    </div>
+                    ${m.moduloNombreMostrar || m.moduloNombre}
+                </td>
+                ${cols}
+            </tr>`;
+        }).join('');
+    }
+
+    // ── CAMBIO EN CHECKBOX ────────────────────────────────────
+    function onCheckChange(moduloId, tipoId, checked) {
+        const m = modulosPermisos.find(x => x.moduloId === moduloId);
+        if (!m) return;
+        if (!m.tiposPermisoIds) m.tiposPermisoIds = [];
+        if (checked) {
+            if (!m.tiposPermisoIds.includes(tipoId)) m.tiposPermisoIds.push(tipoId);
+        } else {
+            m.tiposPermisoIds = m.tiposPermisoIds.filter(id => id !== tipoId);
+        }
+    }
+
+    // ── MARCAR / DESMARCAR TODOS ──────────────────────────────
+    function marcarTodos(estado) {
+        document.querySelectorAll('.perm-check').forEach(cb => {
+            cb.checked = estado;
+            const moduloId = cb.dataset.modulo;
+            const tipoId   = cb.dataset.tipo;
+            onCheckChange(moduloId, tipoId, estado);
+        });
+    }
+
+    // ── GUARDAR TODOS LOS PERMISOS ────────────────────────────
+    function guardarTodos() {
+        if (!perfilActual) return;
+
+        const btn = document.getElementById('btnGuardar');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+        const payload = modulosPermisos.map(m => ({
+            moduloId:        m.moduloId,
+            tiposPermisoIds: m.tiposPermisoIds || []
+        }));
+
+        fetch(`/api/permisos/${perfilActual}/guardar-todos`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                mostrarToast('Permisos guardados correctamente', 'success');
+            } else {
+                mostrarToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(() => mostrarToast('Error al guardar permisos', 'error'))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Guardar permisos';
+        });
+    }
+
+    // ── CANCELAR ──────────────────────────────────────────────
+    function cancelar() {
+        document.getElementById('permisosCard').style.display  = 'none';
+        document.getElementById('estadoInicial').style.display = 'block';
+        document.getElementById('perfilSelect').value = '';
+        perfilActual    = null;
+        modulosPermisos = [];
+    }
+
+    // ── ICONO FALLBACK ────────────────────────────────────────
+    function iconoFallback(nombre) {
+        const n = (nombre || '').toLowerCase();
+        if (n.includes('usuario'))  return 'fa-users';
+        if (n.includes('perfil'))   return 'fa-id-badge';
+        if (n.includes('permiso'))  return 'fa-lock';
+        if (n.includes('modulo'))   return 'fa-th-large';
+        if (n.includes('config'))   return 'fa-cogs';
+        if (n.includes('bitacora')) return 'fa-clipboard-list';
+        if (n.includes('almacen'))  return 'fa-boxes-stacked';
+        if (n.includes('reporte'))  return 'fa-chart-bar';
+        return 'fa-puzzle-piece';
+    }
+
+    // ── TOAST ─────────────────────────────────────────────────
+    function mostrarToast(msg, tipo) {
+        const ex = document.getElementById('appToast');
+        if (ex) ex.remove();
+        const t = document.createElement('div');
+        t.id = 'appToast';
+        const colors = {
+            success: 'linear-gradient(135deg,#a07830,#c9a84c)',
+            error:   'linear-gradient(135deg,#9b2c2c,#e53e3e)',
+            warning: 'linear-gradient(135deg,#92400e,#d97706)'
+        };
+        const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-triangle-exclamation' };
+        t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
+            background:${colors[tipo]||colors.error};
+            color:${tipo==='success'?'#0d0d0d':'#fff'};
+            padding:12px 20px;border-radius:10px;font-size:0.85rem;font-weight:700;
+            display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.5);`;
+        t.innerHTML = `<i class="fas ${icons[tipo]||icons.error}"></i>${msg}`;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3500);
+    }
+</script>
+</body>
+</html>
