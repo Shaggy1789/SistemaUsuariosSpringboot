@@ -82,7 +82,7 @@ public class PermisosController {
     @GetMapping("/api/permisos/{perfilId}")
     @ResponseBody
     public ResponseEntity<?> obtenerPermisosDePerfil(@PathVariable UUID perfilId,
-                                                      HttpSession session) {
+                                                     HttpSession session) {
         if (!verificarAdmin(session)) return forbidden();
 
         try {
@@ -98,8 +98,8 @@ public class PermisosController {
             for (PerfilPermisos pp : permisosPerfil) {
                 UUID mId = pp.getModulo().getId();
                 permisosPorModulo
-                    .computeIfAbsent(mId, k -> new HashSet<>())
-                    .add(pp.getTipoPermiso().getId());
+                        .computeIfAbsent(mId, k -> new HashSet<>())
+                        .add(pp.getTipoPermiso().getId());
             }
 
             // 3. Construir lista de DTOs (uno por módulo)
@@ -113,7 +113,7 @@ public class PermisosController {
 
                 Set<UUID> ids = permisosPorModulo.getOrDefault(m.getId(), Collections.emptySet());
                 item.put("tiposPermisoIds",
-                    ids.stream().map(UUID::toString).collect(Collectors.toList()));
+                        ids.stream().map(UUID::toString).collect(Collectors.toList()));
 
                 resultado.add(item);
             }
@@ -126,7 +126,7 @@ public class PermisosController {
         } catch (Exception e) {
             e.printStackTrace();
             return error("Error al obtener permisos: " + e.getMessage(),
-                         HttpStatus.INTERNAL_SERVER_ERROR);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -138,9 +138,9 @@ public class PermisosController {
     @PostMapping("/api/permisos/{perfilId}/{moduloId}")
     @ResponseBody
     public ResponseEntity<?> guardarPermisosDeModulo(@PathVariable UUID perfilId,
-                                                      @PathVariable UUID moduloId,
-                                                      @RequestBody Map<String, List<String>> body,
-                                                      HttpSession session) {
+                                                     @PathVariable UUID moduloId,
+                                                     @RequestBody Map<String, List<String>> body,
+                                                     HttpSession session) {
         if (!verificarAdmin(session)) return forbidden();
 
         try {
@@ -159,7 +159,7 @@ public class PermisosController {
         } catch (Exception e) {
             e.printStackTrace();
             return error("Error al guardar permisos: " + e.getMessage(),
-                         HttpStatus.INTERNAL_SERVER_ERROR);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -171,8 +171,8 @@ public class PermisosController {
     @PostMapping("/api/permisos/{perfilId}/guardar-todos")
     @ResponseBody
     public ResponseEntity<?> guardarTodosLosPermisos(@PathVariable UUID perfilId,
-                                                      @RequestBody List<Map<String, Object>> payload,
-                                                      HttpSession session) {
+                                                     @RequestBody List<Map<String, Object>> payload,
+                                                     HttpSession session) {
         if (!verificarAdmin(session)) return forbidden();
 
         try {
@@ -181,7 +181,7 @@ public class PermisosController {
 
                 @SuppressWarnings("unchecked")
                 List<String> rawIds = (List<String>) item.getOrDefault("tiposPermisoIds",
-                                                                        Collections.emptyList());
+                        Collections.emptyList());
                 List<UUID> ids = rawIds.stream()
                         .map(UUID::fromString)
                         .collect(Collectors.toList());
@@ -197,7 +197,7 @@ public class PermisosController {
         } catch (Exception e) {
             e.printStackTrace();
             return error("Error al guardar: " + e.getMessage(),
-                         HttpStatus.INTERNAL_SERVER_ERROR);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -210,7 +210,8 @@ public class PermisosController {
 
     private boolean esAdmin(Usuarios u) {
         return u.getPerfil() != null &&
-               "ADMINISTRADOR".equalsIgnoreCase(u.getPerfil().getNombre());
+                (u.getPerfil().getNombre().equalsIgnoreCase("ADMIN") ||
+                        u.getPerfil().getNombre().equalsIgnoreCase("ADMINISTRADOR"));
     }
 
     private ResponseEntity<Map<String, Object>> forbidden() {

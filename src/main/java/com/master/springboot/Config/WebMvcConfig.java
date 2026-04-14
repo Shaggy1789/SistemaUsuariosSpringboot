@@ -1,5 +1,6 @@
 package com.master.springboot.Config;
 
+import com.master.springboot.security.SeguridadInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

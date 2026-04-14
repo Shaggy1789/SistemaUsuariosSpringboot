@@ -65,22 +65,19 @@ public class HomeController {
     // ── PERFILES ──────────────────────────────────────────────
     @GetMapping("/perfiles")
     public String mostrarPerfiles(HttpSession session, Model model) {
-        if (session.getAttribute("usuario") == null) {
-            return "redirect:/login";
-        }
+        if (session.getAttribute("usuario") == null) return "redirect:/login";
         model.addAttribute("titulo", "Perfiles — Santa Mónica");
         return "perfiles";
     }
 
-    // ── PERMISOS ──────────────────────────────────────────────
-    @GetMapping("/permisos")
-    public String mostrarPermisos(HttpSession session, Model model) {
-        if (session.getAttribute("usuario") == null) {
-            return "redirect:/login";
-        }
-        model.addAttribute("titulo", "Permisos — Santa Mónica");
-        return "permisos";
+    // ── CONFIGURACIÓN (módulos) ───────────────────────────────
+    @GetMapping("/configuracion")
+    public String mostrarConfiguracion(HttpSession session, Model model) {
+        if (session.getAttribute("usuario") == null) return "redirect:/login";
+        model.addAttribute("titulo", "Configuración — Santa Mónica");
+        return "configuracion";
     }
+
 
     // ── GALERÍA ───────────────────────────────────────────────
     @GetMapping("/galeria")
