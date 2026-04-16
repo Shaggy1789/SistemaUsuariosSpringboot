@@ -70,4 +70,20 @@ public class Modulos {
 
     public OffsetDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(OffsetDateTime creadoEn) { this.creadoEn = creadoEn; }
+
+    public Modulos getPadre() {
+        return padre;
+    }
+
+    public void setPadre(Modulos padre) {
+        this.padre = padre;
+    }
+
+    public List<Modulos> getHijos() {
+        return hijos;
+    }
+
+    public void setHijos(List<Modulos> hijos) {
+        this.hijos = hijos;
+    }
 }
