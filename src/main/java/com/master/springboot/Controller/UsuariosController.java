@@ -71,57 +71,90 @@ public class UsuariosController {
         }
     }
 
-    // ── POST /api/usuarios ────────────────────────────────────
-    @PostMapping("/api/usuarios")
-    public ResponseEntity<?> crearUsuario(@RequestBody Map<String, Object> body) {
-        Map<String, Object> resp = new HashMap<>();
+
+    // ── POST /api/usuarios/{id}/foto ─────────────────────────
+    @PostMapping("/api/usuarios/{id}/foto")
+    public ResponseEntity<?> subirFoto(@PathVariable UUID id,
+                                       @RequestParam("foto") org.springframework.web.multipart.MultipartFile foto) {
         try {
-            // ── Leer campos del body ──
-            String usuarioNombre = getString(body, "usuario");
-            String email         = getString(body, "email");
-            String password      = getString(body, "password");
-            String estado        = getString(body, "estado");
-            Object perfilRaw     = body.get("perfilId");
-
-            // ── Validaciones básicas ──
-            if (usuarioNombre == null || usuarioNombre.isBlank())
-                return error("El campo 'usuario' es obligatorio", HttpStatus.BAD_REQUEST);
-            if (email == null || email.isBlank())
-                return error("El campo 'email' es obligatorio", HttpStatus.BAD_REQUEST);
-            if (password == null || password.isBlank())
-                return error("La contraseña es obligatoria", HttpStatus.BAD_REQUEST);
-
-            // ── Verificar duplicado ──
-            if (serviceUsuarios.existsByUsuario(usuarioNombre.trim()))
-                return error("El nombre de usuario ya existe", HttpStatus.CONFLICT);
-
-            // ── Construir entidad ──
-            Usuarios nuevo = new Usuarios();
-            nuevo.setUsuario(usuarioNombre.trim());
-            nuevo.setEmail(email.trim());
-            nuevo.setPassword(md5(password));
-            nuevo.setEstado(estado != null ? estado : "ACTIVO");
-
-            // Asignar perfil si viene en el body
-            if (perfilRaw != null) {
-                UUID perfilId = UUID.fromString(perfilRaw.toString());
-                Perfiles perfil = servicePerfiles.findById(perfilId);
-                if (perfil == null)
-                    return error("Perfil no encontrado", HttpStatus.BAD_REQUEST);
-                nuevo.setPerfil(perfil);
+            Usuarios usuario = serviceUsuarios.findById(id);
+            if (usuario == null) {
+                return error("Usuario no encontrado", HttpStatus.NOT_FOUND);
             }
 
-            Usuarios guardado = serviceUsuarios.save(nuevo);
+            // Validar que sea imagen
+            String contentType = foto.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return error("Solo se permiten imágenes", HttpStatus.BAD_REQUEST);
+            }
 
+            // Validar tamaño (máximo 2MB)
+            if (foto.getSize() > 2 * 1024 * 1024) {
+                return error("La imagen no debe exceder 2MB", HttpStatus.BAD_REQUEST);
+            }
+
+            // Convertir a Base64
+            byte[] fotoBytes = foto.getBytes();
+            String fotoBase64 = java.util.Base64.getEncoder().encodeToString(fotoBytes);
+
+            usuario.setFoto(fotoBase64);
+            usuario.setFotoTipo(contentType);
+            serviceUsuarios.save(usuario);
+
+            Map<String, Object> resp = new HashMap<>();
             resp.put("success", true);
-            resp.put("message", "Usuario creado correctamente");
-            resp.put("data", guardado);
-            return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+            resp.put("message", "Foto actualizada correctamente");
+            return ResponseEntity.ok(resp);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return error("Error al crear usuario: " + e.getMessage(),
-                         HttpStatus.INTERNAL_SERVER_ERROR);
+            return error("Error al subir foto: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // ── DELETE /api/usuarios/{id}/foto ───────────────────────
+    @DeleteMapping("/api/usuarios/{id}/foto")
+    public ResponseEntity<?> eliminarFoto(@PathVariable UUID id) {
+        try {
+            Usuarios usuario = serviceUsuarios.findById(id);
+            if (usuario == null) {
+                return error("Usuario no encontrado", HttpStatus.NOT_FOUND);
+            }
+
+            usuario.setFoto(null);
+            usuario.setFotoTipo(null);
+            serviceUsuarios.save(usuario);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("message", "Foto eliminada correctamente");
+            return ResponseEntity.ok(resp);
+
+        } catch (Exception e) {
+            return error("Error al eliminar foto: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // ── GET /api/usuarios/{id}/foto ──────────────────────────
+    @GetMapping("/api/usuarios/{id}/foto")
+    public ResponseEntity<?> obtenerFoto(@PathVariable UUID id) {
+        try {
+            Usuarios usuario = serviceUsuarios.findById(id);
+            if (usuario == null) {
+                return error("Usuario no encontrado", HttpStatus.NOT_FOUND);
+            }
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("hasFoto", usuario.getFoto() != null);
+            resp.put("foto", usuario.getFoto());
+            resp.put("fotoTipo", usuario.getFotoTipo());
+            return ResponseEntity.ok(resp);
+
+        } catch (Exception e) {
+            return error("Error al obtener foto: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

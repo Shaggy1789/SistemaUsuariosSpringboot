@@ -18,26 +18,29 @@ public class Usuarios {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    // Columna "usuario" en la BD (nombre de login, único)
     @Column(name = "usuario", nullable = false, unique = true)
     private String usuario;
 
     @Column(name = "password", nullable = false)
     private String password;
 
-    // Campo extra para email (no está en el CREATE TABLE original,
-    // agrégalo a la BD si no existe: ALTER TABLE usuarios ADD COLUMN email varchar(255);)
     @Column(name = "email")
     private String email;
 
-    // Estado: 'ACTIVO' | 'INACTIVO'
     @Column(name = "estado", columnDefinition = "varchar(255) DEFAULT 'ACTIVO'")
     private String estado = "ACTIVO";
 
-    // Relación con perfiles (perfil_id → perfiles.id)
+    // 🆕 NUEVO: Campo para la foto en Base64
+    @Column(name = "foto", columnDefinition = "TEXT")
+    private String foto;
+
+    // 🆕 NUEVO: Tipo de imagen (ej: "image/png", "image/jpeg")
+    @Column(name = "foto_tipo")
+    private String fotoTipo;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "perfil_id",
-                foreignKey = @ForeignKey(name = "usuarios_perfil_id_fkey"))
+            foreignKey = @ForeignKey(name = "usuarios_perfil_id_fkey"))
     private Perfiles perfil;
 
     @CreationTimestamp
@@ -64,6 +67,13 @@ public class Usuarios {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    // 🆕 Getters y Setters para foto
+    public String getFoto() { return foto; }
+    public void setFoto(String foto) { this.foto = foto; }
+
+    public String getFotoTipo() { return fotoTipo; }
+    public void setFotoTipo(String fotoTipo) { this.fotoTipo = fotoTipo; }
 
     public Perfiles getPerfil() { return perfil; }
     public void setPerfil(Perfiles perfil) { this.perfil = perfil; }
