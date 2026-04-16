@@ -1,10 +1,13 @@
 package com.master.springboot.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -31,6 +34,15 @@ public class Modulos {
 
     @Column(name = "orden", columnDefinition = "integer DEFAULT 0")
     private Integer orden = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "padre_id")
+    @JsonIgnore
+    private Modulos padre;
+
+    @OneToMany(mappedBy = "padre", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OrderBy("orden ASC")
+    private List<Modulos> hijos = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "creado_en", updatable = false)
