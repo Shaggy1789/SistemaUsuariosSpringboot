@@ -1,4 +1,3 @@
-// com/master/springboot/service/MenuService.java
 package com.master.springboot.service;
 
 import com.master.springboot.Models.Modulos;
@@ -7,11 +6,12 @@ import com.master.springboot.Repository.ModulosRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class MenuService {
 
     @Autowired
@@ -20,49 +20,40 @@ public class MenuService {
     @Autowired
     private HttpSession httpSession;
 
+
     public List<Modulos> construirMenuUsuario() {
-        // Obtener usuario de la sesión
         Usuarios usuario = (Usuarios) httpSession.getAttribute("usuario");
 
+        System.out.println("=== MenuService.construirMenuUsuario ===");
+        System.out.println("Usuario: " + (usuario != null ? usuario.getUsuario() : "null"));
+
         if (usuario == null || usuario.getPerfil() == null) {
+            System.out.println("Usuario o perfil null, retornando vacío");
             return new ArrayList<>();
         }
 
-        // Obtener módulos con permiso CONSULTAR
+        System.out.println("Perfil ID: " + usuario.getPerfil().getId());
+
+        // Obtener todos los módulos con permiso CONSULTAR
         List<Modulos> modulosConPermiso = modulosRepository
-                .findModulosConPermisoConsulta(usuario.getPerfil().getId());  // ← Ya es UUID
+                .findModulosConPermisoConsulta(usuario.getPerfil().getId());
 
-        // Construir árbol
-        return construirArbol(modulosConPermiso);
-    }
+        System.out.println("Módulos encontrados: " + modulosConPermiso.size());
 
-    private List<Modulos> construirArbol(List<Modulos> modulos) {
-        // Mapa para acceso rápido por ID (UUID, no Integer)
-        Map<UUID, Modulos> mapaModulos = modulos.stream()
-                .collect(Collectors.toMap(Modulos::getId, m -> m));
-
-        List<Modulos> raices = new ArrayList<>();
-
-        for (Modulos modulo : modulos) {
+        // Filtrar solo los padres (módulos sin padre)
+        List<Modulos> menuArbol = new ArrayList<>();
+        for (Modulos modulo : modulosConPermiso) {
             if (modulo.getPadre() == null) {
-                raices.add(modulo);
-            } else {
-                Modulos padre = mapaModulos.get(modulo.getPadre());
-                if (padre != null) {
-                    padre.getHijos().add(modulo);
-                }
+                menuArbol.add(modulo);
             }
         }
 
-        // Ordenar por campo 'orden'
-        raices.sort(Comparator.comparing(Modulos::getOrden,
+        System.out.println("Módulos padre: " + menuArbol.size());
+
+        // Ordenar por el campo 'orden'
+        menuArbol.sort(Comparator.comparing(Modulos::getOrden,
                 Comparator.nullsLast(Comparator.naturalOrder())));
 
-        for (Modulos raiz : raices) {
-            raiz.getHijos().sort(Comparator.comparing(Modulos::getOrden,
-                    Comparator.nullsLast(Comparator.naturalOrder())));
-        }
-
-        return raices;
+        return menuArbol;
     }
 }

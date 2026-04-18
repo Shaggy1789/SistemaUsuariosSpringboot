@@ -451,19 +451,6 @@
 
     <!-- Accesos rápidos + Panel de info -->
     <div class="row g-3">
-        <!-- Accesos rápidos — se generan dinámicamente desde /api/modulos -->
-        <div class="col-lg-8">
-            <div class="section-title">Accesos rápidos</div>
-            <div class="row g-3" id="modulosGrid">
-                <!-- skeleton mientras carga -->
-                <div class="col-sm-6">
-                    <div class="module-card" style="opacity:0.3;pointer-events:none;">
-                        <div class="module-icon"><i class="fas fa-spinner fa-spin"></i></div>
-                        <div class="module-info"><h3>Cargando...</h3><p>Obteniendo módulos desde la base de datos</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Panel de sesión -->
         <div class="col-lg-4">
@@ -505,6 +492,7 @@
 </div><!-- /page-wrap -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/sliderbar.js"></script>
 <script>
     // ── Fecha actual ──────────────────────────────────────────
     document.getElementById('fechaHoy').textContent =
@@ -523,72 +511,6 @@
         if (n.includes('galeria') || n.includes('galería'))   return 'fa-images';
         if (n.includes('reporte')) return 'fa-chart-bar';
         return 'fa-puzzle-piece';
-    }
-
-    // ── Cargar módulos desde la BD ────────────────────────────
-    function cargarModulos() {
-        fetch('/api/modulos')
-            .then(r => r.ok ? r.json() : Promise.reject('Error ' + r.status))
-            .then(data => {
-                const modulos = data.data || [];
-
-                // 1. Llenar el dropdown del navbar
-                const dropdown = document.getElementById('navModulosDropdown');
-                const navItem  = document.getElementById('navModulosItem');
-
-                if (modulos.length > 0) {
-                    dropdown.innerHTML = modulos
-                        .map(m => {
-                            // Usar la ruta del módulo si existe, si no usar /nombreMostrar en minúsculas
-                            const href = m.ruta || ('/' + (m.nombre || '').toLowerCase().replace(/\s+/g, '-'));
-                            const label = m.nombreMostrar || m.nombre || 'Módulo';
-                            return `<a href="${href}">${label}</a>`;
-                        })
-                        .join('');
-                    navItem.style.display = 'flex';
-                }
-
-                // 2. Llenar los accesos rápidos del dashboard
-                const grid = document.getElementById('modulosGrid');
-                if (modulos.length === 0) {
-                    grid.innerHTML = `<div class="col-12">
-                        <div style="color:var(--text-muted);font-size:0.85rem;padding:1rem 0;">
-                            <i class="fas fa-info-circle me-2"></i>No hay módulos registrados aún.
-                        </div>
-                    </div>`;
-                    return;
-                }
-
-                grid.innerHTML = modulos.map(m => {
-                    const href  = m.ruta || ('/' + (m.nombre || '').toLowerCase().replace(/\s+/g, '-'));
-                    const label = m.nombreMostrar || m.nombre || 'Módulo';
-                    const icono = m.icono || iconoParaModulo(m.nombre);
-                    return `
-                        <div class="col-sm-6">
-                            <a href="${href}" class="module-card">
-                                <div class="module-icon">
-                                    <i class="fas ${icono}"></i>
-                                </div>
-                                <div class="module-info">
-                                    <h3>${label}</h3>
-                                    <p>Ir al módulo ${label.toLowerCase()}</p>
-                                </div>
-                                <i class="fas fa-chevron-right module-arrow"></i>
-                            </a>
-                        </div>`;
-                }).join('');
-
-                // Actualizar contador de módulos en stats
-                document.getElementById('totalModulos').textContent = modulos.length;
-            })
-            .catch(() => {
-                document.getElementById('modulosGrid').innerHTML = `
-                    <div class="col-12">
-                        <div style="color:#f87171;font-size:0.85rem;padding:1rem 0;">
-                            <i class="fas fa-exclamation-circle me-2"></i>No se pudieron cargar los módulos.
-                        </div>
-                    </div>`;
-            });
     }
 
     // ── Contadores ────────────────────────────────────────────
@@ -613,8 +535,10 @@
     }
 
     // ── Init ──────────────────────────────────────────────────
-    cargarModulos();
+document.addEventListener('DOMContentLoaded', () => {
+    // El menú se carga automáticamente desde sliderbar.js
     cargarContadores();
+});
 </script>
 </body>
 </html>

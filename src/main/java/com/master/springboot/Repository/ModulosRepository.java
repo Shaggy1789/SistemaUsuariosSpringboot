@@ -16,12 +16,13 @@ public interface ModulosRepository extends JpaRepository<Modulos, UUID> {
     List<Modulos> findAllByOrderByOrdenAsc();
     boolean existsByNombre(String nombre);
     boolean existsByNombreAndIdNot(String nombre, UUID id);
-    @Query("SELECT m FROM Modulo m " +
-            "WHERE m.activo = true " +
-            "AND EXISTS (SELECT 1 FROM PerfilPermiso pp " +
+
+    // Query SIMPLIFICADA - sin CASE WHEN
+    @Query("SELECT DISTINCT m FROM Modulos m " +
+            "WHERE EXISTS (SELECT 1 FROM PerfilPermisos pp " +
             "            WHERE pp.modulo.id = m.id " +
             "            AND pp.perfil.id = :perfilId " +
-            "            AND pp.tipoPermiso.nombre = 'CONSULTAR') " +
-            "ORDER BY m.padreId NULLS FIRST, m.id")
+            "            AND pp.tipoPermiso.nombre = 'VER') " +
+            "ORDER BY m.orden ASC")
     List<Modulos> findModulosConPermisoConsulta(@Param("perfilId") UUID perfilId);
 }
