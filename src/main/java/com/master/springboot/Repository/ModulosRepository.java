@@ -23,5 +23,5 @@ public interface ModulosRepository extends JpaRepository<Modulos, UUID> {
             "            AND pp.perfil.id = :perfilId " +
             "            AND pp.tipoPermiso.nombre = 'CONSULTAR') " +
             "ORDER BY m.padreId NULLS FIRST, m.id")
-    List<Modulos> findModulosConPermisoConsulta(@Param("perfilId") Integer perfilId);
+    List<Modulos> findModulosConPermisoConsulta(@Param("perfilId") UUID perfilId);
 }
