@@ -58,7 +58,7 @@ public class PermisosController {
     public ResponseEntity<?> listarTipos(HttpSession session) {
         if (!verificarAdmin(session)) return forbidden();
 
-        List<TiposPermiso> tipos = tiposPermisoRepo.findAll();
+        List<TipoPermiso> tipos = tiposPermisoRepo.findAll();
         Map<String, Object> resp = new HashMap<>();
         resp.put("success", true);
         resp.put("data", tipos);

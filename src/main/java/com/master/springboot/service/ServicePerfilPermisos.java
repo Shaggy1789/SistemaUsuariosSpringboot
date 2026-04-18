@@ -3,7 +3,7 @@ package com.master.springboot.service;
 import com.master.springboot.Models.Modulos;
 import com.master.springboot.Models.PerfilPermisos;
 import com.master.springboot.Models.Perfiles;
-import com.master.springboot.Models.TiposPermiso;
+import com.master.springboot.Models.TipoPermiso;
 import com.master.springboot.Repository.ModulosRepository;
 import com.master.springboot.Repository.PerfilPermisosRepository;
 import com.master.springboot.Repository.PerfilesRepository;
@@ -62,7 +62,7 @@ public class ServicePerfilPermisos {
 
         // 3. Insertar nuevos permisos
         for (UUID tpId : tiposPermisoIds) {
-            TiposPermiso tp = tiposPermisoRepository.findById(tpId)
+            TipoPermiso tp = tiposPermisoRepository.findById(tpId)
                     .orElseThrow(() -> new RuntimeException("Tipo permiso no encontrado: " + tpId));
 
             PerfilPermisos pp = new PerfilPermisos();

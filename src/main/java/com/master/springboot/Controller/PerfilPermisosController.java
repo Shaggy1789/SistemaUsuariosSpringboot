@@ -1,7 +1,7 @@
 package com.master.springboot.Controller;
 
 import com.master.springboot.Models.PerfilPermisos;
-import com.master.springboot.Models.TiposPermiso;
+import com.master.springboot.Models.TipoPermiso;
 import com.master.springboot.Repository.TiposPermisoRepository;
 import com.master.springboot.service.ServicePerfilPermisos;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +95,7 @@ public class PerfilPermisosController {
     @GetMapping("/tipos")
     public ResponseEntity<?> listarTipos() {
         try {
-            List<TiposPermiso> tipos = tiposPermisoRepository.findAll();
+            List<TipoPermiso> tipos = tiposPermisoRepository.findAll();
             Map<String, Object> resp = new HashMap<>();
             resp.put("success", true);
             resp.put("data", tipos);

@@ -33,7 +33,7 @@ public class PerfilPermisos {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_permiso_id", nullable = false,
                 foreignKey = @ForeignKey(name = "perfil_permisos_tipo_permiso_id_fkey"))
-    private TiposPermiso tipoPermiso;
+    private TipoPermiso tipoPermiso;
 
     @CreationTimestamp
     @Column(name = "creado_en", updatable = false)
@@ -50,8 +50,8 @@ public class PerfilPermisos {
     public Modulos getModulo() { return modulo; }
     public void setModulo(Modulos modulo) { this.modulo = modulo; }
 
-    public TiposPermiso getTipoPermiso() { return tipoPermiso; }
-    public void setTipoPermiso(TiposPermiso tipoPermiso) { this.tipoPermiso = tipoPermiso; }
+    public TipoPermiso getTipoPermiso() { return tipoPermiso; }
+    public void setTipoPermiso(TipoPermiso tipoPermiso) { this.tipoPermiso = tipoPermiso; }
 
     public OffsetDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(OffsetDateTime creadoEn) { this.creadoEn = creadoEn; }
