@@ -35,7 +35,7 @@ RUN ls -la /app/
 RUN mkdir -p /app/templates /app/static
 
 # Exponer puerto
-EXPOSE 8080
+EXPOSE 7070
 
 # Ejecutar (usando variable de entorno PORT)
 ENTRYPOINT ["java", "-jar", "app.jar"]
