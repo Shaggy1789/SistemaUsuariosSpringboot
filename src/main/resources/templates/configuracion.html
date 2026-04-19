@@ -52,7 +52,7 @@
         }
         .topnav-menu > li { position: relative; display: flex; align-items: center; }
         .topnav-menu > li > a, .topnav-menu > li > span {
-            color: #888; text-decoration: none; font-size: 0.85rem; font-weight: 500;
+            color: #888; text-decoration: none; font-size: 0.85rem; font-weight:500;
             padding: 0 1rem; height: 100%;
             display: flex; align-items: center; gap: 6px;
             cursor: pointer; white-space: nowrap; transition: color 0.2s;
@@ -91,6 +91,23 @@
             text-decoration: none; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
         }
         .btn-logout:hover { border-color: var(--gold); color: var(--gold-light); }
+
+        /* ══ SUBMENÚ JERÁRQUICO ══ */
+        .dropdown-nav-group { position: relative; }
+        .dropdown-submenu {
+            display: none; position: absolute; left: 100%; top: 0;
+            background: var(--black-3); border: 1px solid var(--border);
+            border-left: 2px solid var(--gold); min-width: 200px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 101;
+        }
+        .dropdown-nav-group:hover .dropdown-submenu { display: block; }
+        .dropdown-submenu a {
+            display: block !important; padding: 10px 16px !important;
+            white-space: nowrap; color: #888 !important;
+        }
+        .dropdown-submenu a:hover {
+            background: rgba(201,168,76,0.07) !important; color: var(--gold-light) !important;
+        }
 
         /* ══ PAGE ══ */
         .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
@@ -406,7 +423,6 @@
                 <form id="moduloForm">
                     <input type="hidden" id="moduloId">
                     
-                    <!-- Nombre del Módulo -->
                     <div class="mb-3">
                         <label class="form-label">Nombre del Módulo</label>
                         <input type="text" class="form-control" id="nombreMostrar"
@@ -414,14 +430,11 @@
                         <div id="nombreMostrarError" class="invalid-feedback"></div>
                     </div>
                     
-                    <!-- Nombre Sistema (oculto, se genera automáticamente) -->
                     <input type="hidden" id="nombre">
                     
-                    <!-- Menú Padre - Selector + Opción de escribir nuevo -->
                     <div class="mb-3">
                         <label class="form-label">Menú Padre</label>
                         
-                        <!-- Selector de padres existentes -->
                         <div id="padreSelectContainer">
                             <select class="form-select" id="padreId">
                                 <option value="">-- Ninguno (Módulo raíz) --</option>
@@ -433,7 +446,6 @@
                             </p>
                         </div>
                         
-                        <!-- Input para nuevo padre (oculto inicialmente) -->
                         <div id="padreNuevoContainer" style="display:none;">
                             <div style="display:flex;gap:8px;">
                                 <input type="text" class="form-control" id="nuevoPadreInput" 
@@ -451,7 +463,6 @@
                         </div>
                     </div>
                     
-                    <!-- Ruta / URL -->
                     <div class="mb-3">
                         <label class="form-label">Ruta / URL</label>
                         <input type="text" class="form-control" id="ruta"
@@ -459,7 +470,6 @@
                         <p class="form-hint">URL de acceso al módulo. Si es una carpeta, déjala vacía.</p>
                     </div>
                     
-                    <!-- Ícono y Orden (en fila) -->
                     <div class="row">
                         <div class="col-8 mb-3">
                             <label class="form-label">Ícono</label>
@@ -524,12 +534,98 @@
     let currentPage = 1, itemsPerPage = 10;
     let moduloIdEliminar = null;
 
-    // Verificar elementos después de que el DOM esté listo
-    setTimeout(() => {
-        console.log('🔍 Verificación de elementos:');
-        console.log('  - tablaModulos:', document.getElementById('tablaModulos'));
-        console.log('  - totalCount:', document.getElementById('totalCount'));
-    }, 200);
+    // ═══════════════════════════════════════════════════════════════════════
+    // FUNCIONES DEL NAVBAR - MENÚ DINÁMICO
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    function cargarMenuNavbar() {
+        console.log('📋 cargarMenuNavbar() llamado');
+        
+        fetch('/api/menu/usuario')
+            .then(r => r.json())
+            .then(data => {
+                console.log('📦 Menú recibido:', data);
+                const modulos = data.data || [];
+                
+                const dropdown = document.getElementById('navModulosDropdown');
+                const navItem = document.getElementById('navModulosItem');
+                
+                if (!dropdown || !navItem) {
+                    console.error('❌ Elementos del navbar no encontrados');
+                    return;
+                }
+                
+                if (modulos.length === 0) {
+                    console.log('ℹ️ No hay módulos para mostrar');
+                    navItem.style.display = 'none';
+                    return;
+                }
+                
+                const paginaActual = window.location.pathname;
+                let html = '';
+                
+                modulos.forEach(modulo => {
+                    html += renderizarModuloMenu(modulo, paginaActual);
+                });
+                
+                dropdown.innerHTML = html;
+                navItem.style.display = 'flex';
+                console.log('✅ Menú renderizado en navbar con', modulos.length, 'módulos');
+            })
+            .catch(err => {
+                console.error('❌ Error al cargar menú:', err);
+            });
+    }
+
+    function renderizarModuloMenu(modulo, paginaActual) {
+        const tieneHijos = modulo.hijos && modulo.hijos.length > 0;
+        const icono = modulo.icono || 'fa-circle';
+        const nombre = modulo.nombreMostrar || modulo.nombre;
+        
+        if (tieneHijos) {
+            let submenuHtml = '';
+            modulo.hijos.forEach(hijo => {
+                const hrefHijo = hijo.ruta || '#';
+                const activoHijo = paginaActual === hrefHijo ? ' active-page' : '';
+                const iconoHijo = hijo.icono || 'fa-circle';
+                const nombreHijo = hijo.nombreMostrar || hijo.nombre;
+                
+                submenuHtml += `
+                    <a href="${hrefHijo}"${activoHijo}>
+                        <i class="fas ${iconoHijo} me-2"></i>${nombreHijo}
+                    </a>
+                `;
+            });
+            
+            const hrefPadre = modulo.ruta || '#';
+            const activoPadre = paginaActual === hrefPadre ? ' active-page' : '';
+            
+            return `
+                <div class="dropdown-nav-group">
+                    <a href="${hrefPadre}"${activoPadre}>
+                        <i class="fas ${icono} me-2"></i>${nombre}
+                        <i class="fas fa-chevron-right ms-auto" style="font-size:0.7rem;"></i>
+                    </a>
+                    <div class="dropdown-submenu">
+                        ${submenuHtml}
+                    </div>
+                </div>
+            `;
+        } else {
+            const href = modulo.ruta || '#';
+            const activo = paginaActual === href ? ' active-page' : '';
+            
+            return `
+                <a href="${href}"${activo}>
+                    <i class="fas ${icono} me-2"></i>${nombre}
+                </a>
+            `;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // FUNCIONES DE LA TABLA Y CRUD DE MÓDULOS (TODO LO QUE YA FUNCIONABA)
+    // ═══════════════════════════════════════════════════════════════════════
 
     document.addEventListener('DOMContentLoaded', () => {
         console.log('🚀 DOMContentLoaded ejecutado');
@@ -539,6 +635,9 @@
         
         console.log('📌 Llamando a cargarModulos()...');
         cargarModulos();
+        
+        console.log('📌 Llamando a cargarMenuNavbar()...');
+        cargarMenuNavbar();
         
         document.getElementById('filtrarBtn').addEventListener('click', filtrar);
         document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') filtrar(); });
@@ -557,26 +656,10 @@
     });
 
     function cargarModulos() {
-        console.log('🔄 cargarModulos() llamado');
-        
-        fetch('/api/modulos')
-            .then(r => {
-                console.log('📡 Respuesta fetch:', r.status);
-                return r.json();
-            })
-            .then(data => {
-                console.log('📦 Datos recibidos:', data);
-                allModulos = data.data || [];
-                console.log('📋 allModulos:', allModulos.length, 'módulos');
-                if (allModulos.length > 0) {
-                    console.log('📋 Primer módulo:', allModulos[0]);
-                }
-                filtrar();
-            })
-            .catch(err => {
-                console.error('❌ Error al cargar módulos:', err);
-                mostrarToast('Error al cargar módulos', 'error');
-            });
+        fetch('/api/modulos').then(r=>r.json()).then(data=>{
+            allModulos=data.data||[];
+            filtrar();
+        }).catch(()=>mostrarToast('Error al cargar módulos','error'));
     }
 
     async function cargarModulosAsync() {
@@ -646,8 +729,7 @@
         allModulos_filtered=lista;
         document.getElementById('totalCount').textContent=lista.length;
         document.getElementById('totalRecords').textContent=lista.length;
-        currentPage=1; 
-        mostrarPaginado();
+        currentPage=1; mostrarPaginado();
     }
 
     function mostrarPaginado() {
@@ -662,7 +744,6 @@
     }
 
     function renderTabla(modulos, offset=0) {
-        console.log('🎨 renderTabla llamado con', modulos.length, 'módulos');
         const tbody=document.getElementById('tablaModulos');
         if(!modulos.length){
             tbody.innerHTML=`<tr><td colspan="7" class="state-cell">
@@ -692,7 +773,6 @@
                 </button></td>
             </tr>`;
         }).join('');
-        console.log('✅ Tabla renderizada');
     }
 
     function cambiarPagina(n){
@@ -815,6 +895,7 @@
                 modalInstance.hide();
                 mostrarToast(esNuevo ? 'Módulo creado correctamente' : 'Módulo actualizado correctamente', 'success');
                 cargarModulos();
+                cargarMenuNavbar(); // Recargar el menú del navbar
                 cancelarNuevoPadre();
             } else {
                 mostrarToast('Error: ' + data.message, 'error');
@@ -835,7 +916,11 @@
         fetch(`/api/modulos/${moduloIdEliminar}`,{method:'DELETE'})
             .then(r=>r.json()).then(data=>{
                 eliminarModalInstance.hide();
-                if(data.success){mostrarToast('Módulo eliminado','success');cargarModulos();}
+                if(data.success){
+                    mostrarToast('Módulo eliminado','success');
+                    cargarModulos();
+                    cargarMenuNavbar(); // Recargar el menú del navbar
+                }
                 else mostrarToast('Error: '+data.message,'error');
             }).catch(()=>mostrarToast('Error al eliminar','error'));
     }
