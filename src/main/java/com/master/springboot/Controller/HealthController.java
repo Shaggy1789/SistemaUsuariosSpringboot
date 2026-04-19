@@ -8,7 +8,7 @@ import java.util.Map;
 @RestController
 public class HealthController {
 
-    @GetMapping("/")
+    @GetMapping("/health")
     public Map<String, Object> root() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "UP");
