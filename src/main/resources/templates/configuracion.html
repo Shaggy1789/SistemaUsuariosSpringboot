@@ -93,7 +93,7 @@
         .btn-logout:hover { border-color: var(--gold); color: var(--gold-light); }
 
         /* ══ PAGE ══ */
-        .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+        .page-wrap { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
 
         .page-header {
             display: flex; align-items: center; gap: 14px;
@@ -195,6 +195,11 @@
             color: #60a5fa; padding: 2px 10px; border-radius: 8px;
             font-size: 0.75rem; font-family: monospace;
         }
+        .padre-badge {
+            background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.15);
+            color: #a78bfa; padding: 2px 10px; border-radius: 8px;
+            font-size: 0.7rem; display: inline-block; margin-left: 5px;
+        }
         .btn-edit {
             background: transparent; border: 1px solid rgba(201,168,76,0.25);
             color: var(--gold); border-radius: 6px; padding: 5px 10px;
@@ -254,16 +259,16 @@
             font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
             text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;
         }
-        .modal-body .form-control {
+        .modal-body .form-control, .modal-body .form-select {
             background: var(--black-4); border: 1px solid rgba(201,168,76,0.15);
             border-radius: 8px; color: var(--text); font-size: 0.9rem; padding: 9px 12px;
         }
         .modal-body .form-control::placeholder { color: #444; }
-        .modal-body .form-control:focus {
+        .modal-body .form-control:focus, .modal-body .form-select:focus {
             border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
             background: var(--black-4); color: var(--text); outline: none;
         }
-        /* Preview icono en modal */
+        .modal-body .form-select option { background: var(--black-4); }
         .icon-preview {
             width: 44px; height: 44px; border-radius: 10px;
             background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);
@@ -279,6 +284,21 @@
         .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
         @media (max-width: 768px) { .page-wrap { padding: 1rem; } }
+        
+        /* Submenú jerárquico */
+        .dropdown-nav-group { position: relative; }
+        .dropdown-submenu {
+            display: none; position: absolute; left: 100%; top: 0;
+            background: var(--black-3); border: 1px solid var(--border);
+            border-left: 2px solid var(--gold); min-width: 200px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 101;
+        }
+        .dropdown-nav-group:hover .dropdown-submenu { display: block; }
+        .dropdown-submenu a {
+            display: block !important; padding: 10px 16px !important;
+            white-space: nowrap;
+        }
+        .dropdown-submenu a:hover { background: rgba(201,168,76,0.07) !important; }
     </style>
 </head>
 <body>
@@ -288,7 +308,7 @@
     <a class="topnav-brand" th:href="@{/}">
         <i class="fas fa-heartbeat"></i> Santa Mónica
     </a>
-    <ul class="topnav-menu">
+    <ul class="topnav-menu" id="navMenu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
         <li id="navModulosItem" style="display:none;">
             <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
@@ -356,13 +376,14 @@
                         <th>Módulo</th>
                         <th>Nombre sistema</th>
                         <th>Ruta</th>
+                        <th>Padre</th>
                         <th>Orden</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody id="tablaModulos">
-                    <tr><td colspan="7" class="state-cell">
+                    <tr><td colspan="8" class="state-cell">
                         <i class="fas fa-spinner fa-spin" style="color:var(--gold);"></i>
                         Cargando módulos...
                     </td></tr>
@@ -429,7 +450,16 @@
                                    placeholder="Ej. /usuarios" maxlength="100">
                             <p class="form-hint">URL del módulo en el sistema.</p>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Módulo Padre (Carpeta)</label>
+                            <select class="form-select" id="padreId">
+                                <option value="">-- Ninguno (Módulo raíz) --</option>
+                            </select>
+                            <p class="form-hint">Si seleccionas un padre, este módulo será un submenú.</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Ícono <span style="color:var(--text-muted);font-size:0.7rem;">(Font Awesome)</span></label>
                             <div style="display:flex;gap:8px;align-items:center;">
                                 <input type="text" class="form-control" id="icono"
@@ -439,9 +469,9 @@
                                     <i class="fas fa-puzzle-piece" id="iconoPreviewIcon"></i>
                                 </div>
                             </div>
-                            <p class="form-hint">Ej: fa-users, fa-cogs, fa-lock</p>
+                            <p class="form-hint">Ej: fa-users, fa-cogs, fa-folder</p>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Orden</label>
                             <input type="number" class="form-control" id="orden"
                                    placeholder="0" min="0" max="999" value="0">
@@ -491,11 +521,11 @@
     let allModulos = [], allModulos_filtered = [];
     let currentPage = 1, itemsPerPage = 10;
     let moduloIdEliminar = null;
+    let mapaModulos = new Map(); // Para mostrar nombres de padres
 
     document.addEventListener('DOMContentLoaded', () => {
         modalInstance         = new bootstrap.Modal(document.getElementById('moduloModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
-        cargarNavModulos();
         cargarModulos();
         document.getElementById('filtrarBtn').addEventListener('click', filtrar);
         document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') filtrar(); });
@@ -508,26 +538,22 @@
         });
     });
 
-    function cargarNavModulos() {
-        fetch('/api/modulos').then(r=>r.ok?r.json():Promise.reject()).then(data=>{
-            const modulos=data.data||[]; if(!modulos.length) return;
-            const dd=document.getElementById('navModulosDropdown');
-            const ni=document.getElementById('navModulosItem');
-            const actual=window.location.pathname;
-            dd.innerHTML=modulos.map(m=>{
-                const href=m.ruta||('/'+( m.nombre||'').toLowerCase().replace(/\s+/g,'-'));
-                const label=m.nombreMostrar||m.nombre||'Módulo';
-                return `<a href="${href}"${actual===href?' class="active-page"':''}>${label}</a>`;
-            }).join('');
-            ni.style.display='flex';
-        }).catch(()=>{});
-    }
-
     function cargarModulos() {
         fetch('/api/modulos').then(r=>r.json()).then(data=>{
             allModulos=data.data||[];
+            // Construir mapa de módulos para mostrar nombres de padres
+            mapaModulos.clear();
+            allModulos.forEach(m => mapaModulos.set(m.id, m));
             filtrar();
         }).catch(()=>mostrarToast('Error al cargar módulos','error'));
+    }
+
+    function cargarPadresEnSelect() {
+        const select = document.getElementById('padreId');
+        select.innerHTML = '<option value="">-- Ninguno (Módulo raíz) --</option>';
+        allModulos.forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.nombreMostrar || m.nombre}</option>`;
+        });
     }
 
     function filtrar() {
@@ -558,7 +584,7 @@
     function renderTabla(modulos, offset=0) {
         const tbody=document.getElementById('tablaModulos');
         if(!modulos.length){
-            tbody.innerHTML=`<tr><td colspan="7" class="state-cell">
+            tbody.innerHTML=`<tr><td colspan="8" class="state-cell">
                 <i class="fas fa-th-large" style="color:var(--gold-dark);opacity:0.4;"></i>
                 No se encontraron módulos
             </td></tr>`;
@@ -567,14 +593,19 @@
         tbody.innerHTML=modulos.map((m, i)=>{
             const icono=m.icono||'fa-puzzle-piece';
             const ruta=m.ruta||'—';
+            const padre = m.padre ? (m.padre.nombreMostrar || m.padre.nombre) : null;
+            const padreHtml = padre ? `<span class="padre-badge"><i class="fas fa-folder me-1"></i>${padre}</span>` : '<span style="color:#3a3a3a;">—</span>';
+            
             return `<tr>
                 <td style="color:var(--text-muted);">${offset+i+1}</td>
                 <td>
                     <span class="modulo-icon-preview"><i class="fas ${icono}"></i></span>
                     <strong style="color:#e0e0e0;">${m.nombreMostrar||m.nombre}</strong>
+                    ${padre ? '<span class="padre-badge" style="margin-left:8px;"><i class="fas fa-level-up-alt fa-rotate-90 me-1"></i>Hijo de: ' + padre + '</span>' : ''}
                 </td>
                 <td style="font-family:monospace;font-size:0.8rem;color:var(--text-muted);">${m.nombre}</td>
                 <td>${ruta!=='—'?`<span class="ruta-tag">${ruta}</span>`:'<span style="color:#3a3a3a;">—</span>'}</td>
+                <td>${padreHtml}</td>
                 <td><span class="orden-badge">${m.orden??0}</span></td>
                 <td><button class="btn-edit" onclick="abrirModalEditar('${m.id}')">
                     <i class="fas fa-pencil-alt"></i>
@@ -603,6 +634,7 @@
         document.getElementById('moduloId').value='';
         document.getElementById('orden').value='0';
         document.getElementById('iconoPreviewIcon').className='fas fa-puzzle-piece';
+        cargarPadresEnSelect();
         limpiarValidaciones();
         modalInstance.show();
     }
@@ -618,6 +650,12 @@
         document.getElementById('icono').value          = m.icono||'';
         document.getElementById('orden').value          = m.orden??0;
         document.getElementById('iconoPreviewIcon').className=`fas ${m.icono||'fa-puzzle-piece'}`;
+        cargarPadresEnSelect();
+        if (m.padre && m.padre.id) {
+            document.getElementById('padreId').value = m.padre.id;
+        } else {
+            document.getElementById('padreId').value = '';
+        }
         limpiarValidaciones();
         modalInstance.show();
     }
@@ -629,6 +667,7 @@
         const ruta         = document.getElementById('ruta').value.trim();
         const icono        = document.getElementById('icono').value.trim();
         const orden        = parseInt(document.getElementById('orden').value)||0;
+        const padreId      = document.getElementById('padreId').value;
         limpiarValidaciones();
 
         let ok=true;
@@ -645,16 +684,20 @@
         const esNuevo = !id;
         const url    = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
         const method = esNuevo ? 'POST' : 'PUT';
+        
+        const payload = { nombre, nombreMostrar, ruta, icono, orden };
+        if (padreId) {
+            payload.padre = { id: padreId };
+        }
 
         fetch(url,{
             method, headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({nombre, nombreMostrar, ruta, icono, orden})
+            body: JSON.stringify(payload)
         }).then(r=>r.json()).then(data=>{
             if(data.success){
                 modalInstance.hide();
                 mostrarToast(esNuevo?'Módulo creado correctamente':'Módulo actualizado correctamente','success');
                 cargarModulos();
-                cargarNavModulos();
             } else {
                 mostrarToast('Error: '+data.message,'error');
             }
@@ -672,7 +715,7 @@
         fetch(`/api/modulos/${moduloIdEliminar}`,{method:'DELETE'})
             .then(r=>r.json()).then(data=>{
                 eliminarModalInstance.hide();
-                if(data.success){mostrarToast('Módulo eliminado','success');cargarModulos();cargarNavModulos();}
+                if(data.success){mostrarToast('Módulo eliminado','success');cargarModulos();}
                 else mostrarToast('Error: '+data.message,'error');
             }).catch(()=>mostrarToast('Error al eliminar','error'));
     }

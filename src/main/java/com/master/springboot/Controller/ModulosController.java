@@ -45,6 +45,28 @@ public class ModulosController {
         }
     }
 
+    @GetMapping("/padres")
+    public ResponseEntity<?> listarPadres() {
+        try {
+            List<Modulos> modulos = serviceModulos.findAll();
+            List<Map<String, Object>> padres = new ArrayList<>();
+
+            for (Modulos m : modulos) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", m.getId());
+                item.put("nombreMostrar", m.getNombreMostrar());
+                padres.add(item);
+            }
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", padres);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return error("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     // ── POST /api/modulos ─────────────────────────────────────
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody Modulos modulo) {
@@ -59,9 +81,18 @@ public class ModulosController {
             if (serviceModulos.existsByNombre(modulo.getNombre().trim()))
                 return error("Ya existe un módulo con ese nombre", HttpStatus.CONFLICT);
 
-            modulo.setId(null); // Forzar UUID nuevo
+            modulo.setId(null);
             modulo.setNombre(modulo.getNombre().trim().toUpperCase());
             if (modulo.getOrden() == null) modulo.setOrden(0);
+
+            // Si viene padreId, buscar el padre y asignarlo
+            if (modulo.getPadre() != null && modulo.getPadre().getId() != null) {
+                Modulos padre = serviceModulos.findById(modulo.getPadre().getId());
+                if (padre == null) {
+                    return error("El módulo padre no existe", HttpStatus.BAD_REQUEST);
+                }
+                modulo.setPadre(padre);
+            }
 
             Modulos guardado = serviceModulos.save(modulo);
 
@@ -74,7 +105,7 @@ public class ModulosController {
         } catch (Exception e) {
             e.printStackTrace();
             return error("Error al crear módulo: " + e.getMessage(),
-                         HttpStatus.INTERNAL_SERVER_ERROR);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
