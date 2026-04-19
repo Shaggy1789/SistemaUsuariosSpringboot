@@ -517,15 +517,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    <script>
+    console.log('=== SCRIPT CARGADO - Configuración Módulos ===');
+
     let modalInstance, eliminarModalInstance;
     let allModulos = [], allModulos_filtered = [];
     let currentPage = 1, itemsPerPage = 10;
     let moduloIdEliminar = null;
 
+    // Verificar elementos después de que el DOM esté listo
+    setTimeout(() => {
+        console.log('🔍 Verificación de elementos:');
+        console.log('  - tablaModulos:', document.getElementById('tablaModulos'));
+        console.log('  - totalCount:', document.getElementById('totalCount'));
+    }, 200);
+
     document.addEventListener('DOMContentLoaded', () => {
-        modalInstance         = new bootstrap.Modal(document.getElementById('moduloModal'));
+        console.log('🚀 DOMContentLoaded ejecutado');
+        
+        modalInstance = new bootstrap.Modal(document.getElementById('moduloModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
+        
+        console.log('📌 Llamando a cargarModulos()...');
         cargarModulos();
+        
         document.getElementById('filtrarBtn').addEventListener('click', filtrar);
         document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') filtrar(); });
         document.getElementById('limpiarBtn').addEventListener('click', () => {
@@ -536,7 +551,6 @@
             itemsPerPage=parseInt(e.target.value); currentPage=1; mostrarPaginado();
         });
         
-        // Generar nombre sistema automáticamente
         document.getElementById('nombreMostrar').addEventListener('input', function() {
             const nombreSistema = this.value.trim().toUpperCase().replace(/\s+/g, '_');
             document.getElementById('nombre').value = nombreSistema;
@@ -544,10 +558,26 @@
     });
 
     function cargarModulos() {
-        fetch('/api/modulos').then(r=>r.json()).then(data=>{
-            allModulos=data.data||[];
-            filtrar();
-        }).catch(()=>mostrarToast('Error al cargar módulos','error'));
+        console.log('🔄 cargarModulos() llamado');
+        
+        fetch('/api/modulos')
+            .then(r => {
+                console.log('📡 Respuesta fetch:', r.status);
+                return r.json();
+            })
+            .then(data => {
+                console.log('📦 Datos recibidos:', data);
+                allModulos = data.data || [];
+                console.log('📋 allModulos:', allModulos.length, 'módulos');
+                if (allModulos.length > 0) {
+                    console.log('📋 Primer módulo:', allModulos[0]);
+                }
+                filtrar();
+            })
+            .catch(err => {
+                console.error('❌ Error al cargar módulos:', err);
+                mostrarToast('Error al cargar módulos', 'error');
+            });
     }
 
     async function cargarModulosAsync() {
@@ -600,10 +630,7 @@
         });
         
         const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.message || 'Error al crear padre');
-        }
+        if (!data.success) throw new Error(data.message || 'Error al crear padre');
         
         await cargarModulosAsync();
         return data.data;
@@ -620,7 +647,8 @@
         allModulos_filtered=lista;
         document.getElementById('totalCount').textContent=lista.length;
         document.getElementById('totalRecords').textContent=lista.length;
-        currentPage=1; mostrarPaginado();
+        currentPage=1; 
+        mostrarPaginado();
     }
 
     function mostrarPaginado() {
@@ -635,6 +663,7 @@
     }
 
     function renderTabla(modulos, offset=0) {
+        console.log('🎨 renderTabla llamado con', modulos.length, 'módulos');
         const tbody=document.getElementById('tablaModulos');
         if(!modulos.length){
             tbody.innerHTML=`<tr><td colspan="7" class="state-cell">
@@ -664,6 +693,7 @@
                 </button></td>
             </tr>`;
         }).join('');
+        console.log('✅ Tabla renderizada');
     }
 
     function cambiarPagina(n){
@@ -829,6 +859,7 @@
         document.body.appendChild(t);
         setTimeout(()=>t.remove(),3500);
     }
+</script>
 </script>
 </body>
 </html>
