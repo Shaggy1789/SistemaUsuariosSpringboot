@@ -158,6 +158,57 @@ public class UsuariosController {
         }
     }
 
+    // ── POST /api/usuarios ─────────────────────────────────────
+    @PostMapping("/api/usuarios")
+    public ResponseEntity<?> crearUsuario(@RequestBody Map<String, Object> body) {
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            String usuarioNombre = getString(body, "usuario");
+            String email         = getString(body, "email");
+            String password      = getString(body, "password");
+            String estado        = getString(body, "estado");
+            Object perfilRaw     = body.get("perfilId");
+
+            // Validaciones
+            if (usuarioNombre == null || usuarioNombre.isBlank()) {
+                return error("El nombre de usuario es requerido", HttpStatus.BAD_REQUEST);
+            }
+            if (password == null || password.isBlank()) {
+                return error("La contraseña es requerida", HttpStatus.BAD_REQUEST);
+            }
+            if (serviceUsuarios.existsByUsuario(usuarioNombre.trim())) {
+                return error("El nombre de usuario ya está en uso", HttpStatus.CONFLICT);
+            }
+
+            Usuarios nuevo = new Usuarios();
+            nuevo.setUsuario(usuarioNombre.trim());
+            nuevo.setEmail(email != null ? email.trim() : null);
+            nuevo.setEstado(estado != null ? estado.trim() : "ACTIVO");
+            nuevo.setPassword(md5(password));
+
+            if (perfilRaw != null) {
+                UUID perfilId = UUID.fromString(perfilRaw.toString());
+                Perfiles perfil = servicePerfiles.findById(perfilId);
+                if (perfil == null) {
+                    return error("Perfil no encontrado", HttpStatus.BAD_REQUEST);
+                }
+                nuevo.setPerfil(perfil);
+            }
+
+            Usuarios guardado = serviceUsuarios.save(nuevo);
+
+            resp.put("success", true);
+            resp.put("message", "Usuario creado correctamente");
+            resp.put("data", guardado);
+            return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return error("Error al crear usuario: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     // ── PUT /api/usuarios/{id} ────────────────────────────────
     @PutMapping("/api/usuarios/{id}")
     public ResponseEntity<?> actualizarUsuario(@PathVariable UUID id,
