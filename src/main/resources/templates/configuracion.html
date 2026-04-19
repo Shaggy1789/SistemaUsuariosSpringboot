@@ -93,7 +93,7 @@
         .btn-logout:hover { border-color: var(--gold); color: var(--gold-light); }
 
         /* ══ PAGE ══ */
-        .page-wrap { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+        .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
 
         .page-header {
             display: flex; align-items: center; gap: 14px;
@@ -195,11 +195,6 @@
             color: #60a5fa; padding: 2px 10px; border-radius: 8px;
             font-size: 0.75rem; font-family: monospace;
         }
-        .padre-badge {
-            background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.15);
-            color: #a78bfa; padding: 2px 10px; border-radius: 8px;
-            font-size: 0.7rem; display: inline-block; margin-left: 5px;
-        }
         .btn-edit {
             background: transparent; border: 1px solid rgba(201,168,76,0.25);
             color: var(--gold); border-radius: 6px; padding: 5px 10px;
@@ -256,24 +251,24 @@
         .modal-body { padding: 1.5rem; background: var(--black-3); }
         .modal-footer { border-top: 1px solid var(--border); padding: 1rem 1.5rem; background: var(--black-3); border-radius: 0 0 14px 14px; }
         .modal-body .form-label {
-            font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;
+            font-size: 0.8rem; font-weight: 600; color: var(--text);
+            margin-bottom: 6px; display: block;
         }
         .modal-body .form-control, .modal-body .form-select {
             background: var(--black-4); border: 1px solid rgba(201,168,76,0.15);
-            border-radius: 8px; color: var(--text); font-size: 0.9rem; padding: 9px 12px;
+            border-radius: 8px; color: var(--text); font-size: 0.9rem; padding: 10px 12px;
         }
-        .modal-body .form-control::placeholder { color: #444; }
+        .modal-body .form-control::placeholder { color: #555; }
         .modal-body .form-control:focus, .modal-body .form-select:focus {
             border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
             background: var(--black-4); color: var(--text); outline: none;
         }
         .modal-body .form-select option { background: var(--black-4); }
         .icon-preview {
-            width: 44px; height: 44px; border-radius: 10px;
+            width: 40px; height: 40px; border-radius: 8px;
             background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);
             display: flex; align-items: center; justify-content: center;
-            color: var(--gold); font-size: 1.2rem; flex-shrink: 0;
+            color: var(--gold); font-size: 1.1rem; flex-shrink: 0;
         }
         .modal-header.danger { background: rgba(229,62,62,0.1); }
         .modal-header.danger .modal-title { color: #fc8181; }
@@ -281,24 +276,9 @@
         .invalid-feedback { color: #fc8181; font-size: 0.75rem; margin-top: 3px; display: block; }
         .state-cell { text-align: center; padding: 2.5rem 1rem !important; color: #444; }
         .state-cell i { font-size: 2rem; display: block; margin-bottom: 0.75rem; }
-        .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .form-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
 
         @media (max-width: 768px) { .page-wrap { padding: 1rem; } }
-        
-        /* Submenú jerárquico */
-        .dropdown-nav-group { position: relative; }
-        .dropdown-submenu {
-            display: none; position: absolute; left: 100%; top: 0;
-            background: var(--black-3); border: 1px solid var(--border);
-            border-left: 2px solid var(--gold); min-width: 200px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 101;
-        }
-        .dropdown-nav-group:hover .dropdown-submenu { display: block; }
-        .dropdown-submenu a {
-            display: block !important; padding: 10px 16px !important;
-            white-space: nowrap;
-        }
-        .dropdown-submenu a:hover { background: rgba(201,168,76,0.07) !important; }
     </style>
 </head>
 <body>
@@ -308,7 +288,7 @@
     <a class="topnav-brand" th:href="@{/}">
         <i class="fas fa-heartbeat"></i> Santa Mónica
     </a>
-    <ul class="topnav-menu" id="navMenu">
+    <ul class="topnav-menu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
         <li id="navModulosItem" style="display:none;">
             <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
@@ -376,14 +356,13 @@
                         <th>Módulo</th>
                         <th>Nombre sistema</th>
                         <th>Ruta</th>
-                        <th>Padre</th>
                         <th>Orden</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody id="tablaModulos">
-                    <tr><td colspan="8" class="state-cell">
+                    <tr><td colspan="7" class="state-cell">
                         <i class="fas fa-spinner fa-spin" style="color:var(--gold);"></i>
                         Cargando módulos...
                     </td></tr>
@@ -415,52 +394,75 @@
     </div>
 </div>
 
-<!-- ══ MODAL: CREAR / EDITAR ══ -->
+<!-- ══ MODAL: NUEVO MÓDULO ══ -->
 <div class="modal fade" id="moduloModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-cogs"></i> <span id="modalTitleText">Nuevo Módulo</span></h5>
+                <h5 class="modal-title"><i class="fas fa-plus-circle"></i> <span id="modalTitleText">Nuevo Módulo</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="moduloForm">
                     <input type="hidden" id="moduloId">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombre sistema * <span style="color:var(--text-muted);font-size:0.7rem;">(único, sin espacios)</span></label>
-                            <input type="text" class="form-control" id="nombre"
-                                   placeholder="Ej. USUARIOS" maxlength="50"
-                                   oninput="this.value=this.value.toUpperCase().replace(/\s/g,'_')" required>
-                            <div id="nombreError" class="invalid-feedback"></div>
-                            <p class="form-hint">Se usa internamente. Solo letras y guión bajo.</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombre a mostrar *</label>
-                            <input type="text" class="form-control" id="nombreMostrar"
-                                   placeholder="Ej. Gestión de Usuarios" maxlength="100" required>
-                            <div id="nombreMostrarError" class="invalid-feedback"></div>
-                            <p class="form-hint">Lo que verá el usuario en pantalla.</p>
-                        </div>
+                    
+                    <!-- Nombre del Módulo -->
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Módulo</label>
+                        <input type="text" class="form-control" id="nombreMostrar"
+                               placeholder="Ej: Usuarios" maxlength="100" required>
+                        <div id="nombreMostrarError" class="invalid-feedback"></div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Ruta</label>
-                            <input type="text" class="form-control" id="ruta"
-                                   placeholder="Ej. /usuarios" maxlength="100">
-                            <p class="form-hint">URL del módulo en el sistema.</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Módulo Padre (Carpeta)</label>
+                    
+                    <!-- Nombre Sistema (oculto, se genera automáticamente) -->
+                    <input type="hidden" id="nombre">
+                    
+                    <!-- Menú Padre - Selector + Opción de escribir nuevo -->
+                    <div class="mb-3">
+                        <label class="form-label">Menú Padre</label>
+                        
+                        <!-- Selector de padres existentes -->
+                        <div id="padreSelectContainer">
                             <select class="form-select" id="padreId">
                                 <option value="">-- Ninguno (Módulo raíz) --</option>
                             </select>
-                            <p class="form-hint">Si seleccionas un padre, este módulo será un submenú.</p>
+                            <p class="form-hint" style="margin-top:5px;">
+                                <a href="#" onclick="mostrarNuevoPadreInput(); return false;" style="color:var(--gold);text-decoration:none;">
+                                    <i class="fas fa-plus-circle me-1"></i>Crear nuevo menú padre
+                                </a>
+                            </p>
+                        </div>
+                        
+                        <!-- Input para nuevo padre (oculto inicialmente) -->
+                        <div id="padreNuevoContainer" style="display:none;">
+                            <div style="display:flex;gap:8px;">
+                                <input type="text" class="form-control" id="nuevoPadreInput" 
+                                       placeholder="Ej: Seguridad" maxlength="100">
+                                <button type="button" class="btn-gold-outline" onclick="cancelarNuevoPadre()" style="padding:8px 12px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <p class="form-hint" style="margin-top:5px;">
+                                <a href="#" onclick="usarPadreExistente(); return false;" style="color:var(--gold);text-decoration:none;">
+                                    <i class="fas fa-list me-1"></i>Seleccionar padre existente
+                                </a>
+                            </p>
+                            <div id="nuevoPadreError" class="invalid-feedback"></div>
                         </div>
                     </div>
+                    
+                    <!-- Ruta / URL -->
+                    <div class="mb-3">
+                        <label class="form-label">Ruta / URL</label>
+                        <input type="text" class="form-control" id="ruta"
+                               placeholder="Ej: /usuarios" maxlength="100">
+                        <p class="form-hint">URL de acceso al módulo. Si es una carpeta, déjala vacía.</p>
+                    </div>
+                    
+                    <!-- Ícono y Orden (en fila) -->
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Ícono <span style="color:var(--text-muted);font-size:0.7rem;">(Font Awesome)</span></label>
+                        <div class="col-8 mb-3">
+                            <label class="form-label">Ícono</label>
                             <div style="display:flex;gap:8px;align-items:center;">
                                 <input type="text" class="form-control" id="icono"
                                        placeholder="fa-users" maxlength="50"
@@ -469,13 +471,12 @@
                                     <i class="fas fa-puzzle-piece" id="iconoPreviewIcon"></i>
                                 </div>
                             </div>
-                            <p class="form-hint">Ej: fa-users, fa-cogs, fa-folder</p>
+                            <p class="form-hint">Ej: fa-users, fa-folder, fa-cogs</p>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-4 mb-3">
                             <label class="form-label">Orden</label>
                             <input type="number" class="form-control" id="orden"
                                    placeholder="0" min="0" max="999" value="0">
-                            <p class="form-hint">Posición en el menú.</p>
                         </div>
                     </div>
                 </form>
@@ -483,7 +484,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn-gold" onclick="guardarModulo()">
-                    <i class="fas fa-save"></i> Guardar
+                    <i class="fas fa-save"></i> <span id="btnGuardarText">Crear Módulo</span>
                 </button>
             </div>
         </div>
@@ -521,7 +522,6 @@
     let allModulos = [], allModulos_filtered = [];
     let currentPage = 1, itemsPerPage = 10;
     let moduloIdEliminar = null;
-    let mapaModulos = new Map(); // Para mostrar nombres de padres
 
     document.addEventListener('DOMContentLoaded', () => {
         modalInstance         = new bootstrap.Modal(document.getElementById('moduloModal'));
@@ -536,24 +536,78 @@
         document.getElementById('itemsPerPageSelect').addEventListener('change', e => {
             itemsPerPage=parseInt(e.target.value); currentPage=1; mostrarPaginado();
         });
+        
+        // Generar nombre sistema automáticamente
+        document.getElementById('nombreMostrar').addEventListener('input', function() {
+            const nombreSistema = this.value.trim().toUpperCase().replace(/\s+/g, '_');
+            document.getElementById('nombre').value = nombreSistema;
+        });
     });
 
     function cargarModulos() {
         fetch('/api/modulos').then(r=>r.json()).then(data=>{
             allModulos=data.data||[];
-            // Construir mapa de módulos para mostrar nombres de padres
-            mapaModulos.clear();
-            allModulos.forEach(m => mapaModulos.set(m.id, m));
             filtrar();
         }).catch(()=>mostrarToast('Error al cargar módulos','error'));
+    }
+
+    async function cargarModulosAsync() {
+        const response = await fetch('/api/modulos');
+        const data = await response.json();
+        allModulos = data.data || [];
+        cargarPadresEnSelect();
     }
 
     function cargarPadresEnSelect() {
         const select = document.getElementById('padreId');
         select.innerHTML = '<option value="">-- Ninguno (Módulo raíz) --</option>';
         allModulos.forEach(m => {
-            select.innerHTML += `<option value="${m.id}">${m.nombreMostrar || m.nombre}</option>`;
+            const prefijo = m.padre ? '  └─ ' : '📁 ';
+            select.innerHTML += `<option value="${m.id}">${prefijo}${m.nombreMostrar || m.nombre}</option>`;
         });
+    }
+
+    function mostrarNuevoPadreInput() {
+        document.getElementById('padreSelectContainer').style.display = 'none';
+        document.getElementById('padreNuevoContainer').style.display = 'block';
+        document.getElementById('nuevoPadreInput').focus();
+    }
+
+    function cancelarNuevoPadre() {
+        document.getElementById('padreSelectContainer').style.display = 'block';
+        document.getElementById('padreNuevoContainer').style.display = 'none';
+        document.getElementById('nuevoPadreInput').value = '';
+        document.getElementById('nuevoPadreError').textContent = '';
+        document.getElementById('nuevoPadreInput').classList.remove('is-invalid');
+    }
+
+    function usarPadreExistente() {
+        cancelarNuevoPadre();
+    }
+
+    async function crearModuloPadre(nombreMostrar) {
+        const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
+        
+        const response = await fetch('/api/modulos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre: nombreSistema,
+                nombreMostrar: nombreMostrar,
+                ruta: '',
+                icono: 'fa-folder',
+                orden: 0
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Error al crear padre');
+        }
+        
+        await cargarModulosAsync();
+        return data.data;
     }
 
     function filtrar() {
@@ -584,7 +638,7 @@
     function renderTabla(modulos, offset=0) {
         const tbody=document.getElementById('tablaModulos');
         if(!modulos.length){
-            tbody.innerHTML=`<tr><td colspan="8" class="state-cell">
+            tbody.innerHTML=`<tr><td colspan="7" class="state-cell">
                 <i class="fas fa-th-large" style="color:var(--gold-dark);opacity:0.4;"></i>
                 No se encontraron módulos
             </td></tr>`;
@@ -593,19 +647,15 @@
         tbody.innerHTML=modulos.map((m, i)=>{
             const icono=m.icono||'fa-puzzle-piece';
             const ruta=m.ruta||'—';
-            const padre = m.padre ? (m.padre.nombreMostrar || m.padre.nombre) : null;
-            const padreHtml = padre ? `<span class="padre-badge"><i class="fas fa-folder me-1"></i>${padre}</span>` : '<span style="color:#3a3a3a;">—</span>';
             
             return `<tr>
                 <td style="color:var(--text-muted);">${offset+i+1}</td>
                 <td>
                     <span class="modulo-icon-preview"><i class="fas ${icono}"></i></span>
                     <strong style="color:#e0e0e0;">${m.nombreMostrar||m.nombre}</strong>
-                    ${padre ? '<span class="padre-badge" style="margin-left:8px;"><i class="fas fa-level-up-alt fa-rotate-90 me-1"></i>Hijo de: ' + padre + '</span>' : ''}
                 </td>
                 <td style="font-family:monospace;font-size:0.8rem;color:var(--text-muted);">${m.nombre}</td>
                 <td>${ruta!=='—'?`<span class="ruta-tag">${ruta}</span>`:'<span style="color:#3a3a3a;">—</span>'}</td>
-                <td>${padreHtml}</td>
                 <td><span class="orden-badge">${m.orden??0}</span></td>
                 <td><button class="btn-edit" onclick="abrirModalEditar('${m.id}')">
                     <i class="fas fa-pencil-alt"></i>
@@ -629,79 +679,121 @@
     }
 
     function abrirModalNuevo(){
-        document.getElementById('modalTitleText').textContent='Nuevo Módulo';
+        document.getElementById('modalTitleText').textContent = 'Nuevo Módulo';
+        document.getElementById('btnGuardarText').textContent = 'Crear Módulo';
         document.getElementById('moduloForm').reset();
-        document.getElementById('moduloId').value='';
-        document.getElementById('orden').value='0';
-        document.getElementById('iconoPreviewIcon').className='fas fa-puzzle-piece';
+        document.getElementById('moduloId').value = '';
+        document.getElementById('orden').value = '0';
+        document.getElementById('iconoPreviewIcon').className = 'fas fa-puzzle-piece';
+        
+        cancelarNuevoPadre();
         cargarPadresEnSelect();
         limpiarValidaciones();
         modalInstance.show();
     }
 
     function abrirModalEditar(id){
-        const m=allModulos.find(x=>x.id===id);
-        if(!m) return;
-        document.getElementById('modalTitleText').textContent='Editar Módulo';
-        document.getElementById('moduloId').value       = m.id;
-        document.getElementById('nombre').value         = m.nombre||'';
-        document.getElementById('nombreMostrar').value  = m.nombreMostrar||'';
-        document.getElementById('ruta').value           = m.ruta||'';
-        document.getElementById('icono').value          = m.icono||'';
-        document.getElementById('orden').value          = m.orden??0;
-        document.getElementById('iconoPreviewIcon').className=`fas ${m.icono||'fa-puzzle-piece'}`;
+        const m = allModulos.find(x => x.id === id);
+        if (!m) return;
+        
+        document.getElementById('modalTitleText').textContent = 'Editar Módulo';
+        document.getElementById('btnGuardarText').textContent = 'Actualizar Módulo';
+        document.getElementById('moduloId').value = m.id;
+        document.getElementById('nombreMostrar').value = m.nombreMostrar || '';
+        document.getElementById('nombre').value = m.nombre || '';
+        document.getElementById('ruta').value = m.ruta || '';
+        document.getElementById('icono').value = m.icono || '';
+        document.getElementById('orden').value = m.orden ?? 0;
+        document.getElementById('iconoPreviewIcon').className = `fas ${m.icono || 'fa-puzzle-piece'}`;
+        
+        cancelarNuevoPadre();
         cargarPadresEnSelect();
+        
         if (m.padre && m.padre.id) {
             document.getElementById('padreId').value = m.padre.id;
         } else {
             document.getElementById('padreId').value = '';
         }
+        
         limpiarValidaciones();
         modalInstance.show();
     }
 
-    function guardarModulo(){
+    async function guardarModulo(){
         const id           = document.getElementById('moduloId').value;
-        const nombre       = document.getElementById('nombre').value.trim();
-        const nombreMostrar= document.getElementById('nombreMostrar').value.trim();
+        const nombreMostrar = document.getElementById('nombreMostrar').value.trim();
         const ruta         = document.getElementById('ruta').value.trim();
         const icono        = document.getElementById('icono').value.trim();
-        const orden        = parseInt(document.getElementById('orden').value)||0;
-        const padreId      = document.getElementById('padreId').value;
+        const orden        = parseInt(document.getElementById('orden').value) || 0;
+        
         limpiarValidaciones();
 
-        let ok=true;
-        if(!nombre){
-            document.getElementById('nombreError').textContent='El nombre es obligatorio';
-            document.getElementById('nombre').classList.add('is-invalid'); ok=false;
+        let ok = true;
+        if (!nombreMostrar) {
+            document.getElementById('nombreMostrarError').textContent = 'El nombre es obligatorio';
+            document.getElementById('nombreMostrar').classList.add('is-invalid');
+            ok = false;
         }
-        if(!nombreMostrar){
-            document.getElementById('nombreMostrarError').textContent='El nombre a mostrar es obligatorio';
-            document.getElementById('nombreMostrar').classList.add('is-invalid'); ok=false;
+        if (!ok) return;
+
+        const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
+        document.getElementById('nombre').value = nombreSistema;
+
+        let padreId = null;
+        const creandoNuevoPadre = document.getElementById('padreNuevoContainer').style.display === 'block';
+        
+        if (creandoNuevoPadre) {
+            const nuevoPadreNombre = document.getElementById('nuevoPadreInput').value.trim();
+            if (nuevoPadreNombre) {
+                try {
+                    const padreCreado = await crearModuloPadre(nuevoPadreNombre);
+                    padreId = padreCreado.id;
+                    mostrarToast('Menú padre creado correctamente', 'success');
+                } catch (error) {
+                    document.getElementById('nuevoPadreError').textContent = 'Error al crear el menú padre';
+                    document.getElementById('nuevoPadreInput').classList.add('is-invalid');
+                    return;
+                }
+            }
+        } else {
+            padreId = document.getElementById('padreId').value;
         }
-        if(!ok) return;
 
         const esNuevo = !id;
-        const url    = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
+        const url = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
         const method = esNuevo ? 'POST' : 'PUT';
         
-        const payload = { nombre, nombreMostrar, ruta, icono, orden };
+        const payload = { 
+            nombre: nombreSistema,
+            nombreMostrar, 
+            ruta, 
+            icono: icono || 'fa-puzzle-piece', 
+            orden 
+        };
+        
         if (padreId) {
             payload.padre = { id: padreId };
         }
 
-        fetch(url,{
-            method, headers:{'Content-Type':'application/json'},
-            body: JSON.stringify(payload)
-        }).then(r=>r.json()).then(data=>{
-            if(data.success){
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            
+            if (data.success) {
                 modalInstance.hide();
-                mostrarToast(esNuevo?'Módulo creado correctamente':'Módulo actualizado correctamente','success');
+                mostrarToast(esNuevo ? 'Módulo creado correctamente' : 'Módulo actualizado correctamente', 'success');
                 cargarModulos();
+                cancelarNuevoPadre();
             } else {
-                mostrarToast('Error: '+data.message,'error');
+                mostrarToast('Error: ' + data.message, 'error');
             }
-        }).catch(()=>mostrarToast('Error al guardar','error'));
+        } catch (error) {
+            mostrarToast('Error al guardar', 'error');
+        }
     }
 
     function abrirModalEliminar(id,nombre){
