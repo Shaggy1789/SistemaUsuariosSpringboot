@@ -9,18 +9,11 @@ import java.util.Map;
 public class HealthController {
 
     @GetMapping("/health")
-    public Map<String, Object> root() {
+    public Map<String, Object> health() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "UP");
         response.put("service", "SistemaUsuariosSpringboot");
         response.put("timestamp", System.currentTimeMillis());
-        return response;
-    }
-
-    @GetMapping("/health")
-    public Map<String, String> health() {
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "healthy");
         return response;
     }
 }
