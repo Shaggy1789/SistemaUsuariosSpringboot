@@ -58,6 +58,7 @@
             cursor: pointer; white-space: nowrap; transition: color 0.2s;
         }
         .topnav-menu > li > a:hover, .topnav-menu > li > span:hover { color: var(--gold-light); }
+        .topnav-menu > li > a.active { color: var(--gold); }
         .topnav-menu > li > span i.arrow { font-size: 0.6rem; transition: transform 0.2s; }
         .topnav-menu > li:hover > span i.arrow { transform: rotate(180deg); }
         .dropdown-nav {
@@ -307,6 +308,7 @@
     </a>
     <ul class="topnav-menu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
+        <!-- Los módulos se insertarán aquí dinámicamente por sliderbar.js -->
         <li id="navModulosItem" style="display:none;">
             <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
             <div class="dropdown-nav" id="navModulosDropdown"></div>
@@ -526,119 +528,17 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/sliderbar.js"></script>
 <script>
-    console.log('=== SCRIPT CARGADO - Configuración Módulos ===');
-
     let modalInstance, eliminarModalInstance;
     let allModulos = [], allModulos_filtered = [];
     let currentPage = 1, itemsPerPage = 10;
     let moduloIdEliminar = null;
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // FUNCIONES DEL NAVBAR - MENÚ DINÁMICO
-    // ═══════════════════════════════════════════════════════════════════════
-    
-    function cargarMenuNavbar() {
-        console.log('📋 cargarMenuNavbar() llamado');
-        
-        fetch('/api/menu/usuario')
-            .then(r => r.json())
-            .then(data => {
-                console.log('📦 Menú recibido:', data);
-                const modulos = data.data || [];
-                
-                const dropdown = document.getElementById('navModulosDropdown');
-                const navItem = document.getElementById('navModulosItem');
-                
-                if (!dropdown || !navItem) {
-                    console.error('❌ Elementos del navbar no encontrados');
-                    return;
-                }
-                
-                if (modulos.length === 0) {
-                    console.log('ℹ️ No hay módulos para mostrar');
-                    navItem.style.display = 'none';
-                    return;
-                }
-                
-                const paginaActual = window.location.pathname;
-                let html = '';
-                
-                modulos.forEach(modulo => {
-                    html += renderizarModuloMenu(modulo, paginaActual);
-                });
-                
-                dropdown.innerHTML = html;
-                navItem.style.display = 'flex';
-                console.log('✅ Menú renderizado en navbar con', modulos.length, 'módulos');
-            })
-            .catch(err => {
-                console.error('❌ Error al cargar menú:', err);
-            });
-    }
-
-    function renderizarModuloMenu(modulo, paginaActual) {
-        const tieneHijos = modulo.hijos && modulo.hijos.length > 0;
-        const icono = modulo.icono || 'fa-circle';
-        const nombre = modulo.nombreMostrar || modulo.nombre;
-        
-        if (tieneHijos) {
-            let submenuHtml = '';
-            modulo.hijos.forEach(hijo => {
-                const hrefHijo = hijo.ruta || '#';
-                const activoHijo = paginaActual === hrefHijo ? ' active-page' : '';
-                const iconoHijo = hijo.icono || 'fa-circle';
-                const nombreHijo = hijo.nombreMostrar || hijo.nombre;
-                
-                submenuHtml += `
-                    <a href="${hrefHijo}"${activoHijo}>
-                        <i class="fas ${iconoHijo} me-2"></i>${nombreHijo}
-                    </a>
-                `;
-            });
-            
-            const hrefPadre = modulo.ruta || '#';
-            const activoPadre = paginaActual === hrefPadre ? ' active-page' : '';
-            
-            return `
-                <div class="dropdown-nav-group">
-                    <a href="${hrefPadre}"${activoPadre}>
-                        <i class="fas ${icono} me-2"></i>${nombre}
-                        <i class="fas fa-chevron-right ms-auto" style="font-size:0.7rem;"></i>
-                    </a>
-                    <div class="dropdown-submenu">
-                        ${submenuHtml}
-                    </div>
-                </div>
-            `;
-        } else {
-            const href = modulo.ruta || '#';
-            const activo = paginaActual === href ? ' active-page' : '';
-            
-            return `
-                <a href="${href}"${activo}>
-                    <i class="fas ${icono} me-2"></i>${nombre}
-                </a>
-            `;
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // FUNCIONES DE LA TABLA Y CRUD DE MÓDULOS (TODO LO QUE YA FUNCIONABA)
-    // ═══════════════════════════════════════════════════════════════════════
-
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('🚀 DOMContentLoaded ejecutado');
-        
         modalInstance = new bootstrap.Modal(document.getElementById('moduloModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
-        
-        console.log('📌 Llamando a cargarModulos()...');
         cargarModulos();
-        
-        console.log('📌 Llamando a cargarMenuNavbar()...');
-        cargarMenuNavbar();
-        
         document.getElementById('filtrarBtn').addEventListener('click', filtrar);
         document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') filtrar(); });
         document.getElementById('limpiarBtn').addEventListener('click', () => {
@@ -895,8 +795,6 @@
                 modalInstance.hide();
                 mostrarToast(esNuevo ? 'Módulo creado correctamente' : 'Módulo actualizado correctamente', 'success');
                 cargarModulos();
-                cargarMenuNavbar(); // Recargar el menú del navbar
-                cancelarNuevoPadre();
             } else {
                 mostrarToast('Error: ' + data.message, 'error');
             }
@@ -916,11 +814,7 @@
         fetch(`/api/modulos/${moduloIdEliminar}`,{method:'DELETE'})
             .then(r=>r.json()).then(data=>{
                 eliminarModalInstance.hide();
-                if(data.success){
-                    mostrarToast('Módulo eliminado','success');
-                    cargarModulos();
-                    cargarMenuNavbar(); // Recargar el menú del navbar
-                }
+                if(data.success){mostrarToast('Módulo eliminado','success');cargarModulos();}
                 else mostrarToast('Error: '+data.message,'error');
             }).catch(()=>mostrarToast('Error al eliminar','error'));
     }

@@ -1,16 +1,17 @@
+// sliderbar.js - Menú jerárquico dinámico
 class SidebarManager {
     constructor(){
-        this.sidebarId = 'navMenu';
+        this.navMenuSelector = '.topnav-menu';
         this.dropdownId = 'navModulosDropdown';
         this.navItemId = 'navModulosItem';
     }
 
-   async inicializar(){
+    async inicializar(){
         try{
             const menuData = await this.cargarMenu();
             this.renderizarMenu(menuData);
         }catch(error){
-            console.error('Error al cargar el Menu :', error);
+            console.error('Error al cargar el Menu:', error);
             this.mostrarError();
         }
     }
@@ -20,37 +21,102 @@ class SidebarManager {
         const data = await response.json();
 
         if (!data.success) {
-            throw new Error(data.menssage || 'Error al cargar menú');
+            throw new Error(data.message || 'Error al cargar menú');
         }
 
         return data.data || [];
     }
 
     renderizarMenu(modulos){
-        const navMenu = document.getElementById(this.sidebarId);
-        const navItem = document.getElementById(this.navItemId);
-        const dropdown = document.getElementById(this.dropdownId);
+        const navMenu = document.querySelector(this.navMenuSelector);
+        let navItem = document.getElementById(this.navItemId);
+        let dropdown = document.getElementById(this.dropdownId);
 
-        if(!navMenu || !navItem || !dropdown) return;
+        if (!navMenu) {
+            console.error('❌ NavMenu no encontrado');
+            return;
+        }
+        
+        // Si no existe el item de Módulos, crearlo
+        if (!navItem) {
+            navItem = document.createElement('li');
+            navItem.id = this.navItemId;
+            navItem.style.display = 'none';
+            navItem.innerHTML = `
+                <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
+                <div class="dropdown-nav" id="${this.dropdownId}"></div>
+            `;
+        }
+        
+        dropdown = navItem.querySelector('.dropdown-nav');
         
         if (!modulos || modulos.length === 0) {
             navItem.style.display = 'none';
             return;
         }
 
+        // Guardar el elemento "Inicio"
+        const inicioItem = navMenu.querySelector('li:first-child');
+        
+        // Limpiar el menú
+        navMenu.innerHTML = '';
+        
+        // Reagregar "Inicio"
+        navMenu.appendChild(inicioItem);
+        
         const paginaActual = window.location.pathname;
-        let html = '';
-
-        modulos.forEach(modulo => {
-            html += this.renderizarModulo(modulo, paginaActual);
+        
+        // Separar módulos: con ruta (directos) vs carpetas/sin ruta (dropdown)
+        const modulosDirectos = [];
+        const modulosDropdown = [];
+        
+        modulos.forEach(m => {
+            // Un módulo va al dropdown si: no tiene ruta O tiene hijos
+            if (!m.ruta || m.ruta === '' || (m.hijos && m.hijos.length > 0)) {
+                modulosDropdown.push(m);
+            } else {
+                modulosDirectos.push(m);
+            }
         });
-
-        dropdown.innerHTML = html;
-        navItem.style.display = 'flex';
-
-        //Marcamos item activo en el menu Principal
+        
+        console.log('📊 Módulos directos:', modulosDirectos.length, '| En dropdown:', modulosDropdown.length);
+        
+        // Agregar módulos directos al navbar
+        modulosDirectos.forEach(modulo => {
+            const li = document.createElement('li');
+            const href = modulo.ruta || '#';
+            const activo = paginaActual === href ? ' class="active"' : '';
+            const icono = modulo.icono || 'fa-circle';
+            const nombre = modulo.nombreMostrar || modulo.nombre;
+            
+            li.innerHTML = `
+                <a href="${href}"${activo}>
+                    <i class="fas ${icono} me-2"></i>${nombre}
+                </a>
+            `;
+            navMenu.appendChild(li);
+        });
+        
+        // Agregar módulos al dropdown "Módulos"
+        if (modulosDropdown.length > 0) {
+            let html = '';
+            modulosDropdown.forEach(modulo => {
+                html += this.renderizarModulo(modulo, paginaActual);
+            });
+            dropdown.innerHTML = html;
+            navMenu.appendChild(navItem);
+            navItem.style.display = 'flex';
+            console.log('✅ Dropdown renderizado con', modulosDropdown.length, 'elementos');
+        } else {
+            navItem.style.display = 'none';
+        }
+        
+        // Marcar ítem activo
         this.marcarActivo(paginaActual);
+        
+        console.log('✅ Menú completo:', modulosDirectos.length, 'directos,', modulosDropdown.length, 'en dropdown');
     }
+
     renderizarModulo(modulo, paginaActual) {
         const tieneHijos = modulo.hijos && modulo.hijos.length > 0;
         const icono = modulo.icono || 'fa-circle';
@@ -87,7 +153,7 @@ class SidebarManager {
                 </div>
             `;
         } else {
-            // Módulo simple
+            // Módulo simple (carpeta sin hijos)
             const href = modulo.ruta || '#';
             const activo = paginaActual === href ? ' active-page' : '';
             
@@ -100,7 +166,6 @@ class SidebarManager {
     }
 
     marcarActivo(paginaActual) {
-        // Marcar enlaces activos en el navbar principal
         document.querySelectorAll('.topnav-menu > li > a').forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('href') === paginaActual) {
