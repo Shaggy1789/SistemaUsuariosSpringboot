@@ -527,7 +527,7 @@
         });
         
         document.getElementById('nombreMostrar').addEventListener('input', function() {
-            const nombreSistema = this.value.trim().toUpperCase().replace(/\s+/g, '_');
+            const nombreSistema = this.value.trim().toUpperCase().replace(/\s+/g, '.');
             document.getElementById('nombre').value = nombreSistema;
         });
     });
