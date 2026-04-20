@@ -752,7 +752,6 @@ table.permisos-table tbody td:first-child {
 
     // ── INIT ─────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
-        cargarNavModulos();
         cargarPerfiles();
         cargarTiposPermiso();
 
@@ -761,11 +760,7 @@ table.permisos-table tbody td:first-child {
             if (e.key === 'Enter') cargarPermisos();
         });
     });
- function cargarNavModulos() {
-    const script = document.createElement('script');
-    script.src = '/js/sliderbar.js';
-    document.head.appendChild(script);
-}
+
 
     // ── CARGAR PERFILES ───────────────────────────────────────
     function cargarPerfiles() {

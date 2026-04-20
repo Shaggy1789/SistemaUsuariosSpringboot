@@ -20,40 +20,88 @@ public class MenuService {
     @Autowired
     private HttpSession httpSession;
 
-
     public List<Modulos> construirMenuUsuario() {
         Usuarios usuario = (Usuarios) httpSession.getAttribute("usuario");
 
-        System.out.println("=== MenuService.construirMenuUsuario ===");
-        System.out.println("Usuario: " + (usuario != null ? usuario.getUsuario() : "null"));
-
         if (usuario == null || usuario.getPerfil() == null) {
-            System.out.println("Usuario o perfil null, retornando vacío");
             return new ArrayList<>();
         }
 
-        System.out.println("Perfil ID: " + usuario.getPerfil().getId());
+        List<Modulos> modulosConPermiso;
 
-        // Obtener todos los módulos con permiso CONSULTAR
-        List<Modulos> modulosConPermiso = modulosRepository
-                .findModulosConPermisoConsulta(usuario.getPerfil().getId());
+        // Si es ADMIN, obtener TODOS los módulos
+        if (esAdmin(usuario)) {
+            modulosConPermiso = modulosRepository.findAll();  // Todos los módulos
+        } else {
+            modulosConPermiso = modulosRepository
+                    .findModulosConPermisoConsulta(usuario.getPerfil().getId());
+        }
 
-        System.out.println("Módulos encontrados: " + modulosConPermiso.size());
+        return construirArbol(modulosConPermiso);
+    }
 
-        // Filtrar solo los padres (módulos sin padre)
-        List<Modulos> menuArbol = new ArrayList<>();
-        for (Modulos modulo : modulosConPermiso) {
-            if (modulo.getPadre() == null) {
-                menuArbol.add(modulo);
+    private boolean esAdmin(Usuarios u) {
+        return u.getPerfil() != null &&
+                (u.getPerfil().getNombre().equalsIgnoreCase("ADMIN") ||
+                        u.getPerfil().getNombre().equalsIgnoreCase("ADMINISTRADOR"));
+    }
+
+    private List<Modulos> construirArbol(List<Modulos> modulos) {
+        Map<UUID, Modulos> mapa = new HashMap<>();
+        List<Modulos> raices = new ArrayList<>();
+
+        // Primera pasada: mapear todos los módulos por ID
+        for (Modulos m : modulos) {
+            mapa.put(m.getId(), m);
+            // Inicializar lista de hijos
+            m.setHijos(new ArrayList<>());
+        }
+
+        // Segunda pasada: construir jerarquía basada en padre_id (NO en el objeto padre)
+        for (Modulos m : modulos) {
+            // Verificar si tiene padre_id en la base de datos
+            UUID padreId = obtenerPadreIdReal(m);
+
+            if (padreId == null) {
+                // Es un módulo raíz
+                raices.add(m);
+                System.out.println("📁 Raíz: " + m.getNombreMostrar());
+            } else {
+                // Es un hijo, buscar su padre en el mapa
+                Modulos padre = mapa.get(padreId);
+                if (padre != null) {
+                    padre.getHijos().add(m);
+                    System.out.println("   └─ Hijo: " + m.getNombreMostrar() + " -> Padre: " + padre.getNombreMostrar());
+                } else {
+                    // Si el padre no está en la lista de módulos con permiso, tratarlo como raíz
+                    raices.add(m);
+                    System.out.println("⚠️ Padre no encontrado para: " + m.getNombreMostrar() + ", tratando como raíz");
+                }
             }
         }
 
-        System.out.println("Módulos padre: " + menuArbol.size());
+        // Ordenar raíces y hijos
+        raices.sort(Comparator.comparing(Modulos::getOrden, Comparator.nullsLast(Comparator.naturalOrder())));
+        for (Modulos raiz : raices) {
+            raiz.getHijos().sort(Comparator.comparing(Modulos::getOrden, Comparator.nullsLast(Comparator.naturalOrder())));
+        }
 
-        // Ordenar por el campo 'orden'
-        menuArbol.sort(Comparator.comparing(Modulos::getOrden,
-                Comparator.nullsLast(Comparator.naturalOrder())));
+        return raices;
+    }
 
-        return menuArbol;
+    /**
+     * Obtiene el padre_id real desde la base de datos, evitando proxies de Hibernate
+     */
+    private UUID obtenerPadreIdReal(Modulos modulo) {
+        // Intentar obtener el ID del objeto padre
+        if (modulo.getPadre() != null) {
+            try {
+                return modulo.getPadre().getId();
+            } catch (Exception e) {
+                // Si falla por lazy loading, retornar null
+                return null;
+            }
+        }
+        return null;
     }
 }

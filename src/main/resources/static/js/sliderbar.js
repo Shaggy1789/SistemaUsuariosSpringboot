@@ -66,13 +66,19 @@ class SidebarManager {
         
         const paginaActual = window.location.pathname;
         
-        // Separar módulos: con ruta (directos) vs carpetas/sin ruta (dropdown)
+        // ═══════════════════════════════════════════════════════════════
+        // LISTA DE MÓDULOS QUE DEBEN IR AL DROPDOWN (los demás van directo)
+        // ═══════════════════════════════════════════════════════════════
+        const nombresDropdown = ['CONFIGURACIÓN', 'CONFIGURACION', 'PERFIL', 'PERMISOS', 'PERMISOS PERFIL', 'USUARIOS'];
+        
         const modulosDirectos = [];
         const modulosDropdown = [];
         
         modulos.forEach(m => {
-            // Un módulo va al dropdown si: no tiene ruta O tiene hijos
-            if (!m.ruta || m.ruta === '' || (m.hijos && m.hijos.length > 0)) {
+            const nombreUpper = (m.nombreMostrar || m.nombre || '').toUpperCase();
+            const debeIrAlDropdown = nombresDropdown.includes(nombreUpper) || (m.hijos && m.hijos.length > 0);
+            
+            if (debeIrAlDropdown) {
                 modulosDropdown.push(m);
             } else {
                 modulosDirectos.push(m);
@@ -80,8 +86,10 @@ class SidebarManager {
         });
         
         console.log('📊 Módulos directos:', modulosDirectos.length, '| En dropdown:', modulosDropdown.length);
+        console.log('📋 Directos:', modulosDirectos.map(m => m.nombreMostrar));
+        console.log('📁 Dropdown:', modulosDropdown.map(m => m.nombreMostrar));
         
-        // Agregar módulos directos al navbar
+        // Agregar módulos directos al navbar (ej: prueba)
         modulosDirectos.forEach(modulo => {
             const li = document.createElement('li');
             const href = modulo.ruta || '#';
@@ -113,8 +121,6 @@ class SidebarManager {
         
         // Marcar ítem activo
         this.marcarActivo(paginaActual);
-        
-        console.log('✅ Menú completo:', modulosDirectos.length, 'directos,', modulosDropdown.length, 'en dropdown');
     }
 
     renderizarModulo(modulo, paginaActual) {
@@ -123,7 +129,6 @@ class SidebarManager {
         const nombre = modulo.nombreMostrar || modulo.nombre;
         
         if (tieneHijos) {
-            // Módulo con submenú
             let submenuHtml = '';
             modulo.hijos.forEach(hijo => {
                 const hrefHijo = hijo.ruta || '#';
@@ -153,7 +158,6 @@ class SidebarManager {
                 </div>
             `;
         } else {
-            // Módulo simple (carpeta sin hijos)
             const href = modulo.ruta || '#';
             const activo = paginaActual === href ? ' active-page' : '';
             

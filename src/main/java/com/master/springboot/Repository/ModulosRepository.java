@@ -19,6 +19,7 @@ public interface ModulosRepository extends JpaRepository<Modulos, UUID> {
 
     // Query SIMPLIFICADA - sin CASE WHEN
     @Query("SELECT DISTINCT m FROM Modulos m " +
+            "LEFT JOIN FETCH m.padre " +
             "WHERE EXISTS (SELECT 1 FROM PerfilPermisos pp " +
             "            WHERE pp.modulo.id = m.id " +
             "            AND pp.perfil.id = :perfilId " +

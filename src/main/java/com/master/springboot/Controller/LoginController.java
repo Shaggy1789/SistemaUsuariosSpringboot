@@ -42,16 +42,16 @@ public class LoginController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        // 2. Buscar usuario en BD (tabla usuarios, campo "usuario")
+        // 2. Buscar usuario en BD
         List<Usuarios> usuarios = serviceUsuarios.findAll();
 
         for (Usuarios u : usuarios) {
             if (u.getUsuario().equals(usuario)) {
 
-                // 3. Validar estado
-                if (!"ACTIVO".equalsIgnoreCase(u.getEstado())) {
+                // 3. ✅ VALIDAR ESTADO - SOLO USUARIOS ACTIVOS
+                if (u.getEstado() == null || !"ACTIVO".equalsIgnoreCase(u.getEstado())) {
                     response.put("success", false);
-                    response.put("message", "Tu cuenta está inactiva. Contacta al administrador.");
+                    response.put("message", "Tu cuenta está INACTIVA. Contacta al administrador.");
                     response.put("error", "inactivo");
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
                 }
@@ -60,13 +60,15 @@ public class LoginController {
                 String hashedPassword = md5(password);
                 if (u.getPassword() != null && u.getPassword().equals(hashedPassword)) {
 
-                    // 5. Guardar sesión
+                    // 5. ✅ Guardar sesión SOLO si está ACTIVO
                     session.setAttribute("usuario", u);
+                    session.setMaxInactiveInterval(1800); // 30 minutos
 
                     // 6. Construir respuesta
                     Map<String, Object> datosUsuario = new HashMap<>();
                     datosUsuario.put("id", u.getId().toString());
                     datosUsuario.put("usuario", u.getUsuario());
+                    datosUsuario.put("estado", u.getEstado());
                     if (u.getPerfil() != null) {
                         datosUsuario.put("perfilId", u.getPerfil().getId().toString());
                         datosUsuario.put("perfilNombre", u.getPerfil().getNombre());
@@ -80,18 +82,18 @@ public class LoginController {
 
                 } else {
                     response.put("success", false);
-                    response.put("message", "Contraseña incorrecta. Verifica tus credenciales.");
+                    response.put("message", "Contraseña incorrecta.");
                     response.put("error", "password");
-                    return ResponseEntity.badRequest().body(response);
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
                 }
             }
         }
 
         // Usuario no encontrado
         response.put("success", false);
-        response.put("message", "El usuario no existe. Verifica tus credenciales.");
+        response.put("message", "El usuario no existe.");
         response.put("error", "usuario");
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     // ── POST /api/logout ──────────────────────────────────────

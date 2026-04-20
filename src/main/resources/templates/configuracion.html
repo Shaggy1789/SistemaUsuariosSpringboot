@@ -686,123 +686,153 @@
         icon.className=`fas ${val}`;
     }
 
-    function abrirModalNuevo(){
-        document.getElementById('modalTitleText').textContent = 'Nuevo Módulo';
-        document.getElementById('btnGuardarText').textContent = 'Crear Módulo';
-        document.getElementById('moduloForm').reset();
-        document.getElementById('moduloId').value = '';
-        document.getElementById('orden').value = '0';
-        document.getElementById('iconoPreviewIcon').className = 'fas fa-puzzle-piece';
-        
-        cancelarNuevoPadre();
-        cargarPadresEnSelect();
-        limpiarValidaciones();
-        modalInstance.show();
-    }
+  function abrirModalNuevo(){
+    document.getElementById('modalTitleText').textContent = 'Nuevo Módulo';
+    document.getElementById('btnGuardarText').textContent = 'Crear Módulo';
+    document.getElementById('moduloForm').reset();
+    document.getElementById('moduloId').value = '';
+    document.getElementById('orden').value = '0';
+    document.getElementById('padreInput').value = '';  
+    document.getElementById('iconoPreviewIcon').className = 'fas fa-puzzle-piece';
+    
+    limpiarValidaciones();
+    modalInstance.show();
+}
 
     function abrirModalEditar(id){
-        const m = allModulos.find(x => x.id === id);
-        if (!m) return;
-        
-        document.getElementById('modalTitleText').textContent = 'Editar Módulo';
-        document.getElementById('btnGuardarText').textContent = 'Actualizar Módulo';
-        document.getElementById('moduloId').value = m.id;
-        document.getElementById('nombreMostrar').value = m.nombreMostrar || '';
-        document.getElementById('nombre').value = m.nombre || '';
-        document.getElementById('ruta').value = m.ruta || '';
-        document.getElementById('icono').value = m.icono || '';
-        document.getElementById('orden').value = m.orden ?? 0;
-        document.getElementById('iconoPreviewIcon').className = `fas ${m.icono || 'fa-puzzle-piece'}`;
-        
-        cancelarNuevoPadre();
-        cargarPadresEnSelect();
-        
-        if (m.padre && m.padre.id) {
-            document.getElementById('padreId').value = m.padre.id;
-        } else {
-            document.getElementById('padreId').value = '';
-        }
-        
-        limpiarValidaciones();
-        modalInstance.show();
+    const m = allModulos.find(x => x.id === id);
+    if (!m) return;
+    
+    document.getElementById('modalTitleText').textContent = 'Editar Módulo';
+    document.getElementById('btnGuardarText').textContent = 'Actualizar Módulo';
+    document.getElementById('moduloId').value = m.id;
+    document.getElementById('nombreMostrar').value = m.nombreMostrar || '';
+    document.getElementById('nombre').value = m.nombre || '';
+    document.getElementById('ruta').value = m.ruta || '';
+    document.getElementById('icono').value = m.icono || '';
+    document.getElementById('orden').value = m.orden ?? 0;
+    document.getElementById('iconoPreviewIcon').className = `fas ${m.icono || 'fa-puzzle-piece'}`;
+    
+    // Mostrar el nombre del padre en el input
+    if (m.padre && m.padre.nombreMostrar) {
+        document.getElementById('padreInput').value = m.padre.nombreMostrar;
+    } else {
+        document.getElementById('padreInput').value = '';
     }
+    
+    limpiarValidaciones();
+    modalInstance.show();
+}
 
-    async function guardarModulo(){
-        const id           = document.getElementById('moduloId').value;
-        const nombreMostrar = document.getElementById('nombreMostrar').value.trim();
-        const ruta         = document.getElementById('ruta').value.trim();
-        const icono        = document.getElementById('icono').value.trim();
-        const orden        = parseInt(document.getElementById('orden').value) || 0;
-        
-        limpiarValidaciones();
+   async function guardarModulo(){
+    const id           = document.getElementById('moduloId').value;
+    const nombreMostrar = document.getElementById('nombreMostrar').value.trim();
+    const ruta         = document.getElementById('ruta').value.trim();
+    const icono        = document.getElementById('icono').value.trim();
+    const orden        = parseInt(document.getElementById('orden').value) || 0;
+    const padreNombre  = document.getElementById('padreInput').value.trim();
+    
+    limpiarValidaciones();
 
-        let ok = true;
-        if (!nombreMostrar) {
-            document.getElementById('nombreMostrarError').textContent = 'El nombre es obligatorio';
-            document.getElementById('nombreMostrar').classList.add('is-invalid');
-            ok = false;
-        }
-        if (!ok) return;
+    let ok = true;
+    if (!nombreMostrar) {
+        document.getElementById('nombreMostrarError').textContent = 'El nombre es obligatorio';
+        document.getElementById('nombreMostrar').classList.add('is-invalid');
+        ok = false;
+    }
+    if (!ok) return;
 
-        const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
-        document.getElementById('nombre').value = nombreSistema;
+    const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
+    document.getElementById('nombre').value = nombreSistema;
 
-        let padreId = null;
-        const creandoNuevoPadre = document.getElementById('padreNuevoContainer').style.display === 'block';
-        
-        if (creandoNuevoPadre) {
-            const nuevoPadreNombre = document.getElementById('nuevoPadreInput').value.trim();
-            if (nuevoPadreNombre) {
-                try {
-                    const padreCreado = await crearModuloPadre(nuevoPadreNombre);
-                    padreId = padreCreado.id;
-                    mostrarToast('Menú padre creado correctamente', 'success');
-                } catch (error) {
-                    document.getElementById('nuevoPadreError').textContent = 'Error al crear el menú padre';
-                    document.getElementById('nuevoPadreInput').classList.add('is-invalid');
-                    return;
-                }
-            }
-        } else {
-            padreId = document.getElementById('padreId').value;
-        }
-
-        const esNuevo = !id;
-        const url = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
-        const method = esNuevo ? 'POST' : 'PUT';
-        
-        const payload = { 
-            nombre: nombreSistema,
-            nombreMostrar, 
-            ruta, 
-            icono: icono || 'fa-puzzle-piece', 
-            orden 
-        };
-        
-        if (padreId) {
-            payload.padre = { id: padreId };
-        }
-
+    let padreId = null;
+    
+    // ═══════════════════════════════════════════════════════════════
+    // LÓGICA: Si se escribió un padre, buscarlo o crearlo
+    // ═══════════════════════════════════════════════════════════════
+    if (padreNombre) {
         try {
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            // Buscar si el padre ya existe
+            const response = await fetch('/api/modulos');
             const data = await response.json();
+            const modulos = data.data || [];
             
-            if (data.success) {
-                modalInstance.hide();
-                mostrarToast(esNuevo ? 'Módulo creado correctamente' : 'Módulo actualizado correctamente', 'success');
-                cargarModulos();
+            let padreExistente = modulos.find(m => 
+                m.nombreMostrar?.toUpperCase() === padreNombre.toUpperCase() ||
+                m.nombre?.toUpperCase() === padreNombre.toUpperCase()
+            );
+            
+            if (padreExistente) {
+                padreId = padreExistente.id;
+                mostrarToast(`Menú padre "${padreNombre}" encontrado`, 'success');
             } else {
-                mostrarToast('Error: ' + data.message, 'error');
+                // Crear el padre automáticamente
+                const padreCreado = await crearModuloPadre(padreNombre);
+                padreId = padreCreado.id;
+                mostrarToast(`Menú padre "${padreNombre}" creado automáticamente`, 'success');
             }
         } catch (error) {
-            mostrarToast('Error al guardar', 'error');
+            document.getElementById('padreError').textContent = 'Error al procesar el menú padre';
+            document.getElementById('padreInput').classList.add('is-invalid');
+            return;
         }
     }
 
+    const esNuevo = !id;
+    const url = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
+    const method = esNuevo ? 'POST' : 'PUT';
+    
+    const payload = { 
+        nombre: nombreSistema,
+        nombreMostrar, 
+        ruta, 
+        icono: icono || 'fa-puzzle-piece', 
+        orden 
+    };
+    
+    if (padreId) {
+        payload.padre = { id: padreId };
+    }
+
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            modalInstance.hide();
+            mostrarToast(esNuevo ? 'Módulo creado correctamente' : 'Módulo actualizado correctamente', 'success');
+            cargarModulos();
+        } else {
+            mostrarToast('Error: ' + data.message, 'error');
+        }
+    } catch (error) {
+        mostrarToast('Error al guardar', 'error');
+    }
+}
+async function crearModuloPadre(nombreMostrar) {
+    const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
+    
+    const response = await fetch('/api/modulos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            nombre: nombreSistema,
+            nombreMostrar: nombreMostrar,
+            ruta: '',
+            icono: 'fa-folder',
+            orden: 0
+        })
+    });
+    
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || 'Error al crear padre');
+    
+    return data.data;
+}
     function abrirModalEliminar(id,nombre){
         moduloIdEliminar=id;
         document.getElementById('moduloAEliminar').textContent=nombre;
