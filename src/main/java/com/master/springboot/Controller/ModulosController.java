@@ -68,6 +68,7 @@ public class ModulosController {
     }
 
     // ── POST /api/modulos ─────────────────────────────────────
+    // ── POST /api/modulos ─────────────────────────────────────
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody Modulos modulo) {
         try {
@@ -82,17 +83,39 @@ public class ModulosController {
                 return error("Ya existe un módulo con ese nombre", HttpStatus.CONFLICT);
 
             modulo.setId(null);
-            modulo.setNombre(modulo.getNombre().trim().toUpperCase());
+            String nombreOriginal = modulo.getNombre().trim().toUpperCase();
+            modulo.setNombre(nombreOriginal);
             if (modulo.getOrden() == null) modulo.setOrden(0);
 
-            // Si viene padreId, buscar el padre y asignarlo
-            if (modulo.getPadre() != null && modulo.getPadre().getId() != null) {
-                Modulos padre = serviceModulos.findById(modulo.getPadre().getId());
-                if (padre == null) {
-                    return error("El módulo padre no existe", HttpStatus.BAD_REQUEST);
+            // ═══════════════════════════════════════════════════════════════
+            // DETECCIÓN AUTOMÁTICA DEL PADRE POR NOMBRE (formato: padre.hijo)
+            // ═══════════════════════════════════════════════════════════════
+
+            // Si el nombre contiene un punto, buscar/crear el padre
+            if (nombreOriginal.contains(".")) {
+                String nombrePadre = nombreOriginal.substring(0, nombreOriginal.indexOf('.'));
+
+                // Buscar si el padre ya existe
+                Optional<Modulos> padreOpt = serviceModulos.findByNombre(nombrePadre);
+
+                if (padreOpt.isPresent()) {
+                    modulo.setPadre(padreOpt.get());
+                    System.out.println("✅ Padre encontrado: " + nombrePadre + " -> " + nombreOriginal);
+                } else {
+                    // Crear el padre automáticamente
+                    Modulos nuevoPadre = new Modulos();
+                    nuevoPadre.setNombre(nombrePadre);
+                    nuevoPadre.setNombreMostrar(nombrePadre);
+                    nuevoPadre.setIcono("fa-folder");
+                    nuevoPadre.setRuta("");  // Sin ruta = carpeta
+                    nuevoPadre.setOrden(0);
+
+                    Modulos padreGuardado = serviceModulos.save(nuevoPadre);
+                    modulo.setPadre(padreGuardado);
+                    System.out.println("📁 Padre creado automáticamente: " + nombrePadre + " -> " + nombreOriginal);
                 }
-                modulo.setPadre(padre);
             }
+            // Si NO se especificó padre manualmente y no tiene punto, queda como raíz (padre = null)
 
             Modulos guardado = serviceModulos.save(modulo);
 
@@ -108,7 +131,6 @@ public class ModulosController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     // ── PUT /api/modulos/{id} ─────────────────────────────────
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable UUID id,
@@ -124,15 +146,54 @@ public class ModulosController {
             if (datos.getNombreMostrar() == null || datos.getNombreMostrar().isBlank())
                 return error("El campo 'nombreMostrar' es obligatorio", HttpStatus.BAD_REQUEST);
 
+            String nuevoNombre = datos.getNombre().trim().toUpperCase();
+
             // Nombre único (excluyendo el actual)
-            if (serviceModulos.existsByNombreAndIdNot(datos.getNombre().trim().toUpperCase(), id))
+            if (serviceModulos.existsByNombreAndIdNot(nuevoNombre, id))
                 return error("Ya existe otro módulo con ese nombre", HttpStatus.CONFLICT);
 
-            existente.setNombre(datos.getNombre().trim().toUpperCase());
+            existente.setNombre(nuevoNombre);
             existente.setNombreMostrar(datos.getNombreMostrar().trim());
             existente.setIcono(datos.getIcono());
             existente.setRuta(datos.getRuta());
             if (datos.getOrden() != null) existente.setOrden(datos.getOrden());
+
+            // ═══════════════════════════════════════════════════════════════
+            // DETECCIÓN AUTOMÁTICA DEL PADRE POR NOMBRE (formato: padre.hijo)
+            // ═══════════════════════════════════════════════════════════════
+
+            // Si el nombre contiene un punto, buscar/crear el padre
+            if (nuevoNombre.contains(".")) {
+                String nombrePadre = nuevoNombre.substring(0, nuevoNombre.indexOf('.'));
+
+                // Evitar que un módulo sea padre de sí mismo
+                if (nombrePadre.equalsIgnoreCase(existente.getNombre())) {
+                    return error("Un módulo no puede ser padre de sí mismo", HttpStatus.BAD_REQUEST);
+                }
+
+                // Buscar si el padre ya existe
+                Optional<Modulos> padreOpt = serviceModulos.findByNombre(nombrePadre);
+
+                if (padreOpt.isPresent()) {
+                    existente.setPadre(padreOpt.get());
+                    System.out.println("✅ Padre encontrado: " + nombrePadre + " -> " + nuevoNombre);
+                } else {
+                    // Crear el padre automáticamente
+                    Modulos nuevoPadre = new Modulos();
+                    nuevoPadre.setNombre(nombrePadre);
+                    nuevoPadre.setNombreMostrar(nombrePadre);
+                    nuevoPadre.setIcono("fa-folder");
+                    nuevoPadre.setRuta("");  // Sin ruta = carpeta
+                    nuevoPadre.setOrden(0);
+
+                    Modulos padreGuardado = serviceModulos.save(nuevoPadre);
+                    existente.setPadre(padreGuardado);
+                    System.out.println("📁 Padre creado automáticamente: " + nombrePadre + " -> " + nuevoNombre);
+                }
+            } else {
+
+                 existente.setPadre(null);
+            }
 
             Modulos actualizado = serviceModulos.save(existente);
 
@@ -145,7 +206,7 @@ public class ModulosController {
         } catch (Exception e) {
             e.printStackTrace();
             return error("Error al actualizar módulo: " + e.getMessage(),
-                         HttpStatus.INTERNAL_SERVER_ERROR);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
