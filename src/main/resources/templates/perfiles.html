@@ -463,7 +463,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         modalInstance         = new bootstrap.Modal(document.getElementById('perfilModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
-        cargarNavModulos();
         cargarPerfiles();
         document.getElementById('filtrarBtn').addEventListener('click', filtrar);
         document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') filtrar(); });
