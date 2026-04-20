@@ -1,0 +1,7 @@
+/* Para botones que se ocultan por permisos */
+.btn-nuevo[style*="display: none"],
+.btn-add[style*="display: none"],
+.btn-edit[style*="display: none"],
+.btn-del[style*="display: none"] {
+    display: none !important;
+}
