@@ -1,4 +1,4 @@
-// sliderbar.js - Menú jerárquico dinámico
+// sliderbar.js - Menú jerárquico dinámico con ordenamiento automático
 class SidebarManager {
     constructor(){
         this.navMenuSelector = '.topnav-menu';
@@ -67,7 +67,35 @@ class SidebarManager {
         const paginaActual = window.location.pathname;
         
         // ═══════════════════════════════════════════════════════════════
-        // LISTA DE MÓDULOS QUE DEBEN IR AL DROPDOWN (los demás van directo)
+        // ORDENAR MÓDULOS AUTOMÁTICAMENTE
+        // ═══════════════════════════════════════════════════════════════
+        
+        // Función para ordenar por 'orden' y luego por 'nombre'
+        const ordenarModulos = (lista) => {
+            return lista.sort((a, b) => {
+                const ordenA = a.orden ?? 999;
+                const ordenB = b.orden ?? 999;
+                
+                if (ordenA !== ordenB) {
+                    return ordenA - ordenB;
+                }
+                
+                // Si tienen el mismo orden, ordenar por nombre
+                const nombreA = (a.nombreMostrar || a.nombre || '').toLowerCase();
+                const nombreB = (b.nombreMostrar || b.nombre || '').toLowerCase();
+                return nombreA.localeCompare(nombreB);
+            });
+        };
+        
+        // Ordenar los hijos de cada módulo
+        modulos.forEach(m => {
+            if (m.hijos && m.hijos.length > 0) {
+                m.hijos = ordenarModulos(m.hijos);
+            }
+        });
+        
+        // ═══════════════════════════════════════════════════════════════
+        // LISTA DE MÓDULOS QUE DEBEN IR AL DROPDOWN
         // ═══════════════════════════════════════════════════════════════
         const nombresDropdown = ['CONFIGURACIÓN', 'CONFIGURACION', 'PERFIL', 'PERMISOS', 'PERMISOS PERFIL', 'USUARIOS'];
         
@@ -85,12 +113,16 @@ class SidebarManager {
             }
         });
         
-        console.log('📊 Módulos directos:', modulosDirectos.length, '| En dropdown:', modulosDropdown.length);
-        console.log('📋 Directos:', modulosDirectos.map(m => m.nombreMostrar));
-        console.log('📁 Dropdown:', modulosDropdown.map(m => m.nombreMostrar));
+        // ORDENAR ambos grupos
+        const directosOrdenados = ordenarModulos(modulosDirectos);
+        const dropdownOrdenados = ordenarModulos(modulosDropdown);
         
-        // Agregar módulos directos al navbar (ej: prueba)
-        modulosDirectos.forEach(modulo => {
+        console.log('📊 Módulos directos:', directosOrdenados.length, '| En dropdown:', dropdownOrdenados.length);
+        console.log('📋 Directos:', directosOrdenados.map(m => m.nombreMostrar + ' (orden:' + (m.orden||0) + ')'));
+        console.log('📁 Dropdown:', dropdownOrdenados.map(m => m.nombreMostrar + ' (orden:' + (m.orden||0) + ')'));
+        
+        // Agregar módulos directos al navbar (ordenados)
+        directosOrdenados.forEach(modulo => {
             const li = document.createElement('li');
             const href = modulo.ruta || '#';
             const activo = paginaActual === href ? ' class="active"' : '';
@@ -105,16 +137,16 @@ class SidebarManager {
             navMenu.appendChild(li);
         });
         
-        // Agregar módulos al dropdown "Módulos"
-        if (modulosDropdown.length > 0) {
+        // Agregar módulos al dropdown "Módulos" (ordenados)
+        if (dropdownOrdenados.length > 0) {
             let html = '';
-            modulosDropdown.forEach(modulo => {
+            dropdownOrdenados.forEach(modulo => {
                 html += this.renderizarModulo(modulo, paginaActual);
             });
             dropdown.innerHTML = html;
             navMenu.appendChild(navItem);
             navItem.style.display = 'flex';
-            console.log('✅ Dropdown renderizado con', modulosDropdown.length, 'elementos');
+            console.log('✅ Dropdown renderizado con', dropdownOrdenados.length, 'elementos');
         } else {
             navItem.style.display = 'none';
         }
