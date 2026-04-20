@@ -27,3 +27,4 @@ public interface ModulosRepository extends JpaRepository<Modulos, UUID> {
             "ORDER BY m.orden ASC")
     List<Modulos> findModulosConPermisoConsulta(@Param("perfilId") UUID perfilId);
 }
+

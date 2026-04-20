@@ -203,9 +203,9 @@
             display: inline-flex; align-items: center; justify-content: center;
             color: var(--gold); font-size: 0.85rem; margin-right: 8px;
         }
-        .orden-badge {
+        .padre-badge {
             background: var(--black-5); border: 1px solid var(--border);
-            color: var(--text-muted); padding: 2px 10px; border-radius: 10px;
+            color: var(--gold-light); padding: 2px 10px; border-radius: 10px;
             font-size: 0.75rem; font-weight: 600;
         }
         .ruta-tag {
@@ -272,21 +272,14 @@
             font-size: 0.8rem; font-weight: 600; color: var(--text);
             margin-bottom: 6px; display: block;
         }
-        .modal-body .form-control, .modal-body .form-select {
+        .modal-body .form-control {
             background: var(--black-4); border: 1px solid rgba(201,168,76,0.15);
             border-radius: 8px; color: var(--text); font-size: 0.9rem; padding: 10px 12px;
         }
         .modal-body .form-control::placeholder { color: #555; }
-        .modal-body .form-control:focus, .modal-body .form-select:focus {
+        .modal-body .form-control:focus {
             border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
             background: var(--black-4); color: var(--text); outline: none;
-        }
-        .modal-body .form-select option { background: var(--black-4); }
-        .icon-preview {
-            width: 40px; height: 40px; border-radius: 8px;
-            background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold); font-size: 1.1rem; flex-shrink: 0;
         }
         .modal-header.danger { background: rgba(229,62,62,0.1); }
         .modal-header.danger .modal-title { color: #fc8181; }
@@ -308,10 +301,6 @@
     </a>
     <ul class="topnav-menu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
-        <li id="navModulosItem" style="display:none;">
-            <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
-            <div class="dropdown-nav" id="navModulosDropdown"></div>
-        </li>
     </ul>
     <div class="topnav-right">
         <div class="user-pill" th:if="${session.usuario != null}">
@@ -374,7 +363,7 @@
                         <th>Módulo</th>
                         <th>Nombre sistema</th>
                         <th>Ruta</th>
-                        <th>Orden</th>
+                        <th>Menú Padre</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
@@ -433,7 +422,6 @@
                     
                     <input type="hidden" id="nombre">
                     
-                    <!-- Menú Padre - Input de texto (ESCRIBIR, no seleccionar) -->
                     <div class="mb-3">
                         <label class="form-label">Menú Padre</label>
                         <input type="text" class="form-control" id="padreInput"
@@ -447,26 +435,6 @@
                         <input type="text" class="form-control" id="ruta"
                                placeholder="Ej: /usuarios" maxlength="100">
                         <p class="form-hint">URL de acceso al módulo. Si es una carpeta, déjala vacía.</p>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-8 mb-3">
-                            <label class="form-label">Ícono</label>
-                            <div style="display:flex;gap:8px;align-items:center;">
-                                <input type="text" class="form-control" id="icono"
-                                       placeholder="fa-users" maxlength="50"
-                                       oninput="actualizarPreviewIcono()">
-                                <div class="icon-preview" id="iconoPreview">
-                                    <i class="fas fa-puzzle-piece" id="iconoPreviewIcon"></i>
-                                </div>
-                            </div>
-                            <p class="form-hint">Ej: fa-users, fa-folder, fa-cogs</p>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <label class="form-label">Orden</label>
-                            <input type="number" class="form-control" id="orden"
-                                   placeholder="0" min="0" max="999" value="0">
-                        </div>
                     </div>
                 </form>
             </div>
@@ -604,6 +572,7 @@
         tbody.innerHTML=modulos.map((m, i)=>{
             const icono=m.icono||'fa-puzzle-piece';
             const ruta=m.ruta||'—';
+            const padreNombre = (m.padre && m.padre.nombreMostrar) ? m.padre.nombreMostrar : '—';
             
             return `<tr>
                 <td style="color:var(--text-muted);">${offset+i+1}</td>
@@ -613,7 +582,7 @@
                 </td>
                 <td style="font-family:monospace;font-size:0.8rem;color:var(--text-muted);">${m.nombre}</td>
                 <td>${ruta!=='—'?`<span class="ruta-tag">${ruta}</span>`:'<span style="color:#3a3a3a;">—</span>'}</td>
-                <td><span class="orden-badge">${m.orden??0}</span></td>
+                <td><span class="padre-badge">${padreNombre}</span></td>
                 <td><button class="btn-edit" onclick="abrirModalEditar('${m.id}')">
                     <i class="fas fa-pencil-alt"></i>
                 </button></td>
@@ -629,19 +598,11 @@
         if(n>=1&&n<=total){currentPage=n;mostrarPaginado();}
     }
 
-    function actualizarPreviewIcono(){
-        const val=document.getElementById('icono').value.trim()||'fa-puzzle-piece';
-        const icon=document.getElementById('iconoPreviewIcon');
-        icon.className=`fas ${val}`;
-    }
-
     function abrirModalNuevo(){
         document.getElementById('modalTitleText').textContent = 'Nuevo Módulo';
         document.getElementById('btnGuardarText').textContent = 'Crear Módulo';
         document.getElementById('moduloForm').reset();
         document.getElementById('moduloId').value = '';
-        document.getElementById('orden').value = '0';
-        document.getElementById('iconoPreviewIcon').className = 'fas fa-puzzle-piece';
         
         const padreInput = document.getElementById('padreInput');
         if (padreInput) padreInput.value = '';
@@ -660,9 +621,6 @@
         document.getElementById('nombreMostrar').value = m.nombreMostrar || '';
         document.getElementById('nombre').value = m.nombre || '';
         document.getElementById('ruta').value = m.ruta || '';
-        document.getElementById('icono').value = m.icono || '';
-        document.getElementById('orden').value = m.orden ?? 0;
-        document.getElementById('iconoPreviewIcon').className = `fas ${m.icono || 'fa-puzzle-piece'}`;
         
         const padreInput = document.getElementById('padreInput');
         if (padreInput) {
@@ -677,8 +635,6 @@
         const id           = document.getElementById('moduloId').value;
         const nombreMostrar = document.getElementById('nombreMostrar').value.trim();
         const ruta         = document.getElementById('ruta').value.trim();
-        const icono        = document.getElementById('icono').value.trim();
-        const orden        = parseInt(document.getElementById('orden').value) || 0;
         const padreNombre  = document.getElementById('padreInput')?.value.trim() || '';
         
         limpiarValidaciones();
@@ -730,8 +686,8 @@
             nombre: nombreSistema,
             nombreMostrar, 
             ruta, 
-            icono: icono || 'fa-puzzle-piece', 
-            orden 
+            icono: 'fa-folder',
+            orden: 0
         };
         
         if (padreId) {
