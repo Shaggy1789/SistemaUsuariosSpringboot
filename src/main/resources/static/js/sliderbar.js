@@ -1,4 +1,4 @@
-// sliderbar.js - Menú jerárquico dinámico con ordenamiento automático
+// sliderbar.js - Menú jerárquico dinámico (orden alfabético, ignora campo "orden")
 class SidebarManager {
     constructor(){
         this.navMenuSelector = '.topnav-menu';
@@ -37,7 +37,6 @@ class SidebarManager {
             return;
         }
         
-        // Si no existe el item de Módulos, crearlo
         if (!navItem) {
             navItem = document.createElement('li');
             navItem.id = this.navItemId;
@@ -55,48 +54,31 @@ class SidebarManager {
             return;
         }
 
-        // Guardar el elemento "Inicio"
         const inicioItem = navMenu.querySelector('li:first-child');
-        
-        // Limpiar el menú
         navMenu.innerHTML = '';
-        
-        // Reagregar "Inicio"
         navMenu.appendChild(inicioItem);
         
         const paginaActual = window.location.pathname;
         
         // ═══════════════════════════════════════════════════════════════
-        // ORDENAR MÓDULOS AUTOMÁTICAMENTE
+        // ORDENAR ALFABÉTICAMENTE (IGNORANDO EL CAMPO "orden")
         // ═══════════════════════════════════════════════════════════════
-        
-        // Función para ordenar por 'orden' y luego por 'nombre'
-        const ordenarModulos = (lista) => {
+        const ordenarAlfabeticamente = (lista) => {
             return lista.sort((a, b) => {
-                const ordenA = a.orden ?? 999;
-                const ordenB = b.orden ?? 999;
-                
-                if (ordenA !== ordenB) {
-                    return ordenA - ordenB;
-                }
-                
-                // Si tienen el mismo orden, ordenar por nombre
                 const nombreA = (a.nombreMostrar || a.nombre || '').toLowerCase();
                 const nombreB = (b.nombreMostrar || b.nombre || '').toLowerCase();
-                return nombreA.localeCompare(nombreB);
+                return nombreA.localeCompare(nombreB, 'es', { sensitivity: 'base' });
             });
         };
         
-        // Ordenar los hijos de cada módulo
+        // Ordenar hijos alfabéticamente
         modulos.forEach(m => {
             if (m.hijos && m.hijos.length > 0) {
-                m.hijos = ordenarModulos(m.hijos);
+                m.hijos = ordenarAlfabeticamente(m.hijos);
             }
         });
         
-        // ═══════════════════════════════════════════════════════════════
-        // LISTA DE MÓDULOS QUE DEBEN IR AL DROPDOWN
-        // ═══════════════════════════════════════════════════════════════
+        // Lista de módulos que van al dropdown
         const nombresDropdown = ['CONFIGURACIÓN', 'CONFIGURACION', 'PERFIL', 'PERMISOS', 'PERMISOS PERFIL', 'USUARIOS'];
         
         const modulosDirectos = [];
@@ -113,15 +95,15 @@ class SidebarManager {
             }
         });
         
-        // ORDENAR ambos grupos
-        const directosOrdenados = ordenarModulos(modulosDirectos);
-        const dropdownOrdenados = ordenarModulos(modulosDropdown);
+        // ORDENAR ALFABÉTICAMENTE ambos grupos
+        const directosOrdenados = ordenarAlfabeticamente(modulosDirectos);
+        const dropdownOrdenados = ordenarAlfabeticamente(modulosDropdown);
         
         console.log('📊 Módulos directos:', directosOrdenados.length, '| En dropdown:', dropdownOrdenados.length);
-        console.log('📋 Directos:', directosOrdenados.map(m => m.nombreMostrar + ' (orden:' + (m.orden||0) + ')'));
-        console.log('📁 Dropdown:', dropdownOrdenados.map(m => m.nombreMostrar + ' (orden:' + (m.orden||0) + ')'));
+        console.log('📋 Directos:', directosOrdenados.map(m => m.nombreMostrar));
+        console.log('📁 Dropdown:', dropdownOrdenados.map(m => m.nombreMostrar));
         
-        // Agregar módulos directos al navbar (ordenados)
+        // Agregar módulos directos al navbar
         directosOrdenados.forEach(modulo => {
             const li = document.createElement('li');
             const href = modulo.ruta || '#';
@@ -137,7 +119,7 @@ class SidebarManager {
             navMenu.appendChild(li);
         });
         
-        // Agregar módulos al dropdown "Módulos" (ordenados)
+        // Agregar módulos al dropdown
         if (dropdownOrdenados.length > 0) {
             let html = '';
             dropdownOrdenados.forEach(modulo => {
@@ -146,12 +128,10 @@ class SidebarManager {
             dropdown.innerHTML = html;
             navMenu.appendChild(navItem);
             navItem.style.display = 'flex';
-            console.log('✅ Dropdown renderizado con', dropdownOrdenados.length, 'elementos');
         } else {
             navItem.style.display = 'none';
         }
         
-        // Marcar ítem activo
         this.marcarActivo(paginaActual);
     }
 
@@ -218,7 +198,6 @@ class SidebarManager {
     }
 }
 
-// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = new SidebarManager();
     sidebar.inicializar();
