@@ -72,7 +72,7 @@ class SidebarManager {
             const li = document.createElement('li');
             li.id = this.navItemId;
             li.innerHTML = `
-                <span>Seguridad <i class="fas fa-chevron-down arrow"></i></span>
+                <span>Seguridad<i class="fas fa-chevron-down arrow"></i></span>
                 <div class="dropdown-nav" id="${this.dropdownId}">
                     <div class="dropdown-nav-group">
                         <a href="#"><i class="fas fa-folder me-2"></i>Administración<i class="fas fa-chevron-right ms-auto" style="font-size:0.7rem;"></i></a>
