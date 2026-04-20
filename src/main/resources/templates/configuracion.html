@@ -308,7 +308,6 @@
     </a>
     <ul class="topnav-menu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
-        <!-- Los módulos se insertarán aquí dinámicamente por sliderbar.js -->
         <li id="navModulosItem" style="display:none;">
             <span>Módulos <i class="fas fa-chevron-down arrow"></i></span>
             <div class="dropdown-nav" id="navModulosDropdown"></div>
@@ -434,35 +433,13 @@
                     
                     <input type="hidden" id="nombre">
                     
+                    <!-- Menú Padre - Input de texto (ESCRIBIR, no seleccionar) -->
                     <div class="mb-3">
                         <label class="form-label">Menú Padre</label>
-                        
-                        <div id="padreSelectContainer">
-                            <select class="form-select" id="padreId">
-                                <option value="">-- Ninguno (Módulo raíz) --</option>
-                            </select>
-                            <p class="form-hint" style="margin-top:5px;">
-                                <a href="#" onclick="mostrarNuevoPadreInput(); return false;" style="color:var(--gold);text-decoration:none;">
-                                    <i class="fas fa-plus-circle me-1"></i>Crear nuevo menú padre
-                                </a>
-                            </p>
-                        </div>
-                        
-                        <div id="padreNuevoContainer" style="display:none;">
-                            <div style="display:flex;gap:8px;">
-                                <input type="text" class="form-control" id="nuevoPadreInput" 
-                                       placeholder="Ej: Seguridad" maxlength="100">
-                                <button type="button" class="btn-gold-outline" onclick="cancelarNuevoPadre()" style="padding:8px 12px;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <p class="form-hint" style="margin-top:5px;">
-                                <a href="#" onclick="usarPadreExistente(); return false;" style="color:var(--gold);text-decoration:none;">
-                                    <i class="fas fa-list me-1"></i>Seleccionar padre existente
-                                </a>
-                            </p>
-                            <div id="nuevoPadreError" class="invalid-feedback"></div>
-                        </div>
+                        <input type="text" class="form-control" id="padreInput"
+                               placeholder="Ej: Principal 1 (déjalo vacío si es raíz)" maxlength="100">
+                        <p class="form-hint">Escribe el nombre del menú padre. Si no existe, se creará automáticamente.</p>
+                        <div id="padreError" class="invalid-feedback"></div>
                     </div>
                     
                     <div class="mb-3">
@@ -566,34 +543,6 @@
         const response = await fetch('/api/modulos');
         const data = await response.json();
         allModulos = data.data || [];
-        cargarPadresEnSelect();
-    }
-
-    function cargarPadresEnSelect() {
-        const select = document.getElementById('padreId');
-        select.innerHTML = '<option value="">-- Ninguno (Módulo raíz) --</option>';
-        allModulos.forEach(m => {
-            const prefijo = m.padre ? '  └─ ' : '📁 ';
-            select.innerHTML += `<option value="${m.id}">${prefijo}${m.nombreMostrar || m.nombre}</option>`;
-        });
-    }
-
-    function mostrarNuevoPadreInput() {
-        document.getElementById('padreSelectContainer').style.display = 'none';
-        document.getElementById('padreNuevoContainer').style.display = 'block';
-        document.getElementById('nuevoPadreInput').focus();
-    }
-
-    function cancelarNuevoPadre() {
-        document.getElementById('padreSelectContainer').style.display = 'block';
-        document.getElementById('padreNuevoContainer').style.display = 'none';
-        document.getElementById('nuevoPadreInput').value = '';
-        document.getElementById('nuevoPadreError').textContent = '';
-        document.getElementById('nuevoPadreInput').classList.remove('is-invalid');
-    }
-
-    function usarPadreExistente() {
-        cancelarNuevoPadre();
     }
 
     async function crearModuloPadre(nombreMostrar) {
@@ -686,153 +635,129 @@
         icon.className=`fas ${val}`;
     }
 
-  function abrirModalNuevo(){
-    document.getElementById('modalTitleText').textContent = 'Nuevo Módulo';
-    document.getElementById('btnGuardarText').textContent = 'Crear Módulo';
-    document.getElementById('moduloForm').reset();
-    document.getElementById('moduloId').value = '';
-    document.getElementById('orden').value = '0';
-    document.getElementById('padreInput').value = '';  
-    document.getElementById('iconoPreviewIcon').className = 'fas fa-puzzle-piece';
-    
-    limpiarValidaciones();
-    modalInstance.show();
-}
+    function abrirModalNuevo(){
+        document.getElementById('modalTitleText').textContent = 'Nuevo Módulo';
+        document.getElementById('btnGuardarText').textContent = 'Crear Módulo';
+        document.getElementById('moduloForm').reset();
+        document.getElementById('moduloId').value = '';
+        document.getElementById('orden').value = '0';
+        document.getElementById('iconoPreviewIcon').className = 'fas fa-puzzle-piece';
+        
+        const padreInput = document.getElementById('padreInput');
+        if (padreInput) padreInput.value = '';
+        
+        limpiarValidaciones();
+        modalInstance.show();
+    }
 
     function abrirModalEditar(id){
-    const m = allModulos.find(x => x.id === id);
-    if (!m) return;
-    
-    document.getElementById('modalTitleText').textContent = 'Editar Módulo';
-    document.getElementById('btnGuardarText').textContent = 'Actualizar Módulo';
-    document.getElementById('moduloId').value = m.id;
-    document.getElementById('nombreMostrar').value = m.nombreMostrar || '';
-    document.getElementById('nombre').value = m.nombre || '';
-    document.getElementById('ruta').value = m.ruta || '';
-    document.getElementById('icono').value = m.icono || '';
-    document.getElementById('orden').value = m.orden ?? 0;
-    document.getElementById('iconoPreviewIcon').className = `fas ${m.icono || 'fa-puzzle-piece'}`;
-    
-    // Mostrar el nombre del padre en el input
-    if (m.padre && m.padre.nombreMostrar) {
-        document.getElementById('padreInput').value = m.padre.nombreMostrar;
-    } else {
-        document.getElementById('padreInput').value = '';
+        const m = allModulos.find(x => x.id === id);
+        if (!m) return;
+        
+        document.getElementById('modalTitleText').textContent = 'Editar Módulo';
+        document.getElementById('btnGuardarText').textContent = 'Actualizar Módulo';
+        document.getElementById('moduloId').value = m.id;
+        document.getElementById('nombreMostrar').value = m.nombreMostrar || '';
+        document.getElementById('nombre').value = m.nombre || '';
+        document.getElementById('ruta').value = m.ruta || '';
+        document.getElementById('icono').value = m.icono || '';
+        document.getElementById('orden').value = m.orden ?? 0;
+        document.getElementById('iconoPreviewIcon').className = `fas ${m.icono || 'fa-puzzle-piece'}`;
+        
+        const padreInput = document.getElementById('padreInput');
+        if (padreInput) {
+            padreInput.value = (m.padre && m.padre.nombreMostrar) ? m.padre.nombreMostrar : '';
+        }
+        
+        limpiarValidaciones();
+        modalInstance.show();
     }
-    
-    limpiarValidaciones();
-    modalInstance.show();
-}
 
-   async function guardarModulo(){
-    const id           = document.getElementById('moduloId').value;
-    const nombreMostrar = document.getElementById('nombreMostrar').value.trim();
-    const ruta         = document.getElementById('ruta').value.trim();
-    const icono        = document.getElementById('icono').value.trim();
-    const orden        = parseInt(document.getElementById('orden').value) || 0;
-    const padreNombre  = document.getElementById('padreInput').value.trim();
-    
-    limpiarValidaciones();
+    async function guardarModulo(){
+        const id           = document.getElementById('moduloId').value;
+        const nombreMostrar = document.getElementById('nombreMostrar').value.trim();
+        const ruta         = document.getElementById('ruta').value.trim();
+        const icono        = document.getElementById('icono').value.trim();
+        const orden        = parseInt(document.getElementById('orden').value) || 0;
+        const padreNombre  = document.getElementById('padreInput')?.value.trim() || '';
+        
+        limpiarValidaciones();
 
-    let ok = true;
-    if (!nombreMostrar) {
-        document.getElementById('nombreMostrarError').textContent = 'El nombre es obligatorio';
-        document.getElementById('nombreMostrar').classList.add('is-invalid');
-        ok = false;
-    }
-    if (!ok) return;
+        let ok = true;
+        if (!nombreMostrar) {
+            document.getElementById('nombreMostrarError').textContent = 'El nombre es obligatorio';
+            document.getElementById('nombreMostrar').classList.add('is-invalid');
+            ok = false;
+        }
+        if (!ok) return;
 
-    const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
-    document.getElementById('nombre').value = nombreSistema;
+        const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
+        document.getElementById('nombre').value = nombreSistema;
 
-    let padreId = null;
-    
-    // ═══════════════════════════════════════════════════════════════
-    // LÓGICA: Si se escribió un padre, buscarlo o crearlo
-    // ═══════════════════════════════════════════════════════════════
-    if (padreNombre) {
+        let padreId = null;
+        
+        if (padreNombre) {
+            try {
+                const response = await fetch('/api/modulos');
+                const data = await response.json();
+                const modulos = data.data || [];
+                
+                let padreExistente = modulos.find(m => 
+                    m.nombreMostrar?.toUpperCase() === padreNombre.toUpperCase() ||
+                    m.nombre?.toUpperCase() === padreNombre.toUpperCase()
+                );
+                
+                if (padreExistente) {
+                    padreId = padreExistente.id;
+                    mostrarToast(`Menú padre "${padreNombre}" encontrado`, 'success');
+                } else {
+                    const padreCreado = await crearModuloPadre(padreNombre);
+                    padreId = padreCreado.id;
+                    mostrarToast(`Menú padre "${padreNombre}" creado automáticamente`, 'success');
+                }
+            } catch (error) {
+                document.getElementById('padreError').textContent = 'Error al procesar el menú padre';
+                document.getElementById('padreInput').classList.add('is-invalid');
+                return;
+            }
+        }
+
+        const esNuevo = !id;
+        const url = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
+        const method = esNuevo ? 'POST' : 'PUT';
+        
+        const payload = { 
+            nombre: nombreSistema,
+            nombreMostrar, 
+            ruta, 
+            icono: icono || 'fa-puzzle-piece', 
+            orden 
+        };
+        
+        if (padreId) {
+            payload.padre = { id: padreId };
+        }
+
         try {
-            // Buscar si el padre ya existe
-            const response = await fetch('/api/modulos');
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
             const data = await response.json();
-            const modulos = data.data || [];
             
-            let padreExistente = modulos.find(m => 
-                m.nombreMostrar?.toUpperCase() === padreNombre.toUpperCase() ||
-                m.nombre?.toUpperCase() === padreNombre.toUpperCase()
-            );
-            
-            if (padreExistente) {
-                padreId = padreExistente.id;
-                mostrarToast(`Menú padre "${padreNombre}" encontrado`, 'success');
+            if (data.success) {
+                modalInstance.hide();
+                mostrarToast(esNuevo ? 'Módulo creado correctamente' : 'Módulo actualizado correctamente', 'success');
+                cargarModulos();
             } else {
-                // Crear el padre automáticamente
-                const padreCreado = await crearModuloPadre(padreNombre);
-                padreId = padreCreado.id;
-                mostrarToast(`Menú padre "${padreNombre}" creado automáticamente`, 'success');
+                mostrarToast('Error: ' + data.message, 'error');
             }
         } catch (error) {
-            document.getElementById('padreError').textContent = 'Error al procesar el menú padre';
-            document.getElementById('padreInput').classList.add('is-invalid');
-            return;
+            mostrarToast('Error al guardar', 'error');
         }
     }
 
-    const esNuevo = !id;
-    const url = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
-    const method = esNuevo ? 'POST' : 'PUT';
-    
-    const payload = { 
-        nombre: nombreSistema,
-        nombreMostrar, 
-        ruta, 
-        icono: icono || 'fa-puzzle-piece', 
-        orden 
-    };
-    
-    if (padreId) {
-        payload.padre = { id: padreId };
-    }
-
-    try {
-        const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            modalInstance.hide();
-            mostrarToast(esNuevo ? 'Módulo creado correctamente' : 'Módulo actualizado correctamente', 'success');
-            cargarModulos();
-        } else {
-            mostrarToast('Error: ' + data.message, 'error');
-        }
-    } catch (error) {
-        mostrarToast('Error al guardar', 'error');
-    }
-}
-async function crearModuloPadre(nombreMostrar) {
-    const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
-    
-    const response = await fetch('/api/modulos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            nombre: nombreSistema,
-            nombreMostrar: nombreMostrar,
-            ruta: '',
-            icono: 'fa-folder',
-            orden: 0
-        })
-    });
-    
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Error al crear padre');
-    
-    return data.data;
-}
     function abrirModalEliminar(id,nombre){
         moduloIdEliminar=id;
         document.getElementById('moduloAEliminar').textContent=nombre;
