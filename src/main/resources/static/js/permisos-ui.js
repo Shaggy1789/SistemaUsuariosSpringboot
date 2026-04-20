@@ -3,6 +3,7 @@ class PermisosUI {
     constructor() {
         this.permisosUsuario = new Map(); // moduloId -> Set de permisos
         this.inicializado = false;
+        this.esAdmin = false; // ← NUEVO: bandera para ADMIN
     }
 
     async inicializar() {
@@ -12,7 +13,17 @@ class PermisosUI {
             const usuario = await this.obtenerUsuarioActual();
             if (!usuario || !usuario.perfilId) return;
             
-            await this.cargarPermisos(usuario.perfilId);
+            // ✅ Verificar si es ADMINISTRADOR
+            const perfilNombre = (usuario.perfilNombre || '').toUpperCase();
+            this.esAdmin = (perfilNombre === 'ADMINISTRADOR' || perfilNombre === 'ADMIN');
+            
+            if (this.esAdmin) {
+                console.log('👑 Usuario ADMIN - todos los botones visibles');
+                // No necesita cargar permisos porque verá todo
+            } else {
+                await this.cargarPermisos(usuario.perfilId);
+            }
+            
             this.inicializado = true;
             console.log('✅ Permisos UI cargados');
         } catch (error) {
@@ -40,6 +51,9 @@ class PermisosUI {
 
     // Verificar si el usuario tiene un permiso específico para un módulo
     tienePermiso(moduloNombre, tipoPermiso) {
+        // ✅ Si es ADMIN, tiene todos los permisos
+        if (this.esAdmin) return true;
+        
         // Buscar el ID del módulo por su nombre
         const moduloId = this.obtenerModuloId(moduloNombre);
         if (!moduloId) return false;
@@ -52,9 +66,9 @@ class PermisosUI {
         return permisos.has(tipoPermisoId);
     }
 
-    // Mapeo de nombres de módulos a IDs (se actualiza dinámicamente)
+    // Mapeo de nombres de módulos a IDs
     obtenerModuloId(nombreModulo) {
-        // IDs comunes (debes actualizarlos con los tuyos)
+        // ⚠️ REEMPLAZA ESTOS IDs CON LOS REALES DE TU BD (ejecuta: SELECT id, nombre FROM modulos;)
         const mapeo = {
             'USUARIOS': 'c8089b29-5319-4bcc-ab96-8f4c5098e8cb',
             'PERFILES': '9c493a8c-664f-4baf-a2db-dd47b0d2c41a',
@@ -66,6 +80,7 @@ class PermisosUI {
 
     // Mapeo de tipos de permiso a IDs
     obtenerTipoPermisoId(tipo) {
+        // ⚠️ REEMPLAZA ESTOS IDs CON LOS REALES (SELECT id, nombre FROM tipo_permiso;)
         const mapeo = {
             'VER': 'id-del-permiso-ver',
             'CREAR': 'id-del-permiso-crear',
@@ -83,17 +98,14 @@ class PermisosUI {
             const btnsEditar = document.querySelectorAll('.btn-edit');
             const btnsEliminar = document.querySelectorAll('.btn-del');
             
-            // Botón "Nuevo Usuario" - requiere CREAR
             if (btnNuevo) {
                 btnNuevo.style.display = this.tienePermiso('USUARIOS', 'CREAR') ? 'flex' : 'none';
             }
             
-            // Botones Editar - requiere EDITAR
             btnsEditar.forEach(btn => {
                 btn.style.display = this.tienePermiso('USUARIOS', 'EDITAR') ? 'inline-block' : 'none';
             });
             
-            // Botones Eliminar - requiere ELIMINAR
             btnsEliminar.forEach(btn => {
                 btn.style.display = this.tienePermiso('USUARIOS', 'ELIMINAR') ? 'inline-block' : 'none';
             });
@@ -145,7 +157,6 @@ const permisosUI = new PermisosUI();
 document.addEventListener('DOMContentLoaded', async () => {
     await permisosUI.inicializar();
     
-    // Detectar en qué módulo estamos
     const path = window.location.pathname;
     if (path.includes('/usuarios')) {
         permisosUI.aplicarVisibilidad('usuarios');
