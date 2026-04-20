@@ -546,7 +546,7 @@
     }
 
     async function crearModuloPadre(nombreMostrar) {
-        const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '_');
+        const nombreSistema = nombreMostrar.toUpperCase().replace(/\s+/g, '.');
         
         const response = await fetch('/api/modulos', {
             method: 'POST',
