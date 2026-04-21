@@ -29,12 +29,12 @@ public class PermisosController {
     public String mostrarPermisos(HttpSession session, Model model) {
         Usuarios usuario = (Usuarios) session.getAttribute("usuario");
 
-        // Doble verificación (el interceptor ya lo hace, pero por seguridad)
-        if (usuario == null || !esAdmin(usuario)) {
-            return "redirect:/?acceso=denegado";
-        }
+//        // Verificar que sea ADMIN para acceder a la página
+//        if (usuario == null || !esAdmin(usuario)) {
+//            return "redirect:/?acceso=denegado";
+//        }
 
-        model.addAttribute("titulo", "Permisos por Perfil — Santa Mónica");
+        model.addAttribute("titulo", "Permisos por Perfil — Aegis Auth");
         return "permisos";
     }
 
@@ -68,23 +68,12 @@ public class PermisosController {
     /**
      * GET /api/permisos/{perfilId}
      * Devuelve todos los módulos con los permisos que tiene ese perfil.
-     * Estructura de respuesta:
-     * {
-     *   "data": [
-     *     {
-     *       "moduloId": "uuid",
-     *       "moduloNombreMostrar": "USUARIOS",
-     *       "tiposPermisoIds": ["uuid-agregar", "uuid-editar"]
-     *     }, ...
-     *   ]
-     * }
      */
     @GetMapping("/api/permisos/{perfilId}")
     @ResponseBody
     public ResponseEntity<?> obtenerPermisosDePerfil(@PathVariable UUID perfilId,
                                                      HttpSession session) {
-        if (!verificarAdmin(session)) return forbidden();
-
+        // ✅ PERMITIR A TODOS VER (sin verificación de admin)
         try {
             // 1. Todos los módulos ordenados
             List<Modulos> todosModulos = serviceModulos.findAll();
@@ -141,6 +130,7 @@ public class PermisosController {
                                                      @PathVariable UUID moduloId,
                                                      @RequestBody Map<String, List<String>> body,
                                                      HttpSession session) {
+        // ✅ SOLO ADMIN PUEDE GUARDAR
         if (!verificarAdmin(session)) return forbidden();
 
         try {
@@ -173,6 +163,7 @@ public class PermisosController {
     public ResponseEntity<?> guardarTodosLosPermisos(@PathVariable UUID perfilId,
                                                      @RequestBody List<Map<String, Object>> payload,
                                                      HttpSession session) {
+        // ✅ SOLO ADMIN PUEDE GUARDAR
         if (!verificarAdmin(session)) return forbidden();
 
         try {
