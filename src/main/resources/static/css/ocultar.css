@@ -1,7 +1,49 @@
-/* Para botones que se ocultan por permisos */
+/* ocultar.css - Utilidades Aegis Auth */
+
+/* Ocultar botones por permisos */
 .btn-nuevo[style*="display: none"],
 .btn-add[style*="display: none"],
 .btn-edit[style*="display: none"],
 .btn-del[style*="display: none"] {
     display: none !important;
+}
+
+/* Animaciones globales */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-15px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Toast animation */
+#appToast {
+    animation: slideUp 0.3s ease;
+}
+
+/* Modal animations */
+.modal.fade .modal-dialog {
+    animation: slideDown 0.3s ease;
+}
+
+/* Loading spinner personalizado */
+.spinner-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(0, 229, 255, 0.2);
+    border-top-color: #00e5ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

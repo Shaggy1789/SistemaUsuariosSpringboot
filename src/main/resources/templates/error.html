@@ -3,310 +3,662 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${titulo}">Error — Santa Mónica</title>
+    <title>404 — Oxígeno Insuficiente • Espacio Profundo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        
         :root {
-            --gold:       #c9a84c;
-            --gold-light: #e8c96a;
-            --gold-dark:  #a07830;
-            --black:      #0d0d0d;
-            --black-2:    #141414;
-            --black-3:    #1c1c1c;
-            --black-4:    #252525;
-            --text-muted: #7a7a7a;
+            --space-dark: #050a14;
+            --space-blue: #0a1628;
+            --neon-cyan: #00e5ff;
+            --neon-purple: #7c3aed;
+            --neon-pink: #ff00ff;
+            --accent-error: #ef4444;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --star-color: #ffffff;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background: var(--black);
-            background-image:
-                radial-gradient(ellipse at 30% 60%, rgba(201,168,76,0.06) 0%, transparent 55%),
-                radial-gradient(ellipse at 75% 20%, rgba(201,168,76,0.04) 0%, transparent 45%);
+            background: var(--space-dark);
+            font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-        }
-
-        .error-container {
-            background: var(--black-2);
-            border-radius: 18px;
-            border: 1px solid rgba(201,168,76,0.2);
-            box-shadow:
-                0 0 0 1px rgba(201,168,76,0.05),
-                0 32px 64px rgba(0,0,0,0.7);
-            max-width: 540px;
-            width: 100%;
-            overflow: hidden;
-            animation: float 4s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%,100% { transform: translateY(0); }
-            50%      { transform: translateY(-8px); }
-        }
-
-        /* ── HEADER ── */
-        .error-header {
-            background: var(--black-3);
-            border-bottom: 1px solid rgba(201,168,76,0.2);
-            padding: 2rem;
-            text-align: center;
             position: relative;
+            overflow-x: hidden;
         }
-        .error-header::before {
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* FONDO ESPACIAL - ESTRELLAS Y NEBULOSAS */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        /* Capa base - espacio profundo */
+        .space-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 40% 50%, #0d1b2a 0%, #050a14 70%, #020408 100%);
+            z-index: 0;
+        }
+
+        /* Estrellas pequeñas (ruido) */
+        .stars {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 15% 25%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 35% 65%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 55% 15%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 75% 45%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 85% 80%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 95% 35%, #fff, rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 5% 85%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 45% 90%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 65% 55%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 25% 35%, #fff, rgba(0,0,0,0));
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            opacity: 0.8;
+            z-index: 1;
+            animation: twinkle 4s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Estrellas brillantes (grandes) */
+        .stars-bright {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(4px 4px at 20% 30%, var(--neon-cyan), transparent),
+                radial-gradient(5px 5px at 70% 20%, var(--neon-purple), transparent),
+                radial-gradient(3px 3px at 90% 60%, #fff, transparent),
+                radial-gradient(6px 6px at 10% 70%, var(--neon-pink), transparent),
+                radial-gradient(4px 4px at 50% 50%, var(--neon-cyan), transparent),
+                radial-gradient(5px 5px at 80% 85%, #fff, transparent),
+                radial-gradient(3px 3px at 40% 10%, var(--neon-purple), transparent);
+            background-size: 300px 300px;
+            background-repeat: repeat;
+            z-index: 2;
+            animation: pulseStars 6s infinite alternate;
+        }
+
+        @keyframes pulseStars {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Nebulosa cyan */
+        .nebula-cyan {
+            position: fixed;
+            top: -20%; left: -10%;
+            width: 60%; height: 60%;
+            background: radial-gradient(circle at 30% 40%, rgba(0, 229, 255, 0.12) 0%, transparent 60%);
+            filter: blur(80px);
+            z-index: 3;
+            animation: floatNebula 15s infinite alternate;
+        }
+
+        /* Nebulosa púrpura */
+        .nebula-purple {
+            position: fixed;
+            bottom: -20%; right: -10%;
+            width: 70%; height: 70%;
+            background: radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.12) 0%, transparent 60%);
+            filter: blur(100px);
+            z-index: 3;
+            animation: floatNebula 20s infinite alternate-reverse;
+        }
+
+        /* Nebulosa roja (asfixia) */
+        .nebula-red {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%; height: 35%;
+            background: linear-gradient(to top, rgba(239, 68, 68, 0.15), transparent);
+            filter: blur(40px);
+            z-index: 4;
+            animation: suffocate 4s ease-in-out infinite;
+        }
+
+        @keyframes floatNebula {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-5%, 5%) scale(1.1); }
+        }
+
+        @keyframes suffocate {
+            0%, 100% { opacity: 0.2; height: 30%; }
+            50% { opacity: 0.5; height: 45%; }
+        }
+
+        /* Cohete espacial pasando */
+        .rocket {
+            position: fixed;
+            bottom: 50px; right: -200px;
+            font-size: 60px;
+            color: var(--neon-cyan);
+            filter: drop-shadow(0 0 20px var(--neon-cyan));
+            z-index: 5;
+            animation: flyRocket 12s linear infinite;
+        }
+
+        .rocket i {
+            transform: rotate(45deg);
+        }
+
+        .rocket-trail {
+            position: fixed;
+            bottom: 65px; right: 80px;
+            width: 150px; height: 8px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-purple));
+            filter: blur(8px);
+            border-radius: 50%;
+            z-index: 4;
+            animation: trailFade 12s linear infinite;
+        }
+
+        @keyframes flyRocket {
+            0% { right: -200px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { right: 110%; opacity: 0; }
+        }
+
+        @keyframes trailFade {
+            0% { opacity: 0; width: 50px; }
+            10% { opacity: 0.8; width: 150px; }
+            90% { opacity: 0.8; width: 150px; }
+            100% { opacity: 0; width: 50px; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* TARJETA DE ERROR */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        .error-wrapper {
+            position: relative;
+            z-index: 100;
+            width: 100%;
+            max-width: 600px;
+            padding: 24px;
+        }
+
+        .error-card {
+            background: rgba(10, 22, 40, 0.7);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 32px;
+            padding: 40px 36px;
+            box-shadow: 
+                0 0 60px rgba(0, 229, 255, 0.15),
+                0 0 120px rgba(124, 58, 237, 0.1),
+                0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Borde neón animado */
+        .error-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            border-radius: 34px;
+            opacity: 0.2;
+            z-index: -1;
+            animation: borderGlow 4s infinite;
         }
 
-        .brand {
-            display: flex; align-items: center; justify-content: center;
-            gap: 10px; margin-bottom: 1.5rem;
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.1; filter: blur(10px); }
+            50% { opacity: 0.3; filter: blur(15px); }
         }
-        .brand i { font-size: 1.3rem; color: var(--gold); }
-        .brand span { font-size: 0.95rem; font-weight: 700; color: #ccc; letter-spacing: 0.5px; }
+
+        /* Header */
+        .error-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Kenny en el espacio */
+        .kenny-space {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+        }
+
+        .kenny {
+            position: relative;
+            width: 120px;
+            height: 150px;
+            margin: 0 auto;
+            animation: floatKenny 3s ease-in-out infinite;
+        }
+
+        @keyframes floatKenny {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-8px) rotate(-3deg); }
+            75% { transform: translateY(8px) rotate(3deg); }
+        }
+
+        /* Capucha de Kenny */
+        .hood {
+            position: absolute;
+            top: 0; left: 15px;
+            width: 90px; height: 80px;
+            background: #ff6b35;
+            border-radius: 50% 50% 40% 40%;
+            border: 3px solid #cc4400;
+            box-shadow: 
+                0 5px 0 #993300, 
+                inset 0 -10px 20px rgba(0,0,0,0.2),
+                0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .hood::before {
+            content: '';
+            position: absolute;
+            bottom: -10px; left: 5px;
+            width: 80px; height: 20px;
+            background: #ff6b35;
+            border-radius: 50%;
+            border-bottom: 3px solid #cc4400;
+        }
+
+        /* Ojos de Kenny (cerrados - muriendo) */
+        .eyes {
+            position: absolute;
+            top: 38px; left: 30px;
+            width: 60px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .eye {
+            width: 16px; height: 4px;
+            background: #000;
+            border-radius: 0 0 8px 8px;
+            border-top: 2px solid #333;
+            animation: struggleEyes 1.5s infinite;
+        }
+
+        .eye.left { transform: rotate(-15deg); }
+        .eye.right { transform: rotate(15deg); }
+
+        @keyframes struggleEyes {
+            0%, 100% { height: 4px; }
+            50% { height: 2px; }
+        }
+
+        /* Manos de Kenny flotando (sin fuerzas) */
+        .hands {
+            position: absolute;
+            top: 55px; left: -10px;
+            width: 140px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hand {
+            width: 25px; height: 20px;
+            background: #ff6b35;
+            border-radius: 40% 40% 30% 30%;
+            border: 2px solid #cc4400;
+            animation: weakHands 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes weakHands {
+            from { transform: translateY(0) rotate(0deg); opacity: 1; }
+            to { transform: translateY(10px) rotate(15deg); opacity: 0.7; }
+        }
+
+        /* Casco flotando LEJOS en el espacio */
+        .floating-helmet {
+            position: absolute;
+            top: -30px; right: -20px;
+            font-size: 45px;
+            color: var(--neon-cyan);
+            opacity: 0.6;
+            filter: drop-shadow(0 0 15px var(--neon-cyan));
+            animation: helmetFloat 4s infinite ease-in-out;
+        }
+
+        @keyframes helmetFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.4; }
+            25% { transform: translate(20px, -15px) rotate(20deg); opacity: 0.7; }
+            50% { transform: translate(-10px, -25px) rotate(-10deg); opacity: 0.5; }
+            75% { transform: translate(15px, -5px) rotate(30deg); opacity: 0.8; }
+        }
+
+        /* Burbujas de oxígeno escapando */
+        .oxygen-bubbles {
+            position: absolute;
+            top: 20px; left: 50px;
+            font-size: 12px;
+            color: rgba(0, 229, 255, 0.5);
+            animation: bubbles 2s infinite;
+        }
+
+        .oxygen-bubbles i {
+            margin: 0 3px;
+            animation: bubbleFloat 2s infinite;
+        }
+
+        .oxygen-bubbles i:nth-child(2) { animation-delay: 0.5s; }
+        .oxygen-bubbles i:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes bubbleFloat {
+            0% { transform: translateY(0); opacity: 0.5; }
+            100% { transform: translateY(-40px); opacity: 0; }
+        }
 
         .error-code {
-            font-size: 5.5rem;
+            font-size: 80px;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 0;
+            margin: 10px 0 0;
             line-height: 1;
-        }
-        .error-emoji {
-            font-size: 3rem;
-            display: block;
-            margin-top: 0.5rem;
-            animation: bounce 2.5s infinite;
-        }
-        @keyframes bounce {
-            0%,100% { transform: scale(1); }
-            50%      { transform: scale(1.15); }
+            text-shadow: 0 0 40px rgba(0, 229, 255, 0.5);
+            letter-spacing: 8px;
         }
 
-        /* ── BODY ── */
-        .error-body { padding: 2rem 2.5rem 2.5rem; }
+        .error-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-top: 10px;
+        }
+
+        .error-subtitle i {
+            color: var(--neon-cyan);
+            margin: 0 8px;
+        }
+
+        /* Mensaje */
+        .error-body {
+            text-align: center;
+        }
 
         .error-title {
-            font-size: 1.3rem;
+            font-size: 22px;
             font-weight: 700;
-            color: #e8e8e8;
-            margin-bottom: 1rem;
-            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .error-title i {
+            color: var(--accent-error);
+            animation: warningPulse 1.5s infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--accent-error); }
+            50% { opacity: 0.5; text-shadow: 0 0 20px var(--accent-error); }
         }
 
         .error-message {
-            font-size: 0.9rem;
-            color: #c8c8c8;
-            padding: 1rem 1.25rem;
-            background: var(--black-4);
-            border-radius: 10px;
-            border-left: 3px solid var(--gold);
-            text-align: left;
-            margin-bottom: 1rem;
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+            font-size: 15px;
+            backdrop-filter: blur(5px);
         }
 
-        .error-details {
-            color: var(--text-muted);
-            font-size: 0.83rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
+        .error-message i {
+            color: var(--neon-cyan);
+            margin-right: 8px;
         }
 
-        .origin-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(201,168,76,0.08);
-            border: 1px solid rgba(201,168,76,0.2);
-            color: var(--gold-light);
-            border-radius: 20px;
-            padding: 5px 14px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+        .kenny-quote {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 13px;
         }
 
-        /* ── BUTTONS ── */
+        .kenny-quote i {
+            color: var(--neon-purple);
+        }
+
+        /* Botones */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
         .btn-back {
-            background: var(--black-4);
-            border: 1px solid rgba(201,168,76,0.3);
-            color: var(--gold-light);
-            padding: 11px 24px;
-            border-radius: 9px;
-            font-size: 0.88rem;
+            background: transparent;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: var(--text-secondary);
+            padding: 12px 24px;
+            border-radius: 12px;
             font-weight: 600;
             text-decoration: none;
-            display: inline-flex; align-items: center; gap: 8px;
-            margin: 5px;
-            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
         }
+
         .btn-back:hover {
-            background: rgba(201,168,76,0.1);
-            border-color: var(--gold);
-            color: var(--gold);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(201,168,76,0.15);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(0, 229, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
         }
 
         .btn-home {
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-            border: none;
-            color: #0d0d0d;
-            padding: 11px 24px;
-            border-radius: 9px;
-            font-size: 0.88rem;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 12px;
             font-weight: 700;
             text-decoration: none;
-            display: inline-flex; align-items: center; gap: 8px;
-            margin: 5px;
-            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
         }
+
         .btn-home:hover {
-            color: #0d0d0d;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(201,168,76,0.35);
+            box-shadow: 0 0 50px rgba(124, 58, 237, 0.5);
+            color: #fff;
         }
 
-        /* ── DIVIDER ── */
-        .gold-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent);
-            margin: 1.5rem 0;
+        /* Footer */
+        .footer-note {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-top: 24px;
+            opacity: 0.7;
         }
 
-        /* ── TRACE ── */
+        /* Trace toggle */
         .trace-toggle {
-            color: var(--text-muted);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
             cursor: pointer;
-            font-size: 0.78rem;
-            display: inline-flex; align-items: center; gap: 5px;
-            background: none; border: none; padding: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
             transition: color 0.2s;
         }
-        .trace-toggle:hover { color: var(--gold); }
+
+        .trace-toggle:hover {
+            color: var(--neon-cyan);
+        }
+
         .error-trace {
             display: none;
-            margin-top: 0.75rem;
-            padding: 12px 14px;
-            background: var(--black-4);
-            border-radius: 8px;
-            border: 1px solid rgba(201,168,76,0.1);
-            font-family: monospace;
-            font-size: 0.78rem;
-            color: #666;
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(10, 22, 40, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
             text-align: left;
         }
 
-        .footer-note {
-            color: #3a3a3a;
-            font-size: 0.75rem;
-            margin-top: 1.5rem;
-            text-align: center;
+        /* Responsive */
+        @media (max-width: 576px) {
+            .error-card { padding: 30px 20px; }
+            .error-code { font-size: 60px; }
+            .kenny-space { width: 160px; height: 160px; }
+            .btn-group { flex-direction: column; }
+            .rocket { font-size: 40px; }
         }
     </style>
 </head>
 <body>
-    <div class="error-container">
+    <!-- FONDO ESPACIAL -->
+    <div class="space-bg"></div>
+    <div class="stars"></div>
+    <div class="stars-bright"></div>
+    <div class="nebula-cyan"></div>
+    <div class="nebula-purple"></div>
+    <div class="nebula-red"></div>
+    
+    <!-- Cohete espacial -->
+    <div class="rocket">
+        <i class="fas fa-rocket"></i>
+    </div>
+    <div class="rocket-trail"></div>
 
-        <div class="error-header">
-            <div class="brand">
-                <i class="fas fa-heartbeat"></i>
-                <span>Clínica de Especialidades Santa Mónica</span>
-            </div>
-            <p class="error-code" id="errorCode">500</p>
-            <span class="error-emoji" id="emoji">⚠️</span>
-        </div>
-
-        <div class="error-body">
-            <h2 class="error-title">¡Algo salió mal!</h2>
-
-            <div class="error-message">
-                <i class="fas fa-info-circle me-2" style="color:var(--gold);"></i>
-                <span th:text="${mensaje}">Ocurrió un error inesperado.</span>
-            </div>
-
-            <p class="error-details">
-                El equipo técnico ha sido notificado. Si el problema persiste, contacta al administrador del sistema.
-            </p>
-
-            <div style="text-align:center;">
-                <div class="origin-badge" th:if="${origen}">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Originado en: <strong th:text="${origen}"></strong>
+    <!-- TARJETA DE ERROR -->
+    <div class="error-wrapper">
+        <div class="error-card">
+            <div class="error-header">
+                <div class="kenny-space">
+                    <!-- Kenny flotando en el espacio -->
+                    <div class="kenny">
+                        <div class="hood"></div>
+                        <div class="eyes">
+                            <div class="eye left"></div>
+                            <div class="eye right"></div>
+                        </div>
+                        <div class="hands">
+                            <div class="hand"></div>
+                            <div class="hand"></div>
+                        </div>
+                    </div>
+                    <!-- Casco flotando lejos -->
+                    <div class="floating-helmet">
+                        <i class="fas fa-helmet-safety"></i>
+                    </div>
+                    <!-- Burbujas de oxígeno -->
+                    <div class="oxygen-bubbles">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                    </div>
+                </div>
+                <div class="error-code">404</div>
+                <div class="error-subtitle">
+                    <i class="fas fa-satellite"></i>
+                    PÉRDIDA DE SEÑAL • VACÍO ESPACIAL
+                    <i class="fas fa-satellite"></i>
                 </div>
             </div>
 
-            <div class="gold-divider"></div>
+            <div class="error-body">
+                <h2 class="error-title">
+                    <i class="fas fa-wind"></i>
+                    ¡KENNY SE QUEDÓ SIN OXÍGENO!
+                    <i class="fas fa-wind"></i>
+                </h2>
 
-            <div style="text-align:center;">
-                <a th:href="@{${
-                        origen == 'login'     ? '/login'     :
-                        origen == 'modulos'   ? '/modulos'   :
-                        origen == 'usuarios'  ? '/usuarios'  :
-                        origen == 'perfiles'  ? '/perfiles'  :
-                        origen == 'permisos'  ? '/permisos'  :
-                        '/login'
-                    }}"
-                   class="btn-back" id="btnVolver">
-                    <i class="fas fa-arrow-left"></i>
-                    <span th:text="${
-                        origen == 'login'    ? 'Volver al Login'    :
-                        origen == 'modulos'  ? 'Volver a Módulos'   :
-                        origen == 'usuarios' ? 'Volver a Usuarios'  :
-                        origen == 'perfiles' ? 'Volver a Perfiles'  :
-                        origen == 'permisos' ? 'Volver a Permisos'  :
-                        'Ir al Login'
-                    }">Volver</span>
-                </a>
+                <div class="error-message">
+                    <i class="fas fa-user-astronaut"></i>
+                    <span th:text="${mensaje}">La página que buscas se perdió en el espacio profundo.</span>
+                    <div class="kenny-quote">
+                        <i class="fas fa-quote-left me-1"></i>
+                        *sonidos de radio estática* ¡Mmph... oxígeno... bajo!
+                        <i class="fas fa-quote-right ms-1"></i>
+                    </div>
+                </div>
 
-                <a th:href="@{/}" class="btn-home">
-                    <i class="fas fa-home"></i> Inicio
-                </a>
-            </div>
+                <div class="btn-group">
+                    <a th:href="@{/}" class="btn-home">
+                        <i class="fas fa-home"></i> VOLVER A LA ESTACIÓN
+                    </a>
+                    <a href="javascript:history.back()" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> ÓRBITA ANTERIOR
+                    </a>
+                </div>
 
-            <div class="gold-divider"></div>
-
-            <div style="text-align:center;">
                 <button class="trace-toggle" onclick="toggleTrace()">
-                    <i class="fas fa-code"></i> Ver detalles técnicos
+                    <i class="fas fa-satellite-dish"></i> Transmisión de emergencia
                 </button>
                 <div class="error-trace" id="errorTrace">
-                    <strong style="color:#888;">Mensaje:</strong> <span th:text="${mensaje}"></span><br>
-                    <strong style="color:#888;">Origen:</strong>  <span th:text="${origen}"></span><br>
-                    <strong style="color:#888;">Timestamp:</strong> <span id="timestamp"></span><br>
-                    <strong style="color:#888;">User-Agent:</strong> <span id="userAgent"></span>
+                    <strong style="color:var(--neon-cyan);">🚀 MISIÓN:</strong> Aegis Auth - Página no encontrada<br>
+                    <strong style="color:var(--neon-cyan);">📍 COORDENADAS:</strong> 404 - Espacio profundo<br>
+                    <strong style="color:var(--neon-cyan);">🛸 ORIGEN:</strong> <span th:text="${origen}">Desconocido</span><br>
+                    <strong style="color:var(--neon-cyan);">⏰ TIEMPO ESTELAR:</strong> <span id="timestamp"></span><br>
+                    <strong style="color:var(--neon-cyan);">👨‍🚀 TRIPULANTE:</strong> <span th:text="${session.usuario?.usuario}">Invitado</span><br>
+                    <hr style="border-color:#1e293b;margin:10px 0;">
+                    <span style="color:#666;">"Houston... tenemos un problema... *estática*..."</span>
                 </div>
-            </div>
 
-            <p class="footer-note">Sistema de Gestión Clínica &mdash; Santa Mónica &copy; 2025</p>
+                <p class="footer-note">
+                    <i class="fas fa-globe-americas me-1"></i>
+                    Aegis Auth • Control de Misión Espacial
+                    <i class="fas fa-globe-americas ms-1"></i>
+                </p>
+            </div>
         </div>
     </div>
 
     <script>
-        const emojis = ['⚠️','🔧','🩺','🏥','🔍','⚡','🛠️','💊'];
-        document.getElementById('emoji').textContent = emojis[Math.floor(Math.random()*emojis.length)];
-
         function toggleTrace() {
             const trace = document.getElementById('errorTrace');
-            const btn   = document.querySelector('.trace-toggle');
-            const vis   = trace.style.display === 'block';
+            const btn = document.querySelector('.trace-toggle');
+            const vis = trace.style.display === 'block';
             trace.style.display = vis ? 'none' : 'block';
             btn.innerHTML = vis
-                ? '<i class="fas fa-code"></i> Ver detalles técnicos'
-                : '<i class="fas fa-eye-slash"></i> Ocultar detalles';
+                ? '<i class="fas fa-satellite-dish"></i> Transmisión de emergencia'
+                : '<i class="fas fa-broadcast-tower"></i> Silenciar transmisión';
         }
 
         document.getElementById('timestamp').textContent = new Date().toLocaleString('es-MX');
-        document.getElementById('userAgent').textContent  = navigator.userAgent;
+        
+        // Efecto de consola espacial
+        console.log('%c🚀 TRANSMISIÓN DE EMERGENCIA 🚀', 'font-size:18px;color:#00e5ff;font-weight:bold;');
+        console.log('%c📍 Código 404 • Pérdida de señal', 'font-size:14px;color:#7c3aed;');
+        console.log('%c💀 Kenny • Asfixia por falta de casco en el espacio', 'font-size:14px;color:#ef4444;');
     </script>
 </body>
 </html>

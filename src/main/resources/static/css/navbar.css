@@ -1,14 +1,39 @@
-.dropdown-nav-group { position: relative; }
+/* navbar.css - Aegis Auth */
+.dropdown-nav-group { 
+    position: relative; 
+}
+
 .dropdown-submenu {
     display: none;
     position: absolute;
     left: 100%;
     top: 0;
-    background: var(--black-3);
-    border: 1px solid var(--border);
-    border-left: 2px solid var(--gold);
+    background: #111827;
+    border: 1px solid #1e293b;
+    border-left: 2px solid #00e5ff;
     min-width: 200px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    border-radius: 0 12px 12px 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     z-index: 101;
 }
-.dropdown-nav-group:hover .dropdown-submenu { display: block; }
+
+.dropdown-nav-group:hover .dropdown-submenu { 
+    display: block; 
+}
+
+.dropdown-submenu a {
+    display: block !important;
+    padding: 12px 18px !important;
+    white-space: nowrap;
+    color: #94a3b8 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.dropdown-submenu a:hover {
+    background: rgba(0, 229, 255, 0.08) !important;
+    color: #00e5ff !important;
+    border-left-color: #00e5ff;
+}
