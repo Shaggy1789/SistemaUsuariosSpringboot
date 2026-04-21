@@ -1,5 +1,5 @@
 // com/master/springboot/config/SecurityConfig.java
-package com.master.springboot.Config;
+package com.master.springboot.config;
 
 import com.master.springboot.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,39 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // Deshabilitar CSRF (necesario para APIs REST)
                 .csrf(csrf -> csrf.disable())
+
+                // Mantener STATELESS para JWT (no interfiere con HttpSession)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Configurar rutas públicas y protegidas
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/login", "/login", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/api/usuarios/**", "/api/perfiles/**", "/api/modulos/**").authenticated()
-                        .anyRequest().authenticated()
+                        // ✅ TODAS las rutas son PÚBLICAS por defecto
+                        .requestMatchers(
+                                "/**",                    // TODO el sistema
+                                "/api/**",                // Todas las APIs
+                                "/css/**",                // Estilos
+                                "/js/**",                 // Scripts
+                                "/images/**",             // Imágenes
+                                "/login",                 // Página de login
+                                "/api/login",             // Login normal (HttpSession)
+                                "/api/auth/login",        // Login JWT
+                                "/error",                 // Página de error
+                                "/health"                 // Health check
+                        ).permitAll()
+                        // Si quieres proteger rutas específicas con JWT, descomenta:
+                        // .requestMatchers("/api/usuarios/**").authenticated()
+                        .anyRequest().permitAll()
                 )
+
+                // Deshabilitar formulario de login por defecto de Spring Security
+                .formLogin(form -> form.disable())
+
+                // Deshabilitar autenticación básica HTTP
+                .httpBasic(basic -> basic.disable())
+
+                // Agregar filtro JWT (solo actuará si hay token en el header)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -52,6 +52,22 @@ public class HomeController {
         return "usuarios";
     }
 
+    @GetMapping("/prueba1.1")
+    public String mostrarPrueba(HttpSession session, Model model) {
+        if (session.getAttribute("usuario") == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("titulo", "Usuarios — Santa Mónica");
+        return "prueba1.1";
+    }
+    @GetMapping("/prueba1.2")
+    public String mostrarPrueba2(HttpSession session, Model model) {
+        if (session.getAttribute("usuario") == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("titulo", "Usuarios — Santa Mónica");
+        return "prueba1.2";
+    }
     // ── MÓDULOS ───────────────────────────────────────────────
     @GetMapping("/modulos")
     public String mostrarModulos(HttpSession session, Model model) {

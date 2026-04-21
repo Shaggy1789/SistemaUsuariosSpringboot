@@ -29,37 +29,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // Rutas públicas que no requieren token
-        String path = request.getRequestURI();
-        if (path.startsWith("/api/auth/login") ||
-                path.startsWith("/api/login") ||
-                path.startsWith("/login") ||
-                path.startsWith("/css") ||
-                path.startsWith("/js") ||
-                path.startsWith("/images")) {
+        // ✅ Si NO hay token, simplemente continuar (NO bloquear)
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            Claims claims = jwtUtil.validarToken(token);
+        // Si hay token, validarlo
+        String token = authHeader.substring(7);
+        Claims claims = jwtUtil.validarToken(token);
 
-            if (claims != null && !jwtUtil.tokenExpirado(token)) {
-                String username = claims.getSubject();
-                String perfil = (String) claims.get("perfil");
+        if (claims != null && !jwtUtil.tokenExpirado(token)) {
+            String username = claims.getSubject();
+            String perfil = (String) claims.get("perfil");
 
-                // Crear autenticación
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                username,
-                                null,
-                                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + perfil))
-                        );
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+            // Crear autenticación (solo para contexto de Spring Security)
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + perfil))
+                    );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
+        // ✅ SIEMPRE continuar (incluso si el token es inválido)
         filterChain.doFilter(request, response);
     }
 }
