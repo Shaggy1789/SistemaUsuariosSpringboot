@@ -13,7 +13,6 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-
     // Clave secreta (en producción debe estar en application.properties)
     private static final String SECRET_KEY = "SantaMonica2026SecretKeyJWT256Bits!!!";
     private static final long EXPIRATION_TIME = 86400000; // 24 horas
@@ -21,7 +20,6 @@ public class JwtUtil {
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
-
     /**
      * Genera un token JWT con los datos del usuario
      */
@@ -55,7 +53,6 @@ public class JwtUtil {
             return null;
         }
     }
-
     /**
      * Verifica si un token ha expirado
      */

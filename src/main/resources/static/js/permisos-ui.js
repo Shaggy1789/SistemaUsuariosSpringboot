@@ -3,7 +3,7 @@ class PermisosUI {
     constructor() {
         this.permisosUsuario = new Map(); // moduloId -> Set de permisos
         this.inicializado = false;
-        this.esAdmin = false; // ← NUEVO: bandera para ADMIN
+        this.esAdmin = false; // ← bandera para ADMIN
     }
 
     async inicializar() {
@@ -68,7 +68,6 @@ class PermisosUI {
 
     // Mapeo de nombres de módulos a IDs
     obtenerModuloId(nombreModulo) {
-        // ⚠️ REEMPLAZA ESTOS IDs CON LOS REALES DE TU BD (ejecuta: SELECT id, nombre FROM modulos;)
         const mapeo = {
             'USUARIOS': 'c8089b29-5319-4bcc-ab96-8f4c5098e8cb',
             'PERFILES': '9c493a8c-664f-4baf-a2db-dd47b0d2c41a',
@@ -80,7 +79,6 @@ class PermisosUI {
 
     // Mapeo de tipos de permiso a IDs
     obtenerTipoPermisoId(tipo) {
-        // ⚠️ REEMPLAZA ESTOS IDs CON LOS REALES (SELECT id, nombre FROM tipo_permiso;)
         const mapeo = {
             'VER': 'id-del-permiso-ver',
             'CREAR': 'id-del-permiso-crear',
@@ -147,6 +145,68 @@ class PermisosUI {
             btnsEliminar.forEach(btn => {
                 btn.style.display = this.tienePermiso('CONFIGURACION', 'ELIMINAR') ? 'inline-block' : 'none';
             });
+        }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // ✅ NUEVO: Módulo de Permisos - SOLO LECTURA para no ADMIN
+        // ═══════════════════════════════════════════════════════════════
+        if (moduloActual === 'permisos') {
+            if (!this.esAdmin) {
+                console.log('🔒 Usuario NO ADMIN - Permisos en modo SOLO LECTURA');
+                
+                // Deshabilitar todos los checkboxes
+                const checkboxes = document.querySelectorAll('.perm-check');
+                checkboxes.forEach(cb => {
+                    cb.disabled = true;
+                    cb.style.cursor = 'not-allowed';
+                    cb.style.opacity = '0.6';
+                });
+                
+                // Ocultar botones de acción
+                const btnGuardar = document.getElementById('btnGuardar');
+                const btnTodos = document.querySelector('button[onclick*="marcarTodos(true)"]');
+                const btnNinguno = document.querySelector('button[onclick*="marcarTodos(false)"]');
+                const btnCancelar = document.querySelector('button[onclick*="cancelar()"]');
+                const selectorPerfil = document.getElementById('perfilSelect');
+                const btnBuscar = document.getElementById('btnBuscar');
+                
+                if (btnGuardar) btnGuardar.style.display = 'none';
+                if (btnTodos) btnTodos.style.display = 'none';
+                if (btnNinguno) btnNinguno.style.display = 'none';
+                if (btnCancelar) btnCancelar.style.display = 'none';
+                
+                // Mantener visible el selector y botón buscar para consultar
+                if (selectorPerfil) selectorPerfil.disabled = false;
+                if (btnBuscar) btnBuscar.style.display = 'flex';
+                
+                // Agregar mensaje de "Solo lectura"
+                const headerActions = document.querySelector('.permisos-header-actions');
+                if (headerActions) {
+                    const soloLecturaBadge = document.createElement('span');
+                    soloLecturaBadge.className = 'admin-badge';
+                    soloLecturaBadge.style.marginLeft = '10px';
+                    soloLecturaBadge.innerHTML = '<i class="fas fa-eye"></i> Solo lectura';
+                    headerActions.appendChild(soloLecturaBadge);
+                }
+            } else {
+                console.log('👑 Usuario ADMIN - Permisos en modo EDICIÓN');
+                
+                // Asegurar que todo esté habilitado para ADMIN
+                const checkboxes = document.querySelectorAll('.perm-check');
+                checkboxes.forEach(cb => {
+                    cb.disabled = false;
+                    cb.style.cursor = 'pointer';
+                    cb.style.opacity = '1';
+                });
+                
+                const btnGuardar = document.getElementById('btnGuardar');
+                const btnTodos = document.querySelector('button[onclick*="marcarTodos(true)"]');
+                const btnNinguno = document.querySelector('button[onclick*="marcarTodos(false)"]');
+                
+                if (btnGuardar) btnGuardar.style.display = 'flex';
+                if (btnTodos) btnTodos.style.display = 'inline-flex';
+                if (btnNinguno) btnNinguno.style.display = 'inline-flex';
+            }
         }
     }
 }
