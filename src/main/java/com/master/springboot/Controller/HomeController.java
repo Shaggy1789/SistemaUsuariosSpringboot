@@ -84,7 +84,7 @@ public class HomeController {
             return "redirect:/login";
         }
         model.addAttribute("titulo", "Usuarios — Santa Mónica");
-        return "prueba2.1";
+        return "prueba2.2";
     }
 
     // ── MÓDULOS ───────────────────────────────────────────────
