@@ -42,8 +42,7 @@ public class PermisosController {
     @GetMapping("/api/permisos/perfiles")
     @ResponseBody
     public ResponseEntity<?> listarPerfiles(HttpSession session) {
-        if (!verificarAdmin(session))
-            return forbidden();
+       //if (!verificarAdmin(session)) return forbidden();
 
         List<Perfiles> perfiles = servicePerfiles.findAll();
         Map<String, Object> resp = new HashMap<>();
