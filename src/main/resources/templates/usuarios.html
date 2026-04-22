@@ -300,10 +300,36 @@
     let itemsPerPage = 50;
     let allUsuarios = [];
     let perfilesExistentes = [];
+    
+    // Variables de permisos
+    let puedeCrear = false;
+    let puedeEditar = false;
+    let puedeEliminar = false;
+    const MODULO_PERMISO = 'USUARIOS';
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
         modalInstance = new bootstrap.Modal(document.getElementById('usuarioModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
+        
+        // Inicializar permisos
+        if (typeof permisosUI !== 'undefined') {
+            await permisosUI.inicializar();
+            puedeCrear = permisosUI.tienePermiso(MODULO_PERMISO, 'CREAR');
+            puedeEditar = permisosUI.tienePermiso(MODULO_PERMISO, 'EDITAR');
+            puedeEliminar = permisosUI.tienePermiso(MODULO_PERMISO, 'ELIMINAR');
+            
+            console.log(`Permisos ${MODULO_PERMISO}:`, { puedeCrear, puedeEditar, puedeEliminar });
+            
+            // Aplicar permisos a la UI
+            const btnNuevo = document.querySelector('.btn-nuevo');
+            if (btnNuevo) btnNuevo.style.display = puedeCrear ? 'flex' : 'none';
+            
+            const thEditar = document.querySelector('th:nth-child(6)');
+            const thEliminar = document.querySelector('th:nth-child(7)');
+            if (thEditar) thEditar.style.display = puedeEditar ? '' : 'none';
+            if (thEliminar) thEliminar.style.display = puedeEliminar ? '' : 'none';
+        }
+        
         cargarPerfiles();
         cargarUsuarios();
 
@@ -380,22 +406,36 @@
         tbody.innerHTML = usuarios.map(u => {
             const perfilNombre = u.perfil ? u.perfil.nombre : '—';
             const tipoUsuario = perfilNombre !== '-';
-            const estado = u.estado || '—'? perfilNombre :'Sin perfil';
+            const estado = u.estado || '—';
             const estadoClass = estado === 'ACTIVO' ? 'activo' : 'inactivo';
             
-            return `<tr>
+            let html = `<tr>
                 <td><i class="fas fa-user-circle me-2" style="color:var(--gold-dark);"></i>${u.usuario || '—'}</td>
                 <td>${perfilNombre}</td>
                 <td>${tipoUsuario}</td>
                 <td><span class="estado-badge ${estadoClass}">${estado}</span></td>
-                <td><span class="estado-badge ${estadoClass}">${estado}</span></td>
-                <td><button class="btn-edit" onclick="abrirModalEditar('${u.id}')" title="Editar">
+                <td><span class="estado-badge ${estadoClass}">${estado}</span></td>`;
+            
+            // Botón Editar (solo si tiene permiso)
+            if (puedeEditar) {
+                html += `<td><button class="btn-edit" onclick="abrirModalEditar('${u.id}')" title="Editar">
                     <i class="fas fa-pencil-alt"></i>
-                </button></td>
-                <td><button class="btn-del" onclick="abrirModalEliminar('${u.id}','${u.usuario || ''}')" title="Eliminar">
+                </button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+            
+            // Botón Eliminar (solo si tiene permiso)
+            if (puedeEliminar) {
+                html += `<td><button class="btn-del" onclick="abrirModalEliminar('${u.id}','${u.usuario || ''}')" title="Eliminar">
                     <i class="fas fa-trash"></i>
-                </button></td>
-            </tr>`;
+                </button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+            
+            html += `</tr>`;
+            return html;
         }).join('');
     }
 
@@ -476,6 +516,10 @@
     }
 
     function abrirModalNuevo() {
+        if (!puedeCrear) {
+            mostrarToast('No tienes permiso para crear usuarios', 'error');
+            return;
+        }
         document.getElementById('modalTitleText').textContent = 'Nuevo Usuario';
         document.getElementById('usuarioForm').reset();
         document.getElementById('usuarioId').value = '';
@@ -489,6 +533,10 @@
     }
 
     function abrirModalEditar(id) {
+        if (!puedeEditar) {
+            mostrarToast('No tienes permiso para editar usuarios', 'error');
+            return;
+        }
         document.getElementById('modalTitleText').textContent = 'Editar Usuario';
         document.getElementById('password').required = false;
         document.getElementById('confirmPassword').required = false;
@@ -511,6 +559,16 @@
     async function guardarUsuario() {
         const id = document.getElementById('usuarioId').value;
         const esNuevo = !id;
+        
+        if (esNuevo && !puedeCrear) {
+            mostrarToast('No tienes permiso para crear usuarios', 'error');
+            return;
+        }
+        if (!esNuevo && !puedeEditar) {
+            mostrarToast('No tienes permiso para editar usuarios', 'error');
+            return;
+        }
+        
         limpiarValidaciones();
         
         const usuario = document.getElementById('nombreusuario').value.trim();
@@ -545,7 +603,6 @@
             isValid = false;
         }
         
-        // Validar perfil
         let perfilId = null;
         const usandoNuevoPerfil = document.getElementById('perfilNuevoContainer').classList.contains('show');
         
@@ -556,19 +613,16 @@
                 document.getElementById('nuevoPerfilInput').classList.add('is-invalid');
                 isValid = false;
             } else {
-                // Verificar si el perfil ya existe
                 const perfilExistente = perfilesExistentes.includes(nuevoPerfilNombre);
                 if (perfilExistente) {
                     document.getElementById('nuevoPerfilError').textContent = 'Este perfil ya existe';
                     document.getElementById('nuevoPerfilInput').classList.add('is-invalid');
                     isValid = false;
                 } else {
-                    // Crear el nuevo perfil
                     try {
                         const nuevoPerfil = await crearPerfil(nuevoPerfilNombre);
                         perfilId = nuevoPerfil.id;
                         mostrarToast('Perfil creado correctamente', 'success');
-                        // Recargar la lista de perfiles
                         await cargarPerfilesAsync();
                     } catch (error) {
                         document.getElementById('nuevoPerfilError').textContent = 'Error al crear el perfil';
@@ -649,6 +703,10 @@
     }
 
     function abrirModalEliminar(id, nombre) {
+        if (!puedeEliminar) {
+            mostrarToast('No tienes permiso para eliminar usuarios', 'error');
+            return;
+        }
         usuarioIdEliminar = id;
         document.getElementById('usuarioAEliminar').textContent = nombre;
         eliminarModalInstance.show();
@@ -656,6 +714,13 @@
 
     function confirmarEliminar() {
         if (!usuarioIdEliminar) return;
+        
+        if (!puedeEliminar) {
+            mostrarToast('No tienes permiso para eliminar usuarios', 'error');
+            eliminarModalInstance.hide();
+            return;
+        }
+        
         fetch(`/api/usuarios/${usuarioIdEliminar}`, { method: 'DELETE' })
             .then(r => r.json())
             .then(data => {

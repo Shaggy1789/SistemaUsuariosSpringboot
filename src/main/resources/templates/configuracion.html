@@ -191,15 +191,42 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/sliderbar.js"></script>
+<script src="/js/permisos-ui.js"></script>
 <script>
     let modalInstance, eliminarModalInstance;
     let allModulos = [], allModulos_filtered = [];
     let currentPage = 1, itemsPerPage = 10;
     let moduloIdEliminar = null;
+    
+    // Variables de permisos
+    let puedeCrear = false;
+    let puedeEditar = false;
+    let puedeEliminar = false;
+    const MODULO_PERMISO = 'MODULOS';
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         modalInstance = new bootstrap.Modal(document.getElementById('moduloModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
+        
+        // Inicializar permisos
+        if (typeof permisosUI !== 'undefined') {
+            await permisosUI.inicializar();
+            puedeCrear = permisosUI.tienePermiso(MODULO_PERMISO, 'CREAR');
+            puedeEditar = permisosUI.tienePermiso(MODULO_PERMISO, 'EDITAR');
+            puedeEliminar = permisosUI.tienePermiso(MODULO_PERMISO, 'ELIMINAR');
+            
+            console.log(`Permisos ${MODULO_PERMISO}:`, { puedeCrear, puedeEditar, puedeEliminar });
+            
+            // Aplicar permisos a la UI
+            const btnAdd = document.querySelector('.btn-add');
+            if (btnAdd) btnAdd.style.display = puedeCrear ? 'flex' : 'none';
+            
+            const thEditar = document.querySelector('th:nth-child(6)');
+            const thEliminar = document.querySelector('th:nth-child(7)');
+            if (thEditar) thEditar.style.display = puedeEditar ? '' : 'none';
+            if (thEliminar) thEliminar.style.display = puedeEliminar ? '' : 'none';
+        }
+        
         cargarModulos();
         document.getElementById('filtrarBtn').addEventListener('click', filtrar);
         document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') filtrar(); });
@@ -291,7 +318,7 @@
             const ruta=m.ruta||'—';
             const padreNombre = (m.padre && m.padre.nombreMostrar) ? m.padre.nombreMostrar : '—';
             
-            return `<tr>
+            let html = `<tr>
                 <td style="color:var(--text-muted);">${offset+i+1}</td>
                 <td>
                     <span class="modulo-icon-preview"><i class="fas ${icono}"></i></span>
@@ -299,14 +326,28 @@
                 </td>
                 <td style="font-family:monospace;font-size:0.8rem;color:var(--text-muted);">${m.nombre}</td>
                 <td>${ruta!=='—'?`<span class="ruta-tag">${ruta}</span>`:'<span style="color:#3a3a3a;">—</span>'}</td>
-                <td><span class="padre-badge">${padreNombre}</span></td>
-                <td><button class="btn-edit" onclick="abrirModalEditar('${m.id}')">
+                <td><span class="padre-badge">${padreNombre}</span></td>`;
+            
+            // Botón Editar (solo si tiene permiso)
+            if (puedeEditar) {
+                html += `<td><button class="btn-edit" onclick="abrirModalEditar('${m.id}')">
                     <i class="fas fa-pencil-alt"></i>
-                </button></td>
-                <td><button class="btn-del" onclick="abrirModalEliminar('${m.id}','${m.nombreMostrar||m.nombre}')">
+                </button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+            
+            // Botón Eliminar (solo si tiene permiso)
+            if (puedeEliminar) {
+                html += `<td><button class="btn-del" onclick="abrirModalEliminar('${m.id}','${m.nombreMostrar||m.nombre}')">
                     <i class="fas fa-trash"></i>
-                </button></td>
-            </tr>`;
+                </button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+            
+            html += `</tr>`;
+            return html;
         }).join('');
     }
 
@@ -316,6 +357,10 @@
     }
 
     function abrirModalNuevo(){
+        if (!puedeCrear) {
+            mostrarToast('No tienes permiso para crear módulos', 'error');
+            return;
+        }
         document.getElementById('modalTitleText').textContent = 'Nuevo Módulo';
         document.getElementById('btnGuardarText').textContent = 'Crear Módulo';
         document.getElementById('moduloForm').reset();
@@ -329,6 +374,10 @@
     }
 
     function abrirModalEditar(id){
+        if (!puedeEditar) {
+            mostrarToast('No tienes permiso para editar módulos', 'error');
+            return;
+        }
         const m = allModulos.find(x => x.id === id);
         if (!m) return;
         
@@ -349,10 +398,21 @@
     }
 
     async function guardarModulo(){
-        const id           = document.getElementById('moduloId').value;
+        const id = document.getElementById('moduloId').value;
+        const esNuevo = !id;
+        
+        if (esNuevo && !puedeCrear) {
+            mostrarToast('No tienes permiso para crear módulos', 'error');
+            return;
+        }
+        if (!esNuevo && !puedeEditar) {
+            mostrarToast('No tienes permiso para editar módulos', 'error');
+            return;
+        }
+        
         const nombreMostrar = document.getElementById('nombreMostrar').value.trim();
-        const ruta         = document.getElementById('ruta').value.trim();
-        const padreNombre  = document.getElementById('padreInput')?.value.trim() || '';
+        const ruta = document.getElementById('ruta').value.trim();
+        const padreNombre = document.getElementById('padreInput')?.value.trim() || '';
         
         limpiarValidaciones();
 
@@ -395,7 +455,6 @@
             }
         }
 
-        const esNuevo = !id;
         const url = esNuevo ? '/api/modulos' : `/api/modulos/${id}`;
         const method = esNuevo ? 'POST' : 'PUT';
         
@@ -432,6 +491,10 @@
     }
 
     function abrirModalEliminar(id,nombre){
+        if (!puedeEliminar) {
+            mostrarToast('No tienes permiso para eliminar módulos', 'error');
+            return;
+        }
         moduloIdEliminar=id;
         document.getElementById('moduloAEliminar').textContent=nombre;
         eliminarModalInstance.show();
@@ -439,6 +502,13 @@
 
     function confirmarEliminar(){
         if(!moduloIdEliminar) return;
+        
+        if (!puedeEliminar) {
+            mostrarToast('No tienes permiso para eliminar módulos', 'error');
+            eliminarModalInstance.hide();
+            return;
+        }
+        
         fetch(`/api/modulos/${moduloIdEliminar}`,{method:'DELETE'})
             .then(r=>r.json()).then(data=>{
                 eliminarModalInstance.hide();

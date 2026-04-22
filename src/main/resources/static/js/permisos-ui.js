@@ -64,20 +64,25 @@ class PermisosUI {
     }
 
     obtenerModuloId(nombreModulo) {
-        const mapeo = {
-            'USUARIOS': 'c8089b29-5319-4bcc-ab96-8f4c5098e8cb',
-            'PERFILES': '9c493a8c-664f-4baf-a2db-dd47b0d2c41a',
-            'PERMISOS': '6454c22f-a9e5-4d37-8703-fb1074ff4e1c',
-            'MODULOS': 'd4aa6509-2fb5-4d12-8ca3-c809cc642203',
-            'PRUEBA1': '34ef9528-0736-4e57-b94a-ee4c5e70f180',
-            'PRUEBA2': '711663ba-b4b2-49b2-8f38-3024907183bf',
-            'PRUEBA1.1': '4ee84804-d66b-4300-b594-6a9238aa0249',
-            'PRUEBA1.2': '2ebb4cf2-0108-462c-8e05-3604d01c86eb',
-            'PRUEBA2.1': '972d3e7a-e8d5-4770-902b-3f8b29370ce4',
-            'PRUEBA2.2': 'd33c7bb2-5d2c-407f-bc9f-ee64583fba44'
-        };
-        return mapeo[nombreModulo] || null;
-    }
+    const mapeo = {
+        'USUARIOS': 'd89ce43d-8b6d-4022-84bd-391e1e45dc5a',  // usuarios
+        'PERFIL': 'b8709c84-731d-4758-8a4f-47a226350c37',    // Perfil
+        'PERMISOS': 'cc07f175-c76b-434c-88a5-5c38b4e885d1',   // Permisos Perfil
+        'MODULOS': '3f5cb7a3-daa4-4598-b03b-a18bd5102044',    // Modulos
+        'PRUEBA1': '34ef9528-0736-4e57-b94a-ee4c5e70f180',    // prueba1
+        'PRUEBA2': '711663ba-b4b2-49b2-8f38-3024907183bf',    // prueba2
+        'PRUEBA1.1': '4ee84804-d66b-4300-b594-6a9238aa0249',  // prueba1.1
+        'PRUEBA1.2': '2ebb4cf2-0108-462c-8e05-3604d01c86eb',  // prueba1.2
+        'PRUEBA1.3': '1fe12fe9-e04c-4277-8f30-ecc9ce16dc83',  // prueba1.3
+        'PRUEBA1.4': '4aac39d9-417a-4280-bdbb-72bc010e63a8',  // prueba1.4
+        'PRUEBA2.1': '972d3e7a-e8d5-4770-902b-3f8b29370ce4',  // prueba2.1
+        'PRUEBA2.2': 'd33c7bb2-5d2c-407f-bc9f-ee64583fba44',  // prueba2.2
+        'PRUEBA2.3': '41c0c119-2468-443c-bf76-02ec258c88d3',  // prueba2.3
+        'PRUEBA2.4': '87303e3a-cea9-4cd4-a5dc-995db81107ac'   // prueba2.4
+    };
+    return mapeo[nombreModulo] || null;
+}
+
 
     obtenerTipoPermisoId(tipo) {
         const mapeo = {

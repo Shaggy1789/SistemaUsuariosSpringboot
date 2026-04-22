@@ -71,7 +71,7 @@
 
     <!-- Toolbar -->
     <div class="table-toolbar">
-        <button class="btn-add" onclick="abrirModalNuevo()" title="Nuevo perfil">
+        <button class="btn-add" id="btnNuevo" onclick="abrirModalNuevo()" title="Nuevo perfil">
             <i class="fas fa-plus"></i>
         </button>
         <span class="results-label">Resultados</span>
@@ -82,20 +82,20 @@
         <div class="table-responsive">
             <table class="table-custom">
                 <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Estado</th>
-                        <th>Creado</th>
-                        <th>Editar</th>
-                        <th>Eliminar</th>
-                    </tr>
+                <tr id="headerRow">
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Creado</th>
+                    <th id="thEditar">Editar</th>
+                    <th id="thEliminar">Eliminar</th>
+                </tr>
                 </thead>
                 <tbody id="tablaPerfiles">
-                    <tr><td colspan="6" class="state-cell">
-                        <i class="fas fa-spinner fa-spin" style="color:var(--gold);"></i>
-                        Cargando perfiles...
-                    </td></tr>
+                <tr><td colspan="6" class="state-cell">
+                    <i class="fas fa-spinner fa-spin" style="color:var(--gold);"></i>
+                    Cargando perfiles...
+                </td></tr>
                 </tbody>
             </table>
         </div>
@@ -198,10 +198,37 @@
     let allPerfiles = [], currentPage = 1, itemsPerPage = 10;
     let perfilIdEliminar = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        modalInstance         = new bootstrap.Modal(document.getElementById('perfilModal'));
+    // Variables de permisos
+    let puedeCrear = false;
+    let puedeEditar = false;
+    let puedeEliminar = false;
+    const MODULO_PERMISO = 'PERFIL';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        modalInstance = new bootstrap.Modal(document.getElementById('perfilModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
+
+        // Inicializar permisos
+        if (typeof permisosUI !== 'undefined') {
+            await permisosUI.inicializar();
+            puedeCrear = permisosUI.tienePermiso(MODULO_PERMISO, 'CREAR');
+            puedeEditar = permisosUI.tienePermiso(MODULO_PERMISO, 'EDITAR');
+            puedeEliminar = permisosUI.tienePermiso(MODULO_PERMISO, 'ELIMINAR');
+
+            console.log(`Permisos ${MODULO_PERMISO}:`, { puedeCrear, puedeEditar, puedeEliminar });
+
+            // Aplicar permisos a la UI
+            const btnAdd = document.querySelector('.btn-add');
+            if (btnAdd) btnAdd.style.display = puedeCrear ? 'flex' : 'none';
+
+            const thEditar = document.querySelector('th:nth-child(5)');
+            const thEliminar = document.querySelector('th:nth-child(6)');
+            if (thEditar) thEditar.style.display = puedeEditar ? '' : 'none';
+            if (thEliminar) thEliminar.style.display = puedeEliminar ? '' : 'none';
+        }
+
         cargarPerfiles();
+
         document.getElementById('filtrarBtn').addEventListener('click', filtrar);
         document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') filtrar(); });
         document.getElementById('limpiarBtn').addEventListener('click', () => {
@@ -214,7 +241,6 @@
         });
     });
 
-
     function cargarPerfiles() {
         fetch('/api/perfiles').then(r=>r.json()).then(data=>{
             allPerfiles=data.data||[];
@@ -223,13 +249,13 @@
     }
 
     function filtrar() {
-        const q     = document.getElementById('buscarInput').value.trim().toLowerCase();
-        const est   = document.getElementById('estadoSelect').value;
-        let lista   = allPerfiles;
-        if (q)   lista = lista.filter(p => p.nombre.toLowerCase().includes(q) || (p.descripcion||'').toLowerCase().includes(q));
+        const q = document.getElementById('buscarInput').value.trim().toLowerCase();
+        const est = document.getElementById('estadoSelect').value;
+        let lista = allPerfiles;
+        if (q) lista = lista.filter(p => p.nombre.toLowerCase().includes(q) || (p.descripcion||'').toLowerCase().includes(q));
         if (est) lista = lista.filter(p => p.estado === est);
         allPerfiles_filtered = lista;
-        document.getElementById('totalCount').textContent   = lista.length;
+        document.getElementById('totalCount').textContent = lista.length;
         document.getElementById('totalRecords').textContent = lista.length;
         currentPage=1; mostrarPaginado();
     }
@@ -238,10 +264,10 @@
 
     function mostrarPaginado() {
         const start = (currentPage-1)*itemsPerPage;
-        const end   = Math.min(start+itemsPerPage, allPerfiles_filtered.length);
+        const end = Math.min(start+itemsPerPage, allPerfiles_filtered.length);
         const total = Math.ceil(allPerfiles_filtered.length/itemsPerPage)||1;
         document.getElementById('startRecord').textContent = allPerfiles_filtered.length>0?start+1:0;
-        document.getElementById('endRecord').textContent   = end;
+        document.getElementById('endRecord').textContent = end;
         document.getElementById('prevPage').classList.toggle('disabled', currentPage===1);
         document.getElementById('nextPage').classList.toggle('disabled', currentPage>=total);
         renderTabla(allPerfiles_filtered.slice(start,end));
@@ -250,73 +276,106 @@
     function renderTabla(perfiles) {
         const tbody = document.getElementById('tablaPerfiles');
         if (!perfiles.length) {
-            tbody.innerHTML=`<tr><td colspan="6" class="state-cell">
+            tbody.innerHTML = `<tr><td colspan="6" class="state-cell">
                 <i class="fas fa-id-badge" style="color:var(--gold-dark);opacity:0.4;"></i>
                 No se encontraron perfiles
             </td></tr>`;
             return;
         }
+
         tbody.innerHTML = perfiles.map(p => {
             const estadoClass = p.estado==='ACTIVO'?'activo':'inactivo';
             const fecha = p.creadoEn ? new Date(p.creadoEn).toLocaleDateString('es-MX') : '—';
-            return `<tr>
+
+            let html = `<tr>
                 <td style="color:#e0e0e0;font-weight:600;">
                     <i class="fas fa-id-badge me-2" style="color:var(--gold-dark);"></i>${p.nombre}
                 </td>
                 <td>${p.descripcion||'<span style="color:#444;">Sin descripción</span>'}</td>
                 <td><span class="estado-badge ${estadoClass}">${p.estado||'—'}</span></td>
-                <td>${fecha}</td>
-                <td><button class="btn-edit" onclick="abrirModalEditar('${p.id}')">
+                <td>${fecha}</td>`;
+
+            // Botón Editar (solo si tiene permiso)
+            if (puedeEditar) {
+                html += `<td><button class="btn-edit" onclick="abrirModalEditar('${p.id}')">
                     <i class="fas fa-pencil-alt"></i>
-                </button></td>
-                <td><button class="btn-del" onclick="abrirModalEliminar('${p.id}','${p.nombre}')">
+                </button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+
+            // Botón Eliminar (solo si tiene permiso)
+            if (puedeEliminar) {
+                html += `<td><button class="btn-del" onclick="abrirModalEliminar('${p.id}','${p.nombre}')">
                     <i class="fas fa-trash"></i>
-                </button></td>
-            </tr>`;
+                </button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+
+            html += `</tr>`;
+            return html;
         }).join('');
     }
 
     function cambiarPagina(n) {
-        const total=Math.ceil(allPerfiles_filtered.length/itemsPerPage)||1;
+        const total = Math.ceil(allPerfiles_filtered.length/itemsPerPage)||1;
         if(n>=1&&n<=total){currentPage=n;mostrarPaginado();}
     }
 
     function abrirModalNuevo() {
-        document.getElementById('modalTitleText').textContent='Nuevo Perfil';
+        if (!puedeCrear) {
+            mostrarToast('No tienes permiso para crear perfiles', 'error');
+            return;
+        }
+        document.getElementById('modalTitleText').textContent = 'Nuevo Perfil';
         document.getElementById('perfilForm').reset();
-        document.getElementById('perfilId').value='';
-        document.getElementById('estado').value='ACTIVO';
+        document.getElementById('perfilId').value = '';
+        document.getElementById('estado').value = 'ACTIVO';
         limpiarValidaciones();
         modalInstance.show();
     }
 
     function abrirModalEditar(id) {
+        if (!puedeEditar) {
+            mostrarToast('No tienes permiso para editar perfiles', 'error');
+            return;
+        }
         const p = allPerfiles.find(x=>x.id===id);
         if (!p) return;
-        document.getElementById('modalTitleText').textContent='Editar Perfil';
-        document.getElementById('perfilId').value    = p.id;
-        document.getElementById('nombre').value      = p.nombre;
+        document.getElementById('modalTitleText').textContent = 'Editar Perfil';
+        document.getElementById('perfilId').value = p.id;
+        document.getElementById('nombre').value = p.nombre;
         document.getElementById('descripcion').value = p.descripcion||'';
-        document.getElementById('estado').value      = p.estado||'ACTIVO';
+        document.getElementById('estado').value = p.estado||'ACTIVO';
         limpiarValidaciones();
         modalInstance.show();
     }
 
     function guardarPerfil() {
-        const id     = document.getElementById('perfilId').value;
+        const id = document.getElementById('perfilId').value;
+        const esNuevo = !id;
         const nombre = document.getElementById('nombre').value.trim();
-        const desc   = document.getElementById('descripcion').value.trim();
+        const desc = document.getElementById('descripcion').value.trim();
         const estado = document.getElementById('estado').value;
         limpiarValidaciones();
 
+        if (esNuevo && !puedeCrear) {
+            mostrarToast('No tienes permiso para crear perfiles', 'error');
+            return;
+        }
+        if (!esNuevo && !puedeEditar) {
+            mostrarToast('No tienes permiso para editar perfiles', 'error');
+            return;
+        }
+
         if (!nombre) {
-            document.getElementById('nombreError').textContent='El nombre es obligatorio';
+            document.getElementById('nombreError').textContent = 'El nombre es obligatorio';
             document.getElementById('nombre').classList.add('is-invalid');
             return;
         }
 
-        const esNuevo = !id;
-        const url    = esNuevo ? '/api/perfiles' : `/api/perfiles/${id}`;
+        const url = esNuevo ? '/api/perfiles' : `/api/perfiles/${id}`;
         const method = esNuevo ? 'POST' : 'PUT';
 
         fetch(url, {
@@ -334,18 +393,33 @@
     }
 
     function abrirModalEliminar(id, nombre) {
-        perfilIdEliminar=id;
-        document.getElementById('perfilAEliminar').textContent=nombre;
+        if (!puedeEliminar) {
+            mostrarToast('No tienes permiso para eliminar perfiles', 'error');
+            return;
+        }
+        perfilIdEliminar = id;
+        document.getElementById('perfilAEliminar').textContent = nombre;
         eliminarModalInstance.show();
     }
 
     function confirmarEliminar() {
         if (!perfilIdEliminar) return;
+
+        if (!puedeEliminar) {
+            mostrarToast('No tienes permiso para eliminar perfiles', 'error');
+            eliminarModalInstance.hide();
+            return;
+        }
+
         fetch(`/api/perfiles/${perfilIdEliminar}`,{method:'DELETE'})
             .then(r=>r.json()).then(data=>{
                 eliminarModalInstance.hide();
-                if(data.success){mostrarToast('Perfil eliminado','success');cargarPerfiles();}
-                else mostrarToast('Error: '+data.message,'error');
+                if(data.success){
+                    mostrarToast('Perfil eliminado','success');
+                    cargarPerfiles();
+                } else {
+                    mostrarToast('Error: '+data.message,'error');
+                }
             }).catch(()=>mostrarToast('Error al eliminar','error'));
     }
 
@@ -358,12 +432,12 @@
         const ex=document.getElementById('appToast'); if(ex) ex.remove();
         const t=document.createElement('div'); t.id='appToast';
         const isOk=tipo==='success';
-        t.style.cssText=`position:fixed;bottom:24px;right:24px;z-index:9999;
+        t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
             background:${isOk?'linear-gradient(135deg,#a07830,#c9a84c)':'linear-gradient(135deg,#9b2c2c,#e53e3e)'};
             color:${isOk?'#0d0d0d':'#fff'};padding:12px 20px;border-radius:10px;
             font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:10px;
             box-shadow:0 8px 24px rgba(0,0,0,0.5);`;
-        t.innerHTML=`<i class="fas ${isOk?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
+        t.innerHTML = `<i class="fas ${isOk?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
         document.body.appendChild(t);
         setTimeout(()=>t.remove(),3500);
     }
