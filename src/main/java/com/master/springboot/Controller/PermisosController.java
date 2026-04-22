@@ -27,21 +27,17 @@ public class PermisosController {
     // ── GET /permisos — Página principal ─────────────────────
     @GetMapping("/permisos")
     public String mostrarPermisos(HttpSession session, Model model) {
-
         Usuarios usuario = (Usuarios) session.getAttribute("usuario");
-        System.out.println("🔥🔥🔥 ENTRANDO A /permisos - Usuario: " +
-                (usuario != null ? usuario.getUsuario() : "NULL"));
-        System.out.println("🔥🔥🔥 esAdmin: " + esAdmin(usuario));
+
         if (usuario == null) {
             return "redirect:/?acceso=denegado";
         }
 
-        // Si NO es admin, marcar como modo consulta
+        // 🔥 CORRECCIÓN: ADMIN = false, Usuario normal = true
         model.addAttribute("modoConsulta", !esAdmin(usuario));
         model.addAttribute("titulo", "Permisos por Perfil — Aegis Auth");
         return "permisos";
     }
-
     // ── API: GET /api/permisos/perfiles — Lista de perfiles ──
     @GetMapping("/api/permisos/perfiles")
     @ResponseBody

@@ -87,18 +87,18 @@
         <div class="table-responsive">
             <table class="permisos-table">
                 <thead>
-                    <tr id="tablaHeader">
-                        <th>Módulo</th>
-                        <!-- columnas de tipos de permiso se generan dinámicamente -->
-                    </tr>
+                <tr id="tablaHeader">
+                    <th>Módulo</th>
+                    <!-- columnas de tipos de permiso se generan dinámicamente -->
+                </tr>
                 </thead>
                 <tbody id="tablaBody">
-                    <tr class="state-row">
-                        <td colspan="9">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            Cargando permisos...
-                        </td>
-                    </tr>
+                <tr class="state-row">
+                    <td colspan="9">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Cargando permisos...
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -137,7 +137,12 @@
     let tiposPermiso   = [];
     let modulosPermisos = [];
     let perfilActual   = null;
-    const modoConsulta = /*[[${modoConsulta}]]*/ false;
+    // Detectar si es admin desde la sesión de Thymeleaf
+const esAdminSession = /*[[${session.usuario.perfil.nombre == 'ADMIN' || session.usuario.perfil.nombre == 'ADMINISTRADOR'}]]*/ false;
+const modoConsulta = esAdminSession ? false : (/*[[${modoConsulta}]]*/ false);
+console.log('🔥 permisos.html cargado');
+console.log('📌 modoConsulta:', modoConsulta);
+console.log('📌 esAdminSession:', esAdminSession);
 
     console.log('🔥 permisos.html cargado');
     console.log('📌 modoConsulta:', modoConsulta);
@@ -147,6 +152,14 @@
         cargarPerfiles();
         cargarTiposPermiso();
 
+        // 🔥 Deshabilitar botones de acción en modo consulta
+        if (modoConsulta) {
+            const btnTodos = document.querySelector('button[onclick="marcarTodos(true)"]');
+            const btnNinguno = document.querySelector('button[onclick="marcarTodos(false)"]');
+            if (btnTodos) btnTodos.disabled = true;
+            if (btnNinguno) btnNinguno.disabled = true;
+        }
+
         // Buscar con Enter en el select
         document.getElementById('perfilSelect').addEventListener('keydown', e => {
             if (e.key === 'Enter') cargarPermisos();
@@ -154,19 +167,20 @@
     });
 
     // ── CARGAR PERFILES ───────────────────────────────────────
+        // ── CARGAR USUARIOS ───────────────────────────────────────
     function cargarPerfiles() {
-        fetch('/api/permisos/perfiles')
+        fetch('/api/usuarios')  // 🔥 CAMBIADO: ahora trae usuarios, no roles
             .then(r => r.json())
             .then(data => {
                 const sel = document.getElementById('perfilSelect');
-                sel.innerHTML = '<option value="">— Selecciona un perfil —</option>';
-                (data.data || []).forEach(p => {
-                    sel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+                sel.innerHTML = '<option value="">— Selecciona un usuario —</option>';
+                (data.data || []).forEach(u => {
+                    sel.innerHTML += `<option value="${u.id}">${u.usuario} (${u.perfil?.nombre || 'Sin perfil'})</option>`;
                 });
 
-                // Si es modo consulta, obtener perfil del usuario y cargar automáticamente
+                // Si es modo consulta, cargar automáticamente el usuario actual
                 if (modoConsulta) {
-                    fetch('/api/permisos/mi-perfil')
+                    fetch('/api/usuarios/mi-id')  // 🔥 Endpoint que devuelve el ID del usuario actual
                         .then(r => r.json())
                         .then(resp => {
                             if (resp.success) {
@@ -183,12 +197,12 @@
                                 setTimeout(() => cargarPermisos(), 100);
                             }
                         })
-                        .catch(err => console.error('Error al obtener mi perfil:', err));
+                        .catch(err => console.error('Error al obtener mi ID:', err));
                 }
             })
             .catch(err => {
-                console.error('Error al cargar perfiles:', err);
-                mostrarToast('Error al cargar perfiles', 'error');
+                console.error('Error al cargar usuarios:', err);
+                mostrarToast('Error al cargar usuarios', 'error');
             });
     }
 
@@ -226,6 +240,13 @@
                 modulosPermisos = data.data || [];
                 console.log('📌 Permisos cargados:', modulosPermisos.length);
                 renderTabla();
+
+                // 🔥 Bloquear checkboxes después de renderizar
+                if (modoConsulta) {
+                    document.querySelectorAll('.perm-check').forEach(cb => {
+                        cb.disabled = true;
+                    });
+                }
             })
             .catch(err => {
                 console.error('Error al cargar permisos:', err);
@@ -277,6 +298,13 @@
                 ${cols}
             </tr>`;
         }).join('');
+
+        // 🔥 Bloquear checkboxes nuevamente (por seguridad)
+        if (modoConsulta) {
+            document.querySelectorAll('.perm-check').forEach(cb => {
+                cb.disabled = true;
+            });
+        }
 
         console.log('📌 Tabla renderizada');
     }
