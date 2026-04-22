@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba 2.1 — Aegis Auth</title>
+    <title>Prueba 2.1 - Aegis Auth</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/navbar.css">
@@ -12,10 +12,9 @@
 </head>
 <body>
 
-<!-- ══ NAVBAR ══ -->
 <nav class="topnav">
     <a class="topnav-brand" th:href="@{/}">
-        <i class="fas fa-shield-hal"></i> Aegis Auth
+        <i class="fa-solid fa-shield-halved"></i> AEGIS AUTH
     </a>
     <ul class="topnav-menu" id="navMenu">
         <li><a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a></li>
@@ -33,17 +32,18 @@
         <a class="btn-logout" th:if="${session.usuario != null}" th:href="@{/logout}">
             <i class="fas fa-sign-out-alt"></i> Salir
         </a>
+        <a class="btn-logout" th:unless="${session.usuario != null}" th:href="@{/login}">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </a>
     </div>
 </nav>
 
-<!-- ══ CONTENT ══ -->
 <div class="page-wrap">
     <div class="page-header">
-        <div class="page-header-icon"><i class="fas fa-microchip"></i></div>
-        <h1>🔬 Prueba 2.1 — Gestión de Registros</h1>
+        <div class="page-header-icon"><i class="fas fa-flask"></i></div>
+        <h1>🧪 Prueba 2.1 — Gestión de Registros</h1>
     </div>
 
-    <!-- Filtros -->
     <div class="filtros-captura">
         <div class="filtros-row">
             <div class="filtro-item">
@@ -68,26 +68,24 @@
         </div>
     </div>
 
-    <!-- Resultados -->
     <div class="resultados-header">
         <span class="resultados-label">[Resultados]</span>
-        <button class="btn-nuevo" onclick="abrirModalNuevo()">
+        <button class="btn-nuevo" id="btnNuevo" onclick="abrirModalNuevo()">
             <i class="fas fa-plus"></i> Nuevo Registro
         </button>
     </div>
 
-    <!-- Tabla -->
     <div class="table-card">
         <div class="table-responsive">
             <table class="table-custom">
                 <thead>
-                    <tr>
+                    <tr id="headerRow">
                         <th>Nombre</th>
                         <th>Estado</th>
                         <th>Creado</th>
                         <th>Actualizado</th>
-                        <th>Editar</th>
-                        <th>Eliminar</th>
+                        <th id="thEditar">Editar</th>
+                        <th id="thEliminar">Eliminar</th>
                     </tr>
                 </thead>
                 <tbody id="tablaRegistros">
@@ -107,8 +105,8 @@
             </div>
             <span><span id="startRecord">0</span>–<span id="endRecord">0</span> de <strong id="totalRecords">0</strong></span>
             <div style="display:flex;gap:4px;">
-                <a href="#" class="pg-arrow" id="prevPage" onclick="cambiarPagina(currentPage-1);return false;"><i class="fas fa-chevron-left"></i></a>
-                <a href="#" class="pg-arrow" id="nextPage" onclick="cambiarPagina(currentPage+1);return false;"><i class="fas fa-chevron-right"></i></a>
+                <a href="#" class="pg-arrow" id="prevPage"><i class="fas fa-chevron-left"></i></a>
+                <a href="#" class="pg-arrow" id="nextPage"><i class="fas fa-chevron-right"></i></a>
             </div>
         </div>
     </div>
@@ -118,12 +116,12 @@
     </div>
 </div>
 
-<!-- ══ MODALES (mismos que prueba1.2) ══ -->
+<!-- MODAL CREAR/EDITAR -->
 <div class="modal fade" id="registroModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-microchip"></i> <span id="modalTitleText">Nuevo Registro</span></h5>
+                <h5 class="modal-title"><i class="fas fa-flask"></i> <span id="modalTitleText">Nuevo Registro</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -131,21 +129,15 @@
                     <input type="hidden" id="registroId">
                     <div class="mb-3">
                         <label class="form-label">Nombre *</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-tag"></i></span>
-                            <input type="text" class="form-control" id="nombre" placeholder="Nombre del registro" maxlength="255" required>
-                        </div>
+                        <input type="text" class="form-control" id="nombre" maxlength="255" required>
                         <div id="nombreError" class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Estado</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-toggle-on"></i></span>
-                            <select class="form-select" id="estado">
-                                <option value="ACTIVO">Activo</option>
-                                <option value="INACTIVO">Inactivo</option>
-                            </select>
-                        </div>
+                        <select class="form-select" id="estado">
+                            <option value="ACTIVO">Activo</option>
+                            <option value="INACTIVO">Inactivo</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -157,6 +149,7 @@
     </div>
 </div>
 
+<!-- MODAL ELIMINAR -->
 <div class="modal fade" id="eliminarModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -166,9 +159,9 @@
             </div>
             <div class="modal-body text-center py-4">
                 <i class="fas fa-trash-alt fa-3x mb-3" style="color:#fc8181;"></i>
-                <h5 style="color:#e2e8f0;">¿Eliminar el registro?</h5>
+                <h5 style="color:#e2e2e2;">¿Eliminar el registro?</h5>
                 <p id="registroAEliminar" class="fw-bold" style="color:#fc8181;"></p>
-                <p style="color:#94a3b8;font-size:0.85rem;">Esta acción no se puede deshacer.</p>
+                <p style="color:#666;font-size:0.85rem;">Esta acción no se puede deshacer.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -180,31 +173,38 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/sliderbar.js"></script>
-<script>
-    // ═══════════════════════════════════════════════════════════════
-    // DATOS SIMULADOS PARA PRUEBA 2.1
-    // ═══════════════════════════════════════════════════════════════
+<script src="/js/permisos-ui.js"></script>
+ <script>
+    // DATOS SIMULADOS PRUEBA 2.1
     const MOCK_DATA = [
-        { id: '201', nombre: 'Registro 2.1 - Principal A', estado: 'ACTIVO', creadoEn: '2026-04-20T09:00:00', actualizadoEn: '2026-04-21T08:30:00' },
-        { id: '202', nombre: 'Registro 2.1 - Secundario B', estado: 'ACTIVO', creadoEn: '2026-04-19T11:15:00', actualizadoEn: '2026-04-20T14:20:00' },
-        { id: '203', nombre: 'Prueba 2.1 - Control C', estado: 'INACTIVO', creadoEn: '2026-04-18T16:45:00', actualizadoEn: '2026-04-19T10:00:00' },
-        { id: '204', nombre: 'Registro 2.1 - Testing D', estado: 'ACTIVO', creadoEn: '2026-04-17T13:30:00', actualizadoEn: '2026-04-20T09:15:00' },
-        { id: '205', nombre: 'Módulo 2.1 - Registro E', estado: 'ACTIVO', creadoEn: '2026-04-21T06:20:00', actualizadoEn: '2026-04-21T06:20:00' }
+        { id: '201', nombre: 'Registro Alpha 2.1', estado: 'ACTIVO', creadoEn: '2026-04-20T10:30:00', actualizadoEn: '2026-04-21T09:15:00' },
+        { id: '202', nombre: 'Registro Beta 2.1', estado: 'ACTIVO', creadoEn: '2026-04-19T14:20:00', actualizadoEn: '2026-04-20T11:45:00' },
+        { id: '203', nombre: 'Registro Gamma 2.1', estado: 'INACTIVO', creadoEn: '2026-04-18T08:00:00', actualizadoEn: '2026-04-19T16:30:00' },
+        { id: '204', nombre: 'Registro Delta 2.1', estado: 'ACTIVO', creadoEn: '2026-04-17T22:10:00', actualizadoEn: '2026-04-20T13:20:00' },
+        { id: '205', nombre: 'Registro Epsilon 2.1', estado: 'ACTIVO', creadoEn: '2026-04-21T07:45:00', actualizadoEn: '2026-04-21T07:45:00' },
+        { id: '206', nombre: 'Registro Zeta 2.1', estado: 'INACTIVO', creadoEn: '2026-04-16T19:30:00', actualizadoEn: '2026-04-18T10:00:00' }
     ];
 
     let registroIdEliminar = null;
     let modalInstance, eliminarModalInstance;
     let currentPage = 1, itemsPerPage = 50;
     let allRegistros = [...MOCK_DATA];
-    let nextId = 206;
+    let nextId = 107;
+    const MODULO_PERMISO = 'PRUEBA2.1';
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
         modalInstance = new bootstrap.Modal(document.getElementById('registroModal'));
         eliminarModalInstance = new bootstrap.Modal(document.getElementById('eliminarModal'));
+        
+        if (typeof permisosUI !== 'undefined') {
+            await permisosUI.inicializar();
+            aplicarPermisos();
+        }
+        
         cargarRegistros();
 
         document.getElementById('buscarBtn').addEventListener('click', cargarRegistros);
-        document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key==='Enter') cargarRegistros(); });
+        document.getElementById('buscarInput').addEventListener('keypress', e => { if(e.key === 'Enter') cargarRegistros(); });
         document.getElementById('limpiarBtn').addEventListener('click', () => {
             document.getElementById('buscarInput').value = '';
             document.getElementById('estadoSelect').value = '';
@@ -223,7 +223,27 @@
             currentPage = 1;
             mostrarRegistrosPaginados();
         });
+        document.getElementById('prevPage').addEventListener('click', () => cambiarPagina(currentPage - 1));
+        document.getElementById('nextPage').addEventListener('click', () => cambiarPagina(currentPage + 1));
     });
+
+    function aplicarPermisos() {
+        const puedeCrear = permisosUI.tienePermiso(MODULO_PERMISO, 'CREAR');
+        const puedeEditar = permisosUI.tienePermiso(MODULO_PERMISO, 'EDITAR');
+        const puedeEliminar = permisosUI.tienePermiso(MODULO_PERMISO, 'ELIMINAR');
+        
+        console.log(`Permisos ${MODULO_PERMISO}:`, { puedeCrear, puedeEditar, puedeEliminar });
+        
+        const btnNuevo = document.getElementById('btnNuevo');
+        if (btnNuevo) btnNuevo.style.display = puedeCrear ? 'flex' : 'none';
+        
+        const thEditar = document.getElementById('thEditar');
+        const thEliminar = document.getElementById('thEliminar');
+        if (thEditar) thEditar.style.display = puedeEditar ? '' : 'none';
+        if (thEliminar) thEliminar.style.display = puedeEliminar ? '' : 'none';
+        
+        window.permisosPrueba = { puedeEditar, puedeEliminar };
+    }
 
     function mostrarRegistrosPaginados() {
         const start = (currentPage - 1) * itemsPerPage;
@@ -240,27 +260,45 @@
     function mostrarRegistros(registros) {
         const tbody = document.getElementById('tablaRegistros');
         if (!registros || registros.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="state-cell"><i class="fas fa-microchip"></i> No se encontraron registros</td></tr>`;
+            const colspan = 4 + (window.permisosPrueba?.puedeEditar ? 1 : 0) + (window.permisosPrueba?.puedeEliminar ? 1 : 0);
+            tbody.innerHTML = `<tr><td colspan="${colspan}" class="state-cell"><i class="fas fa-flask"></i> No se encontraron registros</td></tr>`;
             return;
         }
+        
         tbody.innerHTML = registros.map(r => {
             const estadoClass = r.estado === 'ACTIVO' ? 'activo' : 'inactivo';
             const creado = r.creadoEn ? new Date(r.creadoEn).toLocaleDateString('es-MX') : '—';
             const actualizado = r.actualizadoEn ? new Date(r.actualizadoEn).toLocaleDateString('es-MX') : '—';
-            return `<tr>
-                <td><i class="fas fa-file-alt me-2" style="color:var(--accent-cyan);"></i>${r.nombre || '—'}</td>
-                <td><span class="estado-badge ${estadoClass}">${r.estado || '—'}</span></td>
+            
+            let html = `<tr>
+                <td><i class="fas fa-file-alt me-2" style="color:var(--gold-dark);"></i>${r.nombre}</td>
+                <td><span class="estado-badge ${estadoClass}">${r.estado}</span></td>
                 <td>${creado}</td>
-                <td>${actualizado}</td>
-                <td><button class="btn-edit" onclick="abrirModalEditar('${r.id}')"><i class="fas fa-pencil-alt"></i></button></td>
-                <td><button class="btn-del" onclick="abrirModalEliminar('${r.id}','${r.nombre}')"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
+                <td>${actualizado}</td>`;
+            
+            if (window.permisosPrueba?.puedeEditar) {
+                html += `<td><button class="btn-edit" onclick="abrirModalEditar('${r.id}')"><i class="fas fa-pencil-alt"></i></button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+            
+            if (window.permisosPrueba?.puedeEliminar) {
+                html += `<td><button class="btn-del" onclick="abrirModalEliminar('${r.id}','${r.nombre}')"><i class="fas fa-trash"></i></button></td>`;
+            } else {
+                html += `<td class="text-muted text-center"><i class="fas fa-ban"></i></td>`;
+            }
+            
+            html += `</tr>`;
+            return html;
         }).join('');
     }
 
     function cambiarPagina(nueva) {
         const total = Math.ceil(allRegistros.length / itemsPerPage);
-        if (nueva >= 1 && nueva <= total) { currentPage = nueva; mostrarRegistrosPaginados(); }
+        if (nueva >= 1 && nueva <= total) {
+            currentPage = nueva;
+            mostrarRegistrosPaginados();
+        }
     }
 
     function cargarRegistros() {
@@ -276,12 +314,11 @@
         mostrarRegistrosPaginados();
     }
 
-    function limpiarValidaciones() {
-        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-    }
-
     function abrirModalNuevo() {
+        if (!permisosUI.tienePermiso(MODULO_PERMISO, 'CREAR')) {
+            mostrarToast('No tienes permiso para crear registros', 'error');
+            return;
+        }
         document.getElementById('modalTitleText').textContent = 'Nuevo Registro';
         document.getElementById('registroForm').reset();
         document.getElementById('registroId').value = '';
@@ -291,12 +328,16 @@
     }
 
     function abrirModalEditar(id) {
+        if (!permisosUI.tienePermiso(MODULO_PERMISO, 'EDITAR')) {
+            mostrarToast('No tienes permiso para editar registros', 'error');
+            return;
+        }
         const registro = MOCK_DATA.find(r => r.id === id);
         if (registro) {
             document.getElementById('modalTitleText').textContent = 'Editar Registro';
             document.getElementById('registroId').value = registro.id;
-            document.getElementById('nombre').value = registro.nombre || '';
-            document.getElementById('estado').value = registro.estado || 'ACTIVO';
+            document.getElementById('nombre').value = registro.nombre;
+            document.getElementById('estado').value = registro.estado;
             limpiarValidaciones();
             modalInstance.show();
         }
@@ -305,7 +346,15 @@
     function guardarRegistro() {
         const id = document.getElementById('registroId').value;
         const esNuevo = !id;
-        limpiarValidaciones();
+        
+        if (esNuevo && !permisosUI.tienePermiso(MODULO_PERMISO, 'CREAR')) {
+            mostrarToast('No tienes permiso para crear registros', 'error');
+            return;
+        }
+        if (!esNuevo && !permisosUI.tienePermiso(MODULO_PERMISO, 'EDITAR')) {
+            mostrarToast('No tienes permiso para editar registros', 'error');
+            return;
+        }
         
         const nombre = document.getElementById('nombre').value.trim();
         const estado = document.getElementById('estado').value;
@@ -317,15 +366,13 @@
         }
 
         if (esNuevo) {
-            const nuevoRegistro = {
+            MOCK_DATA.push({
                 id: String(nextId++),
-                nombre: nombre,
-                estado: estado,
+                nombre, estado,
                 creadoEn: new Date().toISOString(),
                 actualizadoEn: new Date().toISOString()
-            };
-            MOCK_DATA.push(nuevoRegistro);
-            mostrarToast('Registro creado (simulado)', 'success');
+            });
+            mostrarToast('Registro creado correctamente', 'success');
         } else {
             const index = MOCK_DATA.findIndex(r => r.id === id);
             if (index !== -1) {
@@ -333,7 +380,7 @@
                 MOCK_DATA[index].estado = estado;
                 MOCK_DATA[index].actualizadoEn = new Date().toISOString();
             }
-            mostrarToast('Registro actualizado (simulado)', 'success');
+            mostrarToast('Registro actualizado correctamente', 'success');
         }
         
         modalInstance.hide();
@@ -341,6 +388,10 @@
     }
 
     function abrirModalEliminar(id, nombre) {
+        if (!permisosUI.tienePermiso(MODULO_PERMISO, 'ELIMINAR')) {
+            mostrarToast('No tienes permiso para eliminar registros', 'error');
+            return;
+        }
         registroIdEliminar = id;
         document.getElementById('registroAEliminar').textContent = nombre;
         eliminarModalInstance.show();
@@ -348,23 +399,36 @@
 
     function confirmarEliminar() {
         if (!registroIdEliminar) return;
-        const index = MOCK_DATA.findIndex(r => r.id === registroIdEliminar);
-        if (index !== -1) {
-            MOCK_DATA.splice(index, 1);
+        
+        if (!permisosUI.tienePermiso(MODULO_PERMISO, 'ELIMINAR')) {
+            mostrarToast('No tienes permiso para eliminar registros', 'error');
+            eliminarModalInstance.hide();
+            return;
         }
+        
+        const index = MOCK_DATA.findIndex(r => r.id === registroIdEliminar);
+        if (index !== -1) MOCK_DATA.splice(index, 1);
         eliminarModalInstance.hide();
         cargarRegistros();
-        mostrarToast('Registro eliminado (simulado)', 'success');
+        mostrarToast('Registro eliminado correctamente', 'success');
+    }
+
+    function limpiarValidaciones() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
     }
 
     function mostrarToast(msg, tipo) {
-        const ex = document.getElementById('appToast'); if (ex) ex.remove();
-        const t = document.createElement('div'); t.id = 'appToast';
+        const ex = document.getElementById('appToast');
+        if (ex) ex.remove();
+        const t = document.createElement('div');
+        t.id = 'appToast';
         const isSuccess = tipo === 'success';
         t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
-            background:${isSuccess ? 'linear-gradient(135deg,#00e5ff,#7c3aed)' : 'linear-gradient(135deg,#dc2626,#ef4444)'};
-            color:#fff;padding:12px 20px;border-radius:10px;font-size:0.85rem;font-weight:700;
-            display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.5);`;
+            background:${isSuccess ? 'linear-gradient(135deg,#a07830,#c9a84c)' : 'linear-gradient(135deg,#9b2c2c,#e53e3e)'};
+            color:${isSuccess ? '#0d0d0d' : '#fff'};padding:12px 20px;border-radius:10px;
+            font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:10px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:10000;`;
         t.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>${msg}`;
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 3500);
@@ -372,3 +436,5 @@
 </script>
 </body>
 </html>
+              
+    
