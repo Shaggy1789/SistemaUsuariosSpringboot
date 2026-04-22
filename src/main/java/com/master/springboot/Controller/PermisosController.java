@@ -197,8 +197,24 @@ public class PermisosController {
         if (!verificarAdmin(session)) return forbidden();
 
         try {
+            // 🔥 LOG: Verificar que el perfil existe
+            Perfiles perfil = servicePerfiles.findById(perfilId);
+            if (perfil == null) {
+                System.err.println("❌ ERROR: Perfil no encontrado - ID: " + perfilId);
+                return error("Perfil no encontrado", HttpStatus.NOT_FOUND);
+            }
+            System.out.println("✅ Perfil encontrado: " + perfil.getNombre());
+
             for (Map<String, Object> item : payload) {
-                UUID moduloId = UUID.fromString(item.get("moduloId").toString());
+                String moduloIdStr = item.get("moduloId").toString();
+                UUID moduloId = UUID.fromString(moduloIdStr);
+
+                // 🔥 LOG: Verificar que el módulo existe
+                Modulos modulo = serviceModulos.findById(moduloId);
+                if (modulo == null) {
+                    System.err.println("❌ ERROR: Módulo no encontrado - ID: " + moduloIdStr);
+                    continue; // Saltar este módulo
+                }
 
                 @SuppressWarnings("unchecked")
                 List<String> rawIds = (List<String>) item.getOrDefault("tiposPermisoIds",
@@ -206,6 +222,9 @@ public class PermisosController {
                 List<UUID> ids = rawIds.stream()
                         .map(UUID::fromString)
                         .collect(Collectors.toList());
+
+                System.out.println("📌 Guardando permisos para módulo: " + modulo.getNombre() +
+                        " - Tipos: " + ids.size());
 
                 servicePerfilPermisos.guardarPermisosDeModulo(perfilId, moduloId, ids);
             }
@@ -216,7 +235,7 @@ public class PermisosController {
             return ResponseEntity.ok(resp);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // 🔥 ESTO mostrará el error exacto en consola
             return error("Error al guardar: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }

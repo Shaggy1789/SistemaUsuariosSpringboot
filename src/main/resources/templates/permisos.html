@@ -167,20 +167,19 @@ console.log('📌 esAdminSession:', esAdminSession);
     });
 
     // ── CARGAR PERFILES ───────────────────────────────────────
-        // ── CARGAR USUARIOS ───────────────────────────────────────
     function cargarPerfiles() {
-        fetch('/api/usuarios')  // 🔥 CAMBIADO: ahora trae usuarios, no roles
+        fetch('/api/permisos/perfiles')
             .then(r => r.json())
             .then(data => {
                 const sel = document.getElementById('perfilSelect');
-                sel.innerHTML = '<option value="">— Selecciona un usuario —</option>';
-                (data.data || []).forEach(u => {
-                    sel.innerHTML += `<option value="${u.id}">${u.usuario} (${u.perfil?.nombre || 'Sin perfil'})</option>`;
+                sel.innerHTML = '<option value="">— Selecciona un perfil —</option>';
+                (data.data || []).forEach(p => {
+                    sel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
                 });
 
-                // Si es modo consulta, cargar automáticamente el usuario actual
+                // Si es modo consulta, obtener perfil del usuario y cargar automáticamente
                 if (modoConsulta) {
-                    fetch('/api/usuarios/mi-id')  // 🔥 Endpoint que devuelve el ID del usuario actual
+                    fetch('/api/permisos/mi-perfil')
                         .then(r => r.json())
                         .then(resp => {
                             if (resp.success) {
@@ -197,12 +196,12 @@ console.log('📌 esAdminSession:', esAdminSession);
                                 setTimeout(() => cargarPermisos(), 100);
                             }
                         })
-                        .catch(err => console.error('Error al obtener mi ID:', err));
+                        .catch(err => console.error('Error al obtener mi perfil:', err));
                 }
             })
             .catch(err => {
-                console.error('Error al cargar usuarios:', err);
-                mostrarToast('Error al cargar usuarios', 'error');
+                console.error('Error al cargar perfiles:', err);
+                mostrarToast('Error al cargar perfiles', 'error');
             });
     }
 
