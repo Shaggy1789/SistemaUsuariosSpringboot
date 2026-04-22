@@ -20,12 +20,17 @@ public class SeguridadInterceptor implements HandlerInterceptor {
 
     // Rutas que requieren SOLO estar autenticado
     private static final String[] RUTAS_PROTEGIDAS = {
-        "/", "/usuarios", "/galeria"
+            "/", "/usuarios", "/galeria","/mis-permisos"
     };
 
     // Rutas que requieren ser ADMINISTRADOR
     private static final String[] RUTAS_ADMIN = {
-        "/permisos", "/modulos", "/perfiles"
+            "/permisos", "/modulos", "/perfiles"
+    };
+
+    // 🔥 NUEVO: Rutas de SOLO CONSULTA (cualquier usuario autenticado)
+    private static final String[] RUTAS_CONSULTA = {
+            "/ver-permisos", "/ver-modulos", "/ver-perfiles"
     };
 
     @Override
@@ -45,11 +50,20 @@ public class SeguridadInterceptor implements HandlerInterceptor {
                 response.sendRedirect("/login");
                 return false;
             }
-            if (!esAdministrador(usuario)) {
-                // Tiene sesión pero no es admin → redirigir al dashboard con aviso
-                response.sendRedirect("/?acceso=denegado");
+//            if (!esAdministrador(usuario)) {
+//                // Tiene sesión pero no es admin → redirigir al dashboard con aviso
+//                response.sendRedirect("/?acceso=denegado");
+//                return false;
+//            }
+        }
+
+        // 🔥 NUEVO: 1.5 Verificar rutas de consulta (solo lectura)
+        if (coincide(uri, RUTAS_CONSULTA)) {
+            if (usuario == null) {
+                response.sendRedirect("/login");
                 return false;
             }
+            // Permitir acceso a cualquier usuario autenticado (no requiere ser admin)
         }
 
         // 2. Verificar rutas protegidas generales

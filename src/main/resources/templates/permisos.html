@@ -133,10 +133,14 @@
 <script src="/js/sliderbar.js"></script>
 <script src="/js/permisos-ui.js"></script>
 <script>
-    let tiposPermiso   = [];   // [ {id, nombre, nombreMostrar}, ... ]
-    let modulosPermisos = [];  // estado actual de la tabla
+    // ── VARIABLES GLOBALES ───────────────────────────────────
+    let tiposPermiso   = [];
+    let modulosPermisos = [];
     let perfilActual   = null;
     const modoConsulta = /*[[${modoConsulta}]]*/ false;
+
+    console.log('🔥 permisos.html cargado');
+    console.log('📌 modoConsulta:', modoConsulta);
 
     // ── INIT ─────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
@@ -149,8 +153,7 @@
         });
     });
 
-
-        // ── CARGAR PERFILES ───────────────────────────────────────
+    // ── CARGAR PERFILES ───────────────────────────────────────
     function cargarPerfiles() {
         fetch('/api/permisos/perfiles')
             .then(r => r.json())
@@ -161,7 +164,7 @@
                     sel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
                 });
 
-                // 🔥 NUEVO: Si es modo consulta, obtener perfil del usuario y cargar automáticamente
+                // Si es modo consulta, obtener perfil del usuario y cargar automáticamente
                 if (modoConsulta) {
                     fetch('/api/permisos/mi-perfil')
                         .then(r => r.json())
@@ -179,17 +182,25 @@
                                 // Cargar permisos automáticamente
                                 setTimeout(() => cargarPermisos(), 100);
                             }
-                        });
+                        })
+                        .catch(err => console.error('Error al obtener mi perfil:', err));
                 }
-            }).catch(() => mostrarToast('Error al cargar perfiles', 'error'));
+            })
+            .catch(err => {
+                console.error('Error al cargar perfiles:', err);
+                mostrarToast('Error al cargar perfiles', 'error');
+            });
     }
 
     // ── CARGAR TIPOS DE PERMISO ───────────────────────────────
     function cargarTiposPermiso() {
         fetch('/api/permisos/tipos')
             .then(r => r.json())
-            .then(data => { tiposPermiso = data.data || []; })
-            .catch(() => {});
+            .then(data => {
+                tiposPermiso = data.data || [];
+                console.log('📌 Tipos de permiso cargados:', tiposPermiso.length);
+            })
+            .catch(err => console.error('Error al cargar tipos:', err));
     }
 
     // ── CARGAR PERMISOS DEL PERFIL SELECCIONADO ───────────────
@@ -200,9 +211,10 @@
             return;
         }
         perfilActual = perfilId;
+        console.log('📌 Cargando permisos para perfil:', perfilId);
 
-        document.getElementById('estadoInicial').style.display  = 'none';
-        document.getElementById('permisosCard').style.display   = 'block';
+        document.getElementById('estadoInicial').style.display = 'none';
+        document.getElementById('permisosCard').style.display = 'block';
         document.getElementById('tablaBody').innerHTML = `
             <tr class="state-row"><td colspan="${tiposPermiso.length + 1}">
                 <i class="fas fa-spinner fa-spin"></i> Cargando...
@@ -212,12 +224,19 @@
             .then(r => r.json())
             .then(data => {
                 modulosPermisos = data.data || [];
+                console.log('📌 Permisos cargados:', modulosPermisos.length);
                 renderTabla();
-            }).catch(() => mostrarToast('Error al cargar permisos', 'error'));
+            })
+            .catch(err => {
+                console.error('Error al cargar permisos:', err);
+                mostrarToast('Error al cargar permisos', 'error');
+            });
     }
 
     // ── RENDERIZAR TABLA ──────────────────────────────────────
     function renderTabla() {
+        console.log('📌 Renderizando tabla...');
+
         // Cabecera dinámica con los tipos de permiso
         const header = document.getElementById('tablaHeader');
         header.innerHTML = '<th>Módulo</th>' +
@@ -229,16 +248,16 @@
         const tbody = document.getElementById('tablaBody');
         if (!modulosPermisos.length) {
             tbody.innerHTML = `<tr class="state-row"><td colspan="${tiposPermiso.length+1}">
-                <i class="fas fa-box-open"></i>No hay módulos registrados
+                <i class="fas fa-box-open"></i> No hay módulos registrados
             </td></tr>`;
             return;
         }
 
-        tbody.innerHTML = modulosPermisos.map((m, mi) => {
+        tbody.innerHTML = modulosPermisos.map(m => {
             const icono = m.moduloIcono || iconoFallback(m.moduloNombre);
-            c                        const cols  = tiposPermiso.map(tp => {
+            const cols = tiposPermiso.map(tp => {
                 const checked = (m.tiposPermisoIds || []).includes(tp.id) ? 'checked' : '';
-                const disabled = modoConsulta ? 'disabled' : '';  // 🔥 NUEVO
+                const disabled = modoConsulta ? 'disabled' : '';
                 return `<td>
                     <input type="checkbox" class="perm-check"
                            data-modulo="${m.moduloId}"
@@ -247,6 +266,7 @@
                            onchange="onCheckChange('${m.moduloId}','${tp.id}',this.checked)">
                 </td>`;
             }).join('');
+
             return `<tr>
                 <td>
                     <div class="modulo-icon-cell">
@@ -257,6 +277,8 @@
                 ${cols}
             </tr>`;
         }).join('');
+
+        console.log('📌 Tabla renderizada');
     }
 
     // ── CAMBIO EN CHECKBOX ────────────────────────────────────
@@ -316,10 +338,10 @@
 
     // ── CANCELAR ──────────────────────────────────────────────
     function cancelar() {
-        document.getElementById('permisosCard').style.display  = 'none';
+        document.getElementById('permisosCard').style.display = 'none';
         document.getElementById('estadoInicial').style.display = 'block';
         document.getElementById('perfilSelect').value = '';
-        perfilActual    = null;
+        perfilActual = null;
         modulosPermisos = [];
     }
 
@@ -348,7 +370,11 @@
             error:   'linear-gradient(135deg,#9b2c2c,#e53e3e)',
             warning: 'linear-gradient(135deg,#92400e,#d97706)'
         };
-        const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-triangle-exclamation' };
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-triangle-exclamation'
+        };
         t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
             background:${colors[tipo]||colors.error};
             color:${tipo==='success'?'#0d0d0d':'#fff'};
