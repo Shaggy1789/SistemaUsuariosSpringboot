@@ -29,11 +29,12 @@ public class PermisosController {
     public String mostrarPermisos(HttpSession session, Model model) {
         Usuarios usuario = (Usuarios) session.getAttribute("usuario");
 
-//        // Verificar que sea ADMIN para acceder a la página
-//        if (usuario == null || !esAdmin(usuario)) {
-//            return "redirect:/?acceso=denegado";
-//        }
+        if (usuario == null) {
+            return "redirect:/?acceso=denegado";
+        }
 
+        // Si NO es admin, marcar como modo consulta
+        model.addAttribute("modoConsulta", !esAdmin(usuario));
         model.addAttribute("titulo", "Permisos por Perfil — Aegis Auth");
         return "permisos";
     }
@@ -55,12 +56,29 @@ public class PermisosController {
     @GetMapping("/api/permisos/tipos")
     @ResponseBody
     public ResponseEntity<?> listarTipos(HttpSession session) {
-        if (!verificarAdmin(session)) return forbidden();
+       // if (!verificarAdmin(session)) return forbidden();
 
         List<TipoPermiso> tipos = tiposPermisoRepo.findAll();
         Map<String, Object> resp = new HashMap<>();
         resp.put("success", true);
         resp.put("data", tipos);
+        return ResponseEntity.ok(resp);
+    }
+    // ── API: GET /api/permisos/mi-perfil — Perfil del usuario actual ──
+    @GetMapping("/api/permisos/mi-perfil")
+    @ResponseBody
+    public ResponseEntity<?> obtenerMiPerfil(HttpSession session) {
+        Usuarios usuario = (Usuarios) session.getAttribute("usuario");
+        if (usuario == null || usuario.getPerfil() == null) {
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", false);
+            resp.put("message", "Usuario sin perfil asignado");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
+        }
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", true);
+        resp.put("data", usuario.getPerfil().getId().toString());
         return ResponseEntity.ok(resp);
     }
 

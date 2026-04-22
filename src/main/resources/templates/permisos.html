@@ -136,6 +136,7 @@
     let tiposPermiso   = [];   // [ {id, nombre, nombreMostrar}, ... ]
     let modulosPermisos = [];  // estado actual de la tabla
     let perfilActual   = null;
+    const modoConsulta = /*[[${modoConsulta}]]*/ false;
 
     // ── INIT ─────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
@@ -149,7 +150,7 @@
     });
 
 
-    // ── CARGAR PERFILES ───────────────────────────────────────
+        // ── CARGAR PERFILES ───────────────────────────────────────
     function cargarPerfiles() {
         fetch('/api/permisos/perfiles')
             .then(r => r.json())
@@ -159,6 +160,27 @@
                 (data.data || []).forEach(p => {
                     sel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
                 });
+
+                // 🔥 NUEVO: Si es modo consulta, obtener perfil del usuario y cargar automáticamente
+                if (modoConsulta) {
+                    fetch('/api/permisos/mi-perfil')
+                        .then(r => r.json())
+                        .then(resp => {
+                            if (resp.success) {
+                                sel.value = resp.data;
+                                sel.disabled = true;
+                                document.getElementById('btnBuscar').style.display = 'none';
+
+                                // Ocultar elementos de edición
+                                document.querySelector('.permisos-header-actions').style.display = 'none';
+                                document.querySelector('.save-toolbar').style.display = 'none';
+                                document.querySelector('.admin-badge').style.display = 'none';
+
+                                // Cargar permisos automáticamente
+                                setTimeout(() => cargarPermisos(), 100);
+                            }
+                        });
+                }
             }).catch(() => mostrarToast('Error al cargar perfiles', 'error'));
     }
 
@@ -214,17 +236,17 @@
 
         tbody.innerHTML = modulosPermisos.map((m, mi) => {
             const icono = m.moduloIcono || iconoFallback(m.moduloNombre);
-            const cols  = tiposPermiso.map(tp => {
+            c                        const cols  = tiposPermiso.map(tp => {
                 const checked = (m.tiposPermisoIds || []).includes(tp.id) ? 'checked' : '';
+                const disabled = modoConsulta ? 'disabled' : '';  // 🔥 NUEVO
                 return `<td>
                     <input type="checkbox" class="perm-check"
                            data-modulo="${m.moduloId}"
                            data-tipo="${tp.id}"
-                           ${checked}
+                           ${checked} ${disabled}
                            onchange="onCheckChange('${m.moduloId}','${tp.id}',this.checked)">
                 </td>`;
             }).join('');
-
             return `<tr>
                 <td>
                     <div class="modulo-icon-cell">
